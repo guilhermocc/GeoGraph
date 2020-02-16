@@ -1,3 +1,4 @@
+import 'package:epictour/MapPage.dart';
 import 'package:flutter/material.dart';
 
 void main() => runApp(App());
@@ -11,7 +12,13 @@ class App extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.green,
       ),
-      home: HomePage(title: 'EpicTour Home page'),
+      initialRoute: '/',
+      routes: {
+        // When navigating to the "/" route, build the FirstScreen widget.
+        '/': (context) => HomePage(title: "EpicTOur HomeScreen"),
+        // When navigating to the "/second" route, build the SecondScreen widget.
+        '/map': (context) => MapPage(),
+      },
     );
   }
 }
@@ -73,7 +80,7 @@ class _HomePageState extends State<HomePage> {
             MaterialButton(
               child: Text("Show my map"),
               color: Colors.lightGreen,
-              onPressed: () { print ( "Abre tela de mapa" ); } ,
+              onPressed: () { Navigator.pushNamed(context, '/map'); } ,
             ),
             MaterialButton(
               child: Text("Get my location"),
