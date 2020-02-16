@@ -7,12 +7,20 @@ class MapPage extends StatefulWidget {
 }
 
 class _MapPageState extends State<MapPage> {
-  GoogleMapController mapController;
-
   final LatLng _center = const LatLng(45.521563, -122.677433);
+  final Map<String, Marker> _markers = {};
 
   void _onMapCreated(GoogleMapController controller) {
-    mapController = controller;
+    _markers.clear();
+    _markers["first"] = Marker(
+      markerId: MarkerId("first"),
+      position: _center,
+      infoWindow: InfoWindow(
+        title: "Info title",
+        snippet: "Info Snippet"
+      )
+
+    );
   }
 
   @override
@@ -28,6 +36,7 @@ class _MapPageState extends State<MapPage> {
           target: _center,
           zoom: 11.0,
         ),
+        markers: _markers.values.toSet(),
       ),
     );
   }
