@@ -28,6 +28,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   google_maps_flutter: ^0.5.11
+  geolocator: ^5.2.1
 
 
 # For information on the generic Dart part of this file, see the

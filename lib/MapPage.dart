@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:geolocator/geolocator.dart';
 
 class MapPage extends StatefulWidget {
   @override
@@ -7,7 +8,7 @@ class MapPage extends StatefulWidget {
 }
 
 class _MapPageState extends State<MapPage> {
-  final LatLng _center = const LatLng(45.521563, -122.677433);
+  LatLng _center = LatLng(-23.563900, -46.653641);
   final Map<String, Marker> _markers = {};
 
   void showSimpleCustomDialog(BuildContext context) {
@@ -68,12 +69,13 @@ class _MapPageState extends State<MapPage> {
         context: context, builder: (BuildContext context) => simpleDialog);
   }
 
-   void _onMapCreated(GoogleMapController controller) {
+   Future<void>_onMapCreated(GoogleMapController controller) async{
+    Position currentPosition = await Geolocator().getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
     setState(() {
       _markers.clear();
       _markers["first"] = Marker(
           markerId: MarkerId("first"),
-          position: _center,
+          position: LatLng(currentPosition.latitude, currentPosition.longitude),
           infoWindow: InfoWindow(
               title: "Info title",
               snippet: "Info Snippet",
