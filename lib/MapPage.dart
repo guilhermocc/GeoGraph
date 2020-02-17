@@ -10,17 +10,81 @@ class _MapPageState extends State<MapPage> {
   final LatLng _center = const LatLng(45.521563, -122.677433);
   final Map<String, Marker> _markers = {};
 
-  void _onMapCreated(GoogleMapController controller) {
-    _markers.clear();
-    _markers["first"] = Marker(
-      markerId: MarkerId("first"),
-      position: _center,
-      infoWindow: InfoWindow(
-        title: "Info title",
-        snippet: "Info Snippet"
-      )
-
+  void showSimpleCustomDialog(BuildContext context) {
+    Dialog simpleDialog = Dialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12.0),
+      ),
+      child: Container(
+        height: 300.0,
+        width: 300.0,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Padding(
+              padding: EdgeInsets.all(15.0),
+              child: Text(
+                'Simple dialog showing client info',
+                style: TextStyle(color: Colors.red),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 10, right: 10, top: 50),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: <Widget>[
+                  RaisedButton(
+                    color: Colors.blue,
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: Text(
+                      'Notify client',
+                      style: TextStyle(fontSize: 18.0, color: Colors.white),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 20,
+                  ),
+                  RaisedButton(
+                    color: Colors.red,
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: Text(
+                      'close',
+                      style: TextStyle(fontSize: 18.0, color: Colors.white),
+                    ),
+                  )
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
+    showDialog(
+        context: context, builder: (BuildContext context) => simpleDialog);
+  }
+
+   void _onMapCreated(GoogleMapController controller) {
+    setState(() {
+      _markers.clear();
+      _markers["first"] = Marker(
+          markerId: MarkerId("first"),
+          position: _center,
+          infoWindow: InfoWindow(
+              title: "Info title",
+              snippet: "Info Snippet",
+              onTap: () {
+                showSimpleCustomDialog(context);
+              }
+
+          )
+
+      );
+    });
   }
 
   @override
@@ -30,14 +94,16 @@ class _MapPageState extends State<MapPage> {
         title: Text('Local App'),
         backgroundColor: Colors.green[700],
       ),
-      body: GoogleMap(
-        onMapCreated: _onMapCreated,
-        initialCameraPosition: CameraPosition(
-          target: _center,
-          zoom: 11.0,
+      body:
+        GoogleMap(
+          onMapCreated: _onMapCreated,
+          initialCameraPosition: CameraPosition(
+            target: _center,
+            zoom: 11.0,
+          ),
+          markers: _markers.values.toSet(),
         ),
-        markers: _markers.values.toSet(),
-      ),
     );
   }
 }
+
