@@ -54,7 +54,7 @@ class _MapPageState extends State<MapPage> {
                       Navigator.of(context).pop();
                     },
                     child: Text(
-                      'close',
+                      'Close',
                       style: TextStyle(fontSize: 18.0, color: Colors.white),
                     ),
                   )
@@ -77,8 +77,8 @@ class _MapPageState extends State<MapPage> {
           markerId: MarkerId("first"),
           position: LatLng(currentPosition.latitude, currentPosition.longitude),
           infoWindow: InfoWindow(
-              title: "Info title",
-              snippet: "Info Snippet",
+              title: "Guilherme Oliveira",
+              snippet: "Information snippet",
               onTap: () {
                 showSimpleCustomDialog(context);
               }
@@ -93,8 +93,8 @@ class _MapPageState extends State<MapPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Local App'),
-        backgroundColor: Colors.green[700],
+        title: Text('Group Map'),
+        backgroundColor: Colors.lightGreen,
       ),
       body:
         GoogleMap(

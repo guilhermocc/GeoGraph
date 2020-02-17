@@ -8,14 +8,14 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'EpicTour App',
       theme: ThemeData(
         primarySwatch: Colors.green,
       ),
       initialRoute: '/',
       routes: {
         // When navigating to the "/" route, build the FirstScreen widget.
-        '/': (context) => HomePage(title: "EpicTOur HomeScreen"),
+        '/': (context) => HomePage(title: "EpicTour HomeScreen"),
         // When navigating to the "/second" route, build the SecondScreen widget.
         '/map': (context) => MapPage(),
       },
