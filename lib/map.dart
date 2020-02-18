@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -32,7 +34,7 @@ class _MapPageState extends State<MapPage> {
             Padding(
               padding: EdgeInsets.all(15.0),
               child: Text(
-                'Simple dialog showing client info',
+                'Caixa de informacoes do cliente',
                 style: TextStyle(color: Colors.red),
               ),
             ),
@@ -48,7 +50,7 @@ class _MapPageState extends State<MapPage> {
                       Navigator.of(context).pop();
                     },
                     child: Text(
-                      'Notify client',
+                      'Notificar Cliente',
                       style: TextStyle(fontSize: 18.0, color: Colors.white),
                     ),
                   ),
@@ -61,7 +63,7 @@ class _MapPageState extends State<MapPage> {
                       Navigator.of(context).pop();
                     },
                     child: Text(
-                      'Close',
+                      'Fechar',
                       style: TextStyle(fontSize: 18.0, color: Colors.white),
                     ),
                   )
@@ -97,7 +99,7 @@ class _MapPageState extends State<MapPage> {
       snapshot.documentID
           : Marker(
           markerId: MarkerId(snapshot.documentID),
-          icon: BitmapDescriptor.defaultMarkerWithHue(00.00),
+          icon: BitmapDescriptor.defaultMarkerWithHue(100.00),
           position: LatLng(snapshot.data["position"].latitude, snapshot.data["position"].longitude),
           infoWindow: InfoWindow(
               title: "Nome da Pessoa",
@@ -109,66 +111,6 @@ class _MapPageState extends State<MapPage> {
       )
     }));
 
-
-
-
-
-
-//
-//    markerList.addAll({
-//      "first": Marker(
-//          markerId: MarkerId("first"),
-//          icon: BitmapDescriptor.defaultMarkerWithHue(00.00),
-//          position: LatLng(currentPosition.latitude, currentPosition.longitude),
-//          infoWindow: InfoWindow(
-//              title: "Guilherme Oliveira",
-//              snippet: "Information snippet",
-//              onTap: () {
-//                showSimpleCustomDialog(context);
-//              }
-//          )
-//      ),
-//      "second": Marker(
-//          markerId: MarkerId("second"),
-//          icon: BitmapDescriptor.defaultMarkerWithHue(300.00),
-//          position: LatLng(currentPosition.latitude - 0.0005,
-//              currentPosition.longitude - 0.0011),
-//          infoWindow: InfoWindow(
-//              title: "Beltrano Pereira",
-//              snippet: "Information snippet",
-//              onTap: () {
-//                showSimpleCustomDialog(context);
-//              }
-//          )
-//      ),
-//      "third": Marker(
-//          markerId: MarkerId("third"),
-//          icon: BitmapDescriptor.defaultMarkerWithHue(100.00),
-//          position: LatLng(currentPosition.latitude + 0.0005,
-//              currentPosition.longitude + 0.008),
-//          infoWindow: InfoWindow(
-//              title: "Fulano Almeida",
-//              snippet: "Information snippet",
-//              onTap: () {
-//                showSimpleCustomDialog(context);
-//              }
-//          )
-//      ),
-//      "fourth":Marker(
-//          markerId: MarkerId("fourth"),
-//          icon: BitmapDescriptor.defaultMarkerWithHue(200.00),
-//          position: LatLng(currentPosition.latitude + 0.0009,
-//              currentPosition.longitude - 0.0004),
-//          infoWindow: InfoWindow(
-//              title: "Ciclano Carvalho",
-//              snippet: "Information snippet",
-//              onTap: () {
-//                showSimpleCustomDialog(context);
-//              }
-//          )
-//      )
-//    }
-//    );
     return markerList;
   }
 
@@ -243,11 +185,41 @@ class _MapPageState extends State<MapPage> {
             myLocationButtonEnabled: true,
 
           ),
+          Align(
+              child: FloatingActionButton(
+                child: Icon(Icons.file_upload),
+                backgroundColor: Colors.green,
+                onPressed: onPressUpdate,
+              ),
+            alignment: Alignment(0.8, 0.9),
+          )
+
+
         ],
       )
 
     );
 
+
+
+
+  }
+
+  void onPressUpdate() async{
+    Position currentPosition = await Geolocator().getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    if (await locationExists()){
+    await updateGeoPoints(currentPosition);
+    }
+    else {
+    createGeoPoints(currentPosition);
+    }
+    var loadedMarkers = await getGroupMarkers(currentPosition);
+
+
+    setState(() {
+    _markers.clear();
+    _markers.addAll(loadedMarkers);
+    });
 
   }
 
