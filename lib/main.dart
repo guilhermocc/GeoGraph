@@ -1,5 +1,7 @@
 import 'package:epictour/MapPage.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
+
 
 void main() => runApp(App());
 
@@ -43,6 +45,19 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
 
+  Position myLocation;
+  List<Placemark> myPlacemark;
+
+
+  Future<void>_onGetMyLocation() async{
+    Position currentLocation =  await Geolocator().getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    List<Placemark> placemark = await Geolocator().placemarkFromCoordinates(currentLocation.latitude, currentLocation.longitude,localeIdentifier: "en");
+    setState(() {
+      myLocation = currentLocation;
+      myPlacemark = placemark;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     // This method is rerun every time setState is called, for instance as done
@@ -85,9 +100,19 @@ class _HomePageState extends State<HomePage> {
             MaterialButton(
               child: Text("Get my location"),
               color: Colors.lightGreen,
-              onPressed: () { print("Recupera localizacao");},
-
-            )
+              onPressed: () { _onGetMyLocation();},
+            ),
+            (myLocation != null?
+                Column(
+                  children: <Widget>[
+                          Text(
+                          "Latitude: ${myLocation.latitude}, Longitude: ${myLocation.longitude}"),
+                          Text(
+                            "Address: ${myPlacemark.first.country}, ${myPlacemark.first.administrativeArea}, ${myPlacemark.first.subAdministrativeArea}, ${myPlacemark.first.subLocality}"
+                          )
+                           ],
+                )
+                : Text(""))
           ],
         ),
       ),

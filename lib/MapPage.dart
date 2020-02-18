@@ -8,8 +8,11 @@ class MapPage extends StatefulWidget {
 }
 
 class _MapPageState extends State<MapPage> {
-  LatLng _center = LatLng(-23.563900, -46.653641);
+  final LatLng _center = LatLng(-23.563900, -46.653641);
   final Map<String, Marker> _markers = {};
+
+  GoogleMapController mapController;
+
 
   void showSimpleCustomDialog(BuildContext context) {
     Dialog simpleDialog = Dialog(
@@ -72,9 +75,17 @@ class _MapPageState extends State<MapPage> {
    Future<void>_onMapCreated(GoogleMapController controller) async{
     Position currentPosition = await Geolocator().getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
     setState(() {
+      mapController = controller;
+      mapController.animateCamera(CameraUpdate.newCameraPosition(
+        CameraPosition(
+          target: LatLng(currentPosition.latitude, currentPosition.longitude),
+          zoom: 17.0
+        )
+      ));
       _markers.clear();
       _markers["first"] = Marker(
           markerId: MarkerId("first"),
+          icon: BitmapDescriptor.defaultMarkerWithHue(00.00),
           position: LatLng(currentPosition.latitude, currentPosition.longitude),
           infoWindow: InfoWindow(
               title: "Guilherme Oliveira",
@@ -82,10 +93,50 @@ class _MapPageState extends State<MapPage> {
               onTap: () {
                 showSimpleCustomDialog(context);
               }
-
           )
-
       );
+
+      _markers["second"] = Marker(
+          markerId: MarkerId("second"),
+          icon: BitmapDescriptor.defaultMarkerWithHue(300.00),
+          position: LatLng(currentPosition.latitude - 0.0005, currentPosition.longitude - 0.0011),
+          infoWindow: InfoWindow(
+              title: "Beltrano Pereira",
+              snippet: "Information snippet",
+              onTap: () {
+                showSimpleCustomDialog(context);
+              }
+          )
+      );
+
+      _markers["third"] = Marker(
+          markerId: MarkerId("third"),
+          icon: BitmapDescriptor.defaultMarkerWithHue(100.00),
+          position: LatLng(currentPosition.latitude + 0.0005, currentPosition.longitude + 0.008),
+          infoWindow: InfoWindow(
+              title: "Fulano Almeida",
+              snippet: "Information snippet",
+              onTap: () {
+                showSimpleCustomDialog(context);
+              }
+          )
+      );
+
+      _markers["fourth"] = Marker(
+          markerId: MarkerId("fourth"),
+          icon: BitmapDescriptor.defaultMarkerWithHue(200.00),
+          position: LatLng(currentPosition.latitude + 0.0009, currentPosition.longitude - 0.0004),
+          infoWindow: InfoWindow(
+              title: "Ciclano Carvalho",
+              snippet: "Information snippet",
+              onTap: () {
+                showSimpleCustomDialog(context);
+              }
+          )
+      );
+
+
+
     });
   }
 
@@ -96,16 +147,27 @@ class _MapPageState extends State<MapPage> {
         title: Text('Group Map'),
         backgroundColor: Colors.lightGreen,
       ),
-      body:
-        GoogleMap(
-          onMapCreated: _onMapCreated,
-          initialCameraPosition: CameraPosition(
-            target: _center,
-            zoom: 11.0,
+      body: Stack(
+        children: <Widget>[
+          GoogleMap(
+            onMapCreated: _onMapCreated,
+            initialCameraPosition: CameraPosition(
+              target: _center,
+              zoom: 11.0,
+            ),
+            markers: _markers.values.toSet(),
+            myLocationEnabled: true,
+            myLocationButtonEnabled: true,
+
           ),
-          markers: _markers.values.toSet(),
-        ),
+        ],
+      )
+
     );
+
+
   }
+
+
 }
 
