@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "1095816542049",
+    "firebase_url": "https://epictour-8b7c2.firebaseio.com",
+    "project_id": "epictour-8b7c2",
+    "storage_bucket": "epictour-8b7c2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1095816542049:android:63c2d3d653ccdc0f473720",
+        "android_client_info": {
+          "package_name": "com.example.epictour"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1095816542049-n39qddfp7rdrolsitm654tn8e7o3k9e2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAPuKpnYTOb78sCrBY2n96mzh18IZuYyjY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1095816542049-n39qddfp7rdrolsitm654tn8e7o3k9e2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
