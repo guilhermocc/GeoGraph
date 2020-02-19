@@ -63,7 +63,7 @@ class _HomePageState extends State<HomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             MaterialButton(
-              child: Text("Show my map"),
+              child: Text("Mostrar meu mapa"),
               color: Colors.lightGreen,
               onPressed: () { Navigator.push(
                 context,
@@ -74,7 +74,7 @@ class _HomePageState extends State<HomePage> {
               ); } ,
             ),
             MaterialButton(
-              child: Text("Get my location"),
+              child: Text("Captar minha localizacao"),
               color: Colors.lightGreen,
               onPressed: () { _onGetMyLocation();},
             ),

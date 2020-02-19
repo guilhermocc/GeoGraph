@@ -16,6 +16,18 @@ class MapPage extends StatefulWidget {
 class _MapPageState extends State<MapPage> {
   final LatLng _center = LatLng(-23.563900, -46.653641);
   final Map<String, Marker> _markers = {};
+  BitmapDescriptor pinLocationIcon;
+
+  @override
+  void initState() {
+    super.initState();
+    setCustomMapPin();
+  }
+  void setCustomMapPin() async {
+    pinLocationIcon = await BitmapDescriptor.fromAssetImage(
+        ImageConfiguration(devicePixelRatio: 2.5),
+        'assets/custom_person.png');
+  }
 
   GoogleMapController mapController;
 
@@ -99,7 +111,7 @@ class _MapPageState extends State<MapPage> {
       snapshot.documentID
           : Marker(
           markerId: MarkerId(snapshot.documentID),
-          icon: BitmapDescriptor.defaultMarkerWithHue(100.00),
+          icon: pinLocationIcon,
           position: LatLng(snapshot.data["position"].latitude, snapshot.data["position"].longitude),
           infoWindow: InfoWindow(
               title: "Nome da Pessoa",
