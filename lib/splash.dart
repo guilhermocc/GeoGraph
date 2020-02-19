@@ -29,7 +29,7 @@ class _SplashPageState extends State<SplashPage> {
                   context,
                   MaterialPageRoute(
                       builder: (context) => HomePage(
-                        title: "Bem vindo, " + result["fname"] ,
+                        title: "Bem vindo " + capitalize(result["fname"]) ,
                         uid: currentUser.uid,
                       ))))
               .catchError((err) => print(err))
@@ -38,6 +38,8 @@ class _SplashPageState extends State<SplashPage> {
         .catchError((err) => print(err));
     super.initState();
   }
+
+  String capitalize(String s) => s[0].toUpperCase() + s.substring(1);
 
   @override
   Widget build(BuildContext context) {
