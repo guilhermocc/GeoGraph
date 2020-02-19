@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -18,10 +19,32 @@ class _MapPageState extends State<MapPage> {
   final Map<String, Marker> _markers = {};
   BitmapDescriptor pinLocationIcon;
 
+
+  var geolocator = Geolocator();
+  var locationOptions = LocationOptions(accuracy: LocationAccuracy.high, distanceFilter: 0);
+  StreamSubscription<Position> positionSubscription;
+
+
+  GoogleMapController mapController;
+
+
+
+  @override
+  dispose() {
+   positionSubscription.cancel();
+    super.dispose();
+  }
+
   @override
   void initState() {
     super.initState();
     setCustomMapPin();
+    positionSubscription = geolocator.getPositionStream(locationOptions).listen(
+            (Position position) {
+              print("POSITION UPDATED");
+          onPressUpdate();
+        });
+
   }
   void setCustomMapPin() async {
     pinLocationIcon = await BitmapDescriptor.fromAssetImage(
@@ -29,7 +52,6 @@ class _MapPageState extends State<MapPage> {
         'assets/custom_person.png');
   }
 
-  GoogleMapController mapController;
 
 
   void showSimpleCustomDialog(BuildContext context) {
