@@ -62,7 +62,7 @@ class _MapPageState extends State<MapPage> {
                       Navigator.of(context).pop();
                     },
                     child: Text(
-                      'Notificar Cliente',
+                      'Notificar',
                       style: TextStyle(fontSize: 18.0, color: Colors.white),
                     ),
                   ),
@@ -114,8 +114,8 @@ class _MapPageState extends State<MapPage> {
           icon: pinLocationIcon,
           position: LatLng(snapshot.data["position"].latitude, snapshot.data["position"].longitude),
           infoWindow: InfoWindow(
-              title: "Nome da Pessoa",
-              snippet: "Informacoes da pessoa",
+              title: snapshot.data["userName"],
+              snippet: "Informacoes adicionais ...",
               onTap: () {
                 showSimpleCustomDialog(context);
               }
@@ -150,12 +150,25 @@ class _MapPageState extends State<MapPage> {
     });
   }
 
-   void createGeoPoints(Position currentPosition) {
+
+  getCurrentUser() async{
+    return await Firestore.instance
+        .collection("users")
+        .document(widget.userId)
+        .get();
+  }
+
+  String capitalize(String s) => s[0].toUpperCase() + s.substring(1);
+
+   void createGeoPoints(Position currentPosition) async{
+     var currentUser = await getCurrentUser();
+
      Firestore.instance
          .collection("users")
          .document(widget.userId)
          .collection("markers")
          .add({
+           "userName": capitalize(currentUser.data['fname']) + " " +  capitalize(currentUser.data['surname']),
            "position": GeoPoint(currentPosition.latitude, currentPosition.longitude)
           })
          .then((result) => print("GEOPONTO ADICIONADO " + result.documentID ))
@@ -181,7 +194,7 @@ class _MapPageState extends State<MapPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Group Map'),
+        title: Text('Mapa do Grupo'),
         backgroundColor: Colors.lightGreen,
       ),
       body: Stack(
@@ -223,7 +236,7 @@ class _MapPageState extends State<MapPage> {
     await updateGeoPoints(currentPosition);
     }
     else {
-    createGeoPoints(currentPosition);
+     createGeoPoints(currentPosition);
     }
     var loadedMarkers = await getGroupMarkers(currentPosition);
 

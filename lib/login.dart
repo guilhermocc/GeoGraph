@@ -88,7 +88,7 @@ class _LoginPageState extends State<LoginPage> {
                                     context,
                                     MaterialPageRoute(
                                         builder: (context) => HomePage(
-                                          title: "Bem vindo, " + result["fname"],
+                                          title: "Bem vindo " + capitalize(result["fname"]),
                                           uid: authResult.user.uid,
                                         ))))
                                 .catchError((err) => print(err)))
@@ -107,4 +107,6 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ))));
   }
+  String capitalize(String s) => s[0].toUpperCase() + s.substring(1);
+
 }
