@@ -30,6 +30,13 @@ class _MapPageState extends State<MapPage> {
 
 
   @override
+  void setState(fn) {
+    if(mounted){
+      super.setState(fn);
+    }
+  }
+
+  @override
   dispose() {
    positionSubscription.cancel();
     super.dispose();
@@ -69,7 +76,7 @@ class _MapPageState extends State<MapPage> {
               padding: EdgeInsets.all(15.0),
               child: Text(
                 'Caixa de informacoes do cliente',
-                style: TextStyle(color: Colors.red),
+                style: TextStyle(color: Colors.black),
               ),
             ),
             Padding(
@@ -79,7 +86,7 @@ class _MapPageState extends State<MapPage> {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: <Widget>[
                   RaisedButton(
-                    color: Colors.blue,
+                    color: Colors.cyan,
                     onPressed: () {
                       Navigator.of(context).pop();
                     },
@@ -217,7 +224,7 @@ class _MapPageState extends State<MapPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Mapa do Grupo'),
-        backgroundColor: Colors.lightGreen,
+        backgroundColor: Colors.cyan,
       ),
       body: Stack(
         children: <Widget>[
@@ -234,8 +241,8 @@ class _MapPageState extends State<MapPage> {
           ),
           Align(
               child: FloatingActionButton(
-                child: Icon(Icons.file_upload),
-                backgroundColor: Colors.green,
+                child: Icon(Icons.update),
+                backgroundColor: Colors.cyanAccent,
                 onPressed: onPressUpdate,
               ),
             alignment: Alignment(0.8, 0.9),

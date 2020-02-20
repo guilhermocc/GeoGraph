@@ -64,7 +64,7 @@ class _HomePageState extends State<HomePage> {
           children: <Widget>[
             MaterialButton(
               child: Text("Mostrar meu mapa"),
-              color: Colors.lightGreen,
+              color: Colors.cyanAccent,
               onPressed: () { Navigator.push(
                 context,
                   MaterialPageRoute(
@@ -75,7 +75,7 @@ class _HomePageState extends State<HomePage> {
             ),
             MaterialButton(
               child: Text("Captar minha localizacao"),
-              color: Colors.lightGreen,
+              color: Colors.cyanAccent,
               onPressed: () { _onGetMyLocation();},
             ),
             (myLocation != null?
