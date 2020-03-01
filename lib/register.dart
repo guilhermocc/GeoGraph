@@ -57,120 +57,117 @@ class _RegisterPageState extends State<RegisterPage> {
             padding: const EdgeInsets.all(20.0),
             child: SingleChildScrollView(
                 child: Form(
-                  key: _registerFormKey,
-                  child: Column(
-                    children: <Widget>[
-                      TextFormField(
-                        decoration: InputDecoration(
-                            labelText: 'Primeiro nome*'),
-                        controller: firstNameInputController,
-                        validator: (value) {
-                          if (value.length < 3) {
-                            return "Por favor insira um primeiro nome válido.";
-                          }
-                        },
-                      ),
-                      TextFormField(
-                          decoration: InputDecoration(
-                              labelText: 'Segundo nome*'),
-                          controller: lastNameInputController,
-                          validator: (value) {
-                            if (value.length < 3) {
-                              return "Por favor insira um segundo nome válido.";
-                            }
-                          }),
-                      TextFormField(
-                        decoration: InputDecoration(
-                            labelText: 'Email*'),
-                        controller: emailInputController,
-                        keyboardType: TextInputType.emailAddress,
-                        validator: emailValidator,
-                      ),
-                      TextFormField(
-                        decoration: InputDecoration(
-                            labelText: 'Senha*'),
-                        controller: pwdInputController,
-                        obscureText: true,
-                        validator: pwdValidator,
-                      ),
-                      TextFormField(
-                        decoration: InputDecoration(
-                            labelText: 'Confirmação de senha*', hintText: "********"),
-                        controller: confirmPwdInputController,
-                        obscureText: true,
-                        validator: pwdValidator,
-                      ),
-                      RaisedButton(
-                        child: Text("Criar Conta"),
-                        color: Theme.of(context).primaryColor,
-                        textColor: Colors.white,
-                        onPressed: () {
-                          if (_registerFormKey.currentState.validate()) {
-                            if (pwdInputController.text ==
-                                confirmPwdInputController.text) {
-                              FirebaseAuth.instance
-                                  .createUserWithEmailAndPassword(
+              key: _registerFormKey,
+              child: Column(
+                children: <Widget>[
+                  TextFormField(
+                    decoration: InputDecoration(labelText: 'Primeiro nome*'),
+                    controller: firstNameInputController,
+                    validator: (value) {
+                      if (value.length < 3) {
+                        return "Por favor insira um primeiro nome válido.";
+                      }
+                    },
+                  ),
+                  TextFormField(
+                      decoration: InputDecoration(labelText: 'Segundo nome*'),
+                      controller: lastNameInputController,
+                      validator: (value) {
+                        if (value.length < 3) {
+                          return "Por favor insira um segundo nome válido.";
+                        }
+                      }),
+                  TextFormField(
+                    decoration: InputDecoration(labelText: 'Email*'),
+                    controller: emailInputController,
+                    keyboardType: TextInputType.emailAddress,
+                    validator: emailValidator,
+                  ),
+                  TextFormField(
+                    decoration: InputDecoration(labelText: 'Senha*'),
+                    controller: pwdInputController,
+                    obscureText: true,
+                    validator: pwdValidator,
+                  ),
+                  TextFormField(
+                    decoration: InputDecoration(
+                        labelText: 'Confirmação de senha*',
+                        hintText: "********"),
+                    controller: confirmPwdInputController,
+                    obscureText: true,
+                    validator: pwdValidator,
+                  ),
+                  RaisedButton(
+                    child: Text("Criar Conta"),
+                    color: Theme.of(context).primaryColor,
+                    textColor: Colors.white,
+                    onPressed: () {
+                      if (_registerFormKey.currentState.validate()) {
+                        if (pwdInputController.text ==
+                            confirmPwdInputController.text) {
+                          FirebaseAuth.instance
+                              .createUserWithEmailAndPassword(
                                   email: emailInputController.text,
                                   password: pwdInputController.text)
-                                  .then((currentUser) => Firestore.instance
+                              .then((currentUser) => Firestore.instance
                                   .collection("users")
                                   .document(currentUser.user.uid)
                                   .setData({
-                                "uid": currentUser.user.uid,
-                                "fname": firstNameInputController.text,
-                                "surname": lastNameInputController.text,
-                                "email": emailInputController.text,
-                              })
+                                    "uid": currentUser.user.uid,
+                                    "fname": firstNameInputController.text,
+                                    "surname": lastNameInputController.text,
+                                    "email": emailInputController.text,
+                                  })
                                   .then((result) => {
-                                Navigator.pushAndRemoveUntil(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => HomePage(
-                                          title:
-                                          firstNameInputController
-                                              .text +
-                                              "'s Tasks",
-                                          uid: currentUser.user.uid,
-                                        )),
-                                        (_) => false),
-                                firstNameInputController.clear(),
-                                lastNameInputController.clear(),
-                                emailInputController.clear(),
-                                pwdInputController.clear(),
-                                confirmPwdInputController.clear()
-                              })
+                                        Navigator.pushAndRemoveUntil(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) => HomePage(
+                                                      title:
+                                                          firstNameInputController
+                                                                  .text +
+                                                              "'s Tasks",
+                                                      uid: currentUser.user.uid,
+                                                    )),
+                                            (_) => false),
+                                        firstNameInputController.clear(),
+                                        lastNameInputController.clear(),
+                                        emailInputController.clear(),
+                                        pwdInputController.clear(),
+                                        confirmPwdInputController.clear()
+                                      })
                                   .catchError((err) => print(err)))
-                                  .catchError((err) => print(err));
-                            } else {
-                              showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return AlertDialog(
-                                      title: Text("Erro"),
-                                      content: Text("As senhas não conferem."),
-                                      actions: <Widget>[
-                                        FlatButton(
-                                          child: Text("Fechar"),
-                                          onPressed: () {
-                                            Navigator.of(context).pop();
-                                          },
-                                        )
-                                      ],
-                                    );
-                                  });
-                            }
-                          }
-                        },
-                      ),
-                      Text("Já possui uma conta?"),
-                      FlatButton(
-                        child: Text("Faça login aqui!"),
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                      )
-                    ],
+                              .catchError((err) => print(err));
+                        } else {
+                          showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: Text("Erro"),
+                                  content: Text("As senhas não conferem."),
+                                  actions: <Widget>[
+                                    FlatButton(
+                                      child: Text("Fechar"),
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                    )
+                                  ],
+                                );
+                              });
+                        }
+                      }
+                    },
                   ),
-                ))));
+                  Text("Já possui uma conta?"),
+                  FlatButton(
+                    child: Text("Faça login aqui!"),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                  )
+                ],
+              ),
+            ))));
   }
 }

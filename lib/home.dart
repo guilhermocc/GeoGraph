@@ -10,21 +10,20 @@ class HomePage extends StatefulWidget {
   final String title;
   final String uid;
 
-
-
   @override
   _HomePageState createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
-
   Position myLocation;
   List<Placemark> myPlacemark;
 
-
-  Future<void>_onGetMyLocation() async{
-    Position currentLocation =  await Geolocator().getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-    List<Placemark> placemark = await Geolocator().placemarkFromCoordinates(currentLocation.latitude, currentLocation.longitude,localeIdentifier: "en");
+  Future<void> _onGetMyLocation() async {
+    Position currentLocation = await Geolocator()
+        .getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    List<Placemark> placemark = await Geolocator().placemarkFromCoordinates(
+        currentLocation.latitude, currentLocation.longitude,
+        localeIdentifier: "en");
     setState(() {
       myLocation = currentLocation;
       myPlacemark = placemark;
@@ -32,8 +31,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _onLogout() {
-      FirebaseAuth.instance.signOut();
-      Navigator.pushReplacementNamed(context, "/splash");
+    FirebaseAuth.instance.signOut();
+    Navigator.pushReplacementNamed(context, "/splash");
   }
 
   @override
@@ -65,29 +64,31 @@ class _HomePageState extends State<HomePage> {
             MaterialButton(
               child: Text("Mostrar meu mapa"),
               color: Colors.cyanAccent,
-              onPressed: () { Navigator.push(
-                context,
-                  MaterialPageRoute(
-                      builder: (context) => MapPage(
-                        userId: widget.uid,
-                      ))
-              ); } ,
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => MapPage(
+                              userId: widget.uid,
+                            )));
+              },
             ),
             MaterialButton(
               child: Text("Captar minha localizacao"),
               color: Colors.cyanAccent,
-              onPressed: () { _onGetMyLocation();},
+              onPressed: () {
+                _onGetMyLocation();
+              },
             ),
-            (myLocation != null?
-            Column(
-              children: <Widget>[
-                Text(
-                    "Latitude: ${myLocation.latitude}, Longitude: ${myLocation.longitude}"),
-                Text(
-                    "Address: ${myPlacemark.first.country}, ${myPlacemark.first.administrativeArea}, ${myPlacemark.first.subAdministrativeArea}, ${myPlacemark.first.subLocality}"
-                )
-              ],
-            )
+            (myLocation != null
+                ? Column(
+                    children: <Widget>[
+                      Text(
+                          "Latitude: ${myLocation.latitude}, Longitude: ${myLocation.longitude}"),
+                      Text(
+                          "Address: ${myPlacemark.first.country}, ${myPlacemark.first.administrativeArea}, ${myPlacemark.first.subAdministrativeArea}, ${myPlacemark.first.subLocality}")
+                    ],
+                  )
                 : Text(""))
           ],
         ),
