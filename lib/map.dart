@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:epictour/person_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
@@ -61,62 +62,12 @@ class _MapPageState extends State<MapPage> {
 
 
 
-  void showSimpleCustomDialog(BuildContext context) {
-    Dialog simpleDialog = Dialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12.0),
-      ),
-      child: Container(
-        height: 300.0,
-        width: 300.0,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Padding(
-              padding: EdgeInsets.all(15.0),
-              child: Text(
-                'Caixa de informacoes do cliente',
-                style: TextStyle(color: Colors.black),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(left: 10, right: 10, top: 50),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: <Widget>[
-                  RaisedButton(
-                    color: Colors.cyan,
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: Text(
-                      'Notificar',
-                      style: TextStyle(fontSize: 18.0, color: Colors.white),
-                    ),
-                  ),
-                  SizedBox(
-                    width: 20,
-                  ),
-                  RaisedButton(
-                    color: Colors.red,
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: Text(
-                      'Fechar',
-                      style: TextStyle(fontSize: 18.0, color: Colors.white),
-                    ),
-                  )
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+  void showPersonDialog(BuildContext context) {
+    Widget personDialog = PersonDialog();
     showDialog(
-        context: context, builder: (BuildContext context) => simpleDialog);
+        context: context,
+        builder: (BuildContext context) => personDialog
+    );
   }
 
 
@@ -146,7 +97,7 @@ class _MapPageState extends State<MapPage> {
               title: snapshot.data["userName"],
               snippet: "Informacoes adicionais ...",
               onTap: () {
-                showSimpleCustomDialog(context);
+                showPersonDialog(context);
               }
           )
       )
