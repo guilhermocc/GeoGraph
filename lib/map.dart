@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:epictour/person_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 
@@ -20,15 +21,14 @@ class _MapPageState extends State<MapPage> {
   final Map<String, Marker> _markers = {};
   BitmapDescriptor pinLocationIcon;
 
-
-  var geolocator = Geolocator();
-  var locationOptions = LocationOptions(accuracy: LocationAccuracy.high, distanceFilter: 0);
+  final geoLocator = Geolocator();
+  final locationOptions = LocationOptions(
+      accuracy: LocationAccuracy.high,
+      distanceFilter: 1,
+      timeInterval: 5000
+  );
   StreamSubscription<Position> positionSubscription;
-
-
   GoogleMapController mapController;
-
-
 
   @override
   void setState(fn) {
@@ -47,19 +47,28 @@ class _MapPageState extends State<MapPage> {
   void initState() {
     super.initState();
     setCustomMapPin();
-    positionSubscription = geolocator.getPositionStream(locationOptions).listen(
-            (Position position) {
-              print("POSITION UPDATED");
-          onPressUpdate();
-        });
-
+    setPositionEventsSubscription();
   }
+
   void setCustomMapPin() async {
     pinLocationIcon = await BitmapDescriptor.fromAssetImage(
         ImageConfiguration(devicePixelRatio: 2.5),
         'assets/custom_person.png');
   }
 
+  void setPositionEventsSubscription(){
+    positionSubscription = geoLocator
+        .getPositionStream(locationOptions)
+        .listen(
+            (Position position) {
+              print("*** GEOLOCATION UPDATE EVENT FIRED ***");
+              FlutterRingtonePlayer.play(
+                  android: AndroidSounds.notification,
+                  ios: IosSounds.glass);
+              onPressUpdate();
+            }
+        );
+  }
 
 
   void showPersonDialog(BuildContext context) {
