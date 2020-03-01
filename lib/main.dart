@@ -6,10 +6,7 @@ import 'package:flutter/material.dart';
 import 'home.dart';
 import 'login.dart';
 
-
 void main() => runApp(App());
-
-
 
 class App extends StatelessWidget {
 // This widget is the root of your application.
@@ -17,9 +14,7 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
         title: 'Flutter Demo',
-        theme: ThemeData(
-          primarySwatch: Colors.cyan
-        ),
+        theme: ThemeData(primarySwatch: Colors.cyan),
         home: SplashPage(),
         routes: <String, WidgetBuilder>{
           '/home': (BuildContext context) => HomePage(title: 'Home'),
