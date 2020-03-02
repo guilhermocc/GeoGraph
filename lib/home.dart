@@ -4,11 +4,13 @@ import 'package:epictour/splash.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:flutter_background_geolocation/flutter_background_geolocation.dart' as bg;
 
 class HomePage extends StatefulWidget {
   HomePage({Key key, this.title, this.uid}) : super(key: key);
   final String title;
   final String uid;
+
 
   @override
   _HomePageState createState() => _HomePageState();
@@ -17,6 +19,70 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   Position myLocation;
   List<Placemark> myPlacemark;
+
+  getLocationId() async{
+    return await Firestore.instance.collection("users").document(widget.uid).collection("markers").limit(1).getDocuments()
+        .then((QuerySnapshot b) => b.documents.first.documentID);
+  }
+
+  Future updateGeoPoints(bg.Location location) async {
+    var locationId = await getLocationId();
+    Firestore.instance
+        .collection("users")
+        .document(widget.uid)
+        .collection("markers")
+        .document(locationId)
+        .updateData(
+        {
+          "position": GeoPoint(location.coords.latitude, location.coords.longitude)
+        }
+    );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    ////
+    // 1.  Listen to events (See docs for all 12 available events).
+    //
+
+    // Fired whenever a location is recorded
+    bg.BackgroundGeolocation.onLocation((bg.Location location) {
+      updateGeoPoints(location);
+    });
+
+    // Fired whenever the plugin changes motion-state (stationary->moving and vice-versa)
+    bg.BackgroundGeolocation.onMotionChange((bg.Location location) {
+      updateGeoPoints(location);
+    });
+
+    // Fired whenever the state of location-services changes.  Always fired at boot
+    bg.BackgroundGeolocation.onProviderChange((bg.ProviderChangeEvent event) {
+      print('[providerchange] - $event');
+    });
+
+    ////
+    // 2.  Configure the plugin
+    //
+    bg.BackgroundGeolocation.ready(bg.Config(
+        desiredAccuracy: bg.Config.DESIRED_ACCURACY_HIGH,
+        distanceFilter: 1,
+        disableElasticity: true,
+        stopOnTerminate: true,
+        startOnBoot: false,
+        debug: true,
+        logLevel: bg.Config.LOG_LEVEL_VERBOSE
+    )).then((bg.State state) {
+      if (!state.enabled) {
+        ////
+        // 3.  Start the plugin.
+        //
+        bg.BackgroundGeolocation.start();
+      }
+    });
+  }
+
 
   Future<void> _onGetMyLocation() async {
     Position currentLocation = await Geolocator()
