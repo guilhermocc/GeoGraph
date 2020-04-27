@@ -14,6 +14,7 @@ class _LoginPageState extends State<LoginPage> {
   final GlobalKey<FormState> _loginFormKey = GlobalKey<FormState>();
   TextEditingController emailInputController;
   TextEditingController pwdInputController;
+  bool isLoading = false;
 
   @override
   initState() {
@@ -49,64 +50,72 @@ class _LoginPageState extends State<LoginPage> {
         ),
         body: Container(
             padding: const EdgeInsets.all(20.0),
-            child: SingleChildScrollView(
-                child: Form(
-              key: _loginFormKey,
-              child: Column(
-                children: <Widget>[
-                  TextFormField(
-                    decoration: InputDecoration(
-                        labelText: 'Email*', hintText: "exemplo@email.com"),
-                    controller: emailInputController,
-                    keyboardType: TextInputType.emailAddress,
-                    validator: emailValidator,
-                  ),
-                  TextFormField(
-                    decoration: InputDecoration(
-                        labelText: 'Senha', hintText: "********"),
-                    controller: pwdInputController,
-                    obscureText: true,
-                    validator: pwdValidator,
-                  ),
-                  RaisedButton(
-                    child: Text("Login"),
-                    color: Theme.of(context).primaryColor,
-                    textColor: Colors.white,
-                    onPressed: () {
-                      if (_loginFormKey.currentState.validate()) {
-                        FirebaseAuth.instance
-                            .signInWithEmailAndPassword(
-                                email: emailInputController.text,
-                                password: pwdInputController.text)
-                            .then((authResult) => Firestore.instance
-                                .collection("users")
-                                .document(authResult.user.uid)
-                                .get()
-                                .then((DocumentSnapshot result) =>
-                                    Navigator.pushReplacement(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) => HomePage(
-                                                  title: "Bem vindo " +
-                                                      capitalize(
-                                                          result["fname"]),
-                                                  uid: authResult.user.uid,
-                                                ))))
-                                .catchError((err) => print(err)))
-                            .catchError((err) => print(err));
-                      }
-                    },
-                  ),
-                  Text("Ainda não possuí conta?"),
-                  FlatButton(
-                    child: Text("Crie sua conta aqui!"),
-                    onPressed: () {
-                      Navigator.pushNamed(context, "/register");
-                    },
+            child: isLoading
+                ? Center(
+                    child: CircularProgressIndicator(),
                   )
-                ],
-              ),
-            ))));
+                : SingleChildScrollView(
+                    child: Form(
+                    key: _loginFormKey,
+                    child: Column(
+                      children: <Widget>[
+                        TextFormField(
+                          decoration: InputDecoration(
+                              labelText: 'Email*',
+                              hintText: "exemplo@email.com"),
+                          controller: emailInputController,
+                          keyboardType: TextInputType.emailAddress,
+                          validator: emailValidator,
+                        ),
+                        TextFormField(
+                          decoration: InputDecoration(
+                              labelText: 'Senha', hintText: "********"),
+                          controller: pwdInputController,
+                          obscureText: true,
+                          validator: pwdValidator,
+                        ),
+                        RaisedButton(
+                          child: Text("Login"),
+                          color: Theme.of(context).primaryColor,
+                          textColor: Colors.white,
+                          onPressed: () {
+                            if (_loginFormKey.currentState.validate()) {
+                              setState(() {
+                                isLoading = true;
+                              });
+                              FirebaseAuth.instance
+                                  .signInWithEmailAndPassword(
+                                      email: emailInputController.text,
+                                      password: pwdInputController.text)
+                                  .then((authResult) => Firestore.instance
+                                          .collection("users")
+                                          .document(authResult.user.uid)
+                                          .get()
+                                          .then((DocumentSnapshot result) {
+                                        Navigator.pushReplacement(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) => HomePage(
+                                                      title: "Bem vindo " +
+                                                          capitalize(
+                                                              result["fname"]),
+                                                      uid: authResult.user.uid,
+                                                    )));
+                                      }).catchError((err) => print(err)))
+                                  .catchError((err) => print(err));
+                            }
+                          },
+                        ),
+                        Text("Ainda não possuí conta?"),
+                        FlatButton(
+                          child: Text("Crie sua conta aqui!"),
+                          onPressed: () {
+                            Navigator.pushNamed(context, "/register");
+                          },
+                        )
+                      ],
+                    ),
+                  ))));
   }
 
   String capitalize(String s) => s[0].toUpperCase() + s.substring(1);
