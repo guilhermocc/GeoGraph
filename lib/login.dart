@@ -101,8 +101,12 @@ class _LoginPageState extends State<LoginPage> {
                                                               result["fname"]),
                                                       uid: authResult.user.uid,
                                                     )));
-                                      }).catchError((err) => print(err)))
-                                  .catchError((err) => print(err));
+                                      }).catchError((err) => setState(() {
+                                                isLoading = false;
+                                              })))
+                                  .catchError((err) => setState(() {
+                                        isLoading = false;
+                                      }));
                             }
                           },
                         ),
