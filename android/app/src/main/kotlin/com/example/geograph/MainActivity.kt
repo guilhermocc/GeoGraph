@@ -1,4 +1,4 @@
-package com.example.epictour
+package com.fatec.geograph
 
 import androidx.annotation.NonNull;
 import io.flutter.embedding.android.FlutterActivity

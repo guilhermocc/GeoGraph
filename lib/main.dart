@@ -1,6 +1,6 @@
-import 'package:epictour/map.dart';
-import 'package:epictour/register.dart';
-import 'package:epictour/splash.dart';
+import 'package:geograph/map.dart';
+import 'package:geograph/register.dart';
+import 'package:geograph/splash.dart';
 import 'package:flutter/material.dart';
 
 import 'home.dart';
