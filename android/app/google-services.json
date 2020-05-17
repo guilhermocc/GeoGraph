@@ -8,9 +8,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1095816542049:android:63c2d3d653ccdc0f473720",
+        "mobilesdk_app_id": "1:1095816542049:android:f786e241a2f8709c473720",
         "android_client_info": {
-          "package_name": "com.example.epictour"
+          "package_name": "com.fatec.geograph"
         }
       },
       "oauth_client": [
@@ -30,6 +30,13 @@
             {
               "client_id": "1095816542049-n39qddfp7rdrolsitm654tn8e7o3k9e2.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "1095816542049-74lfk49nangao9v7f0i1burqtnsk92t2.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.epictour"
+              }
             }
           ]
         }

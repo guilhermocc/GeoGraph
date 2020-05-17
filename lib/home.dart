@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:epictour/map.dart';
-import 'package:epictour/splash.dart';
+import 'package:geograph/map.dart';
+import 'package:geograph/splash.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:geolocator/geolocator.dart';
