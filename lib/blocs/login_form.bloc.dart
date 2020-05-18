@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:geograph/android/home.dart';
+import 'package:geograph/android/pages/home.dart';
 
 class LoginFormBloc {
   final GlobalKey<FormState> loginFormKey = GlobalKey<FormState>();

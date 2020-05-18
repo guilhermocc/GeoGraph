@@ -1,10 +1,10 @@
-import 'package:geograph/android/map.dart';
-import 'package:geograph/android/register.dart';
-import 'package:geograph/android/splash.dart';
+import 'package:geograph/android/pages/map.dart';
+import 'package:geograph/android/pages/register.dart';
+import 'package:geograph/android/pages/splash.dart';
 import 'package:flutter/material.dart';
 
-import 'android/home.dart';
-import 'android/login.dart';
+import 'android/pages/home.dart';
+import 'android/pages/login.dart';
 
 void main() => runApp(App());
 
