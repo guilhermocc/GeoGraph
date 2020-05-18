@@ -12,10 +12,7 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final GlobalKey<FormState> _loginFormKey = GlobalKey<FormState>();
-  bool isLoading = false;
   var bloc = new LoginFormBloc();
-
 
   @override
   initState() {
@@ -30,13 +27,13 @@ class _LoginPageState extends State<LoginPage> {
         ),
         body: Container(
             padding: const EdgeInsets.all(20.0),
-            child: isLoading
+            child: bloc.isLoading
                 ? Center(
                     child: CircularProgressIndicator(),
                   )
                 : SingleChildScrollView(
                     child: Form(
-                    key: _loginFormKey,
+                    key: bloc.loginFormKey,
                     child: Column(
                       children: <Widget>[
                         TextFormField(
@@ -59,36 +56,17 @@ class _LoginPageState extends State<LoginPage> {
                           color: Theme.of(context).primaryColor,
                           textColor: Colors.white,
                           onPressed: () {
-                            if (_loginFormKey.currentState.validate()) {
-                              setState(() {
-                                isLoading = true;
-                              });
-                              FirebaseAuth.instance
-                                  .signInWithEmailAndPassword(
-                                      email: bloc.emailInputController.text,
-                                      password: bloc.passwordInputController.text)
-                                  .then((authResult) => Firestore.instance
-                                          .collection("users")
-                                          .document(authResult.user.uid)
-                                          .get()
-                                          .then((DocumentSnapshot result) {
-                                        Navigator.pushReplacement(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (context) => HomePage(
-                                                      title: "Bem vindo " +
-                                                          capitalize(
-                                                              result["fname"]),
-                                                      uid: authResult.user.uid,
-                                                    )));
-                                      }).catchError((err) => setState(() {
-                                                isLoading = false;
-                                              })))
+                            setState(() {
+                              // TODO It would be better to extract this logic
+                              // and error handling to bloc class
+                              bloc
+                                  .login(context)
                                   .catchError((err) => setState(() {
-                                        isLoading = false;
-                                      }));
+                                bloc.isLoading = false;
+                              }));
+                            });
+
                             }
-                          },
                         ),
                         Text("Ainda não possuí conta?"),
                         FlatButton(
@@ -101,6 +79,4 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ))));
   }
-
-  String capitalize(String s) => s[0].toUpperCase() + s.substring(1);
 }
