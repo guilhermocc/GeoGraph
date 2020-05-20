@@ -37,22 +37,7 @@ class RegisterBloc {
         this.passwordInputController.clear();
         this.confirmPasswordInputController.clear();
       } else {
-        showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: Text("Erro"),
-                content: Text("As senhas não conferem."),
-                actions: <Widget>[
-                  FlatButton(
-                    child: Text("Fechar"),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                  )
-                ],
-              );
-            });
+        showErrorDialog(context, "As senhas não conferem.");
       }
     }
   }
@@ -61,6 +46,25 @@ class RegisterBloc {
     return FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: this.emailInputController.text,
         password: this.passwordInputController.text);
+  }
+
+  showErrorDialog(BuildContext context, String textContent) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("Erro"),
+            content: Text(textContent),
+            actions: <Widget>[
+              FlatButton(
+                child: Text("Fechar"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              )
+            ],
+          );
+        });
   }
 
   updateUserData(AuthResult currentUser) async {

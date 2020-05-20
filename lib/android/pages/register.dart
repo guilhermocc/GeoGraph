@@ -83,8 +83,22 @@ class _RegisterPageState extends State<RegisterPage> {
                             setState(() {
                               // TODO It would be better to extract this logic
                               // and error handling to bloc class
-                              bloc.createAccount(context).catchError((err) =>
-                                  setState(() => bloc.isLoading = false));
+                              bloc.createAccount(context).catchError((err) {
+                                setState(() {
+                                  bloc.isLoading = false;
+                                  if (err.code == "ERROR_EMAIL_ALREADY_IN_USE")
+                                  {
+                                    bloc.showErrorDialog(context, "E-mail já está em uso");
+                                  }
+                                  else {
+                                    {
+                                      bloc.showErrorDialog(context, "Houve um erro ao criar a conta");
+                                    }
+                                  }
+                                });
+
+
+                              });
                             });
                           },
                         ),
