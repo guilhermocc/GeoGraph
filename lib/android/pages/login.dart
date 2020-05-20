@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/rendering.dart';
 import 'package:geograph/android/pages/home.dart';
-import 'package:geograph/blocs/login_form.bloc.dart';
+import 'package:geograph/blocs/login.bloc.dart';
 
 class LoginPage extends StatefulWidget {
   LoginPage({Key key}) : super(key: key);
@@ -13,7 +13,7 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  var bloc = new LoginFormBloc();
+  var bloc = new LoginBloc();
 
   @override
   initState() {

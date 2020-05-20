@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:geograph/android/pages/home.dart';
 
-class LoginFormBloc {
+class LoginBloc {
   final GlobalKey<FormState> loginFormKey = GlobalKey<FormState>();
   var isLoading = false;
   var emailInputController = new TextEditingController();
@@ -41,12 +41,10 @@ class LoginFormBloc {
     }
   }
 
-   signInWithLoginInfo() async {
-    return FirebaseAuth.instance
-        .signInWithEmailAndPassword(
-            email: this.emailInputController.text,
-            password: this.passwordInputController.text);
-
+  signInWithLoginInfo() async {
+    return FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: this.emailInputController.text,
+        password: this.passwordInputController.text);
   }
 
   Future<DocumentSnapshot> getUserInfo(AuthResult authResult) {
