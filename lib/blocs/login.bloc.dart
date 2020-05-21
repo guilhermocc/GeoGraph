@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:geograph/android/pages/home.dart';
 
 class LoginBloc {
@@ -64,5 +67,36 @@ class LoginBloc {
                   title: "Bem vindo " + capitalize(userSnapShot["fname"]),
                   uid: userSnapShot["uid"],
                 ))).catchError((err) => this.isLoading = false);
+  }
+
+  handleLoginError(PlatformException err, BuildContext context) {
+    this.isLoading = false;
+    if (err.code == "ERROR_WRONG_PASSWORD" ||
+        err.code == "ERROR_USER_NOT_FOUND") {
+      this.showErrorDialog(context, "Email ou senha incorretos");
+    } else {
+      {
+        this.showErrorDialog(context, "Houve um erro ao realizar o login");
+      }
+    }
+  }
+
+  showErrorDialog(BuildContext context, String textContent) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("Erro"),
+            content: Text(textContent),
+            actions: <Widget>[
+              FlatButton(
+                child: Text("Fechar"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              )
+            ],
+          );
+        });
   }
 }

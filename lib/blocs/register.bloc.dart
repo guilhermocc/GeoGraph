@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:geograph/android/pages/home.dart';
 
@@ -87,6 +88,17 @@ class RegisterBloc {
       return 'O Email está em um formato inválido';
     } else {
       return null;
+    }
+  }
+
+  handleRegistrationError(PlatformException err, BuildContext context) {
+    this.isLoading = false;
+    if (err.code == "ERROR_EMAIL_ALREADY_IN_USE") {
+      this.showErrorDialog(context, "E-mail já está em uso");
+    } else {
+      {
+        this.showErrorDialog(context, "Houve um erro ao criar a conta");
+      }
     }
   }
 
