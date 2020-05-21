@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geograph/android/pages/person_dialog.dart';
@@ -113,7 +112,7 @@ class _MapPageState extends State<MapPage> {
         .getDocuments()
         .then((result) => result.documents);
 
-    var fullMarkers = markers.forEach((snapshot) => markerList.addAll({
+    markers.forEach((snapshot) => markerList.addAll({
           snapshot.documentID: Marker(
               markerId: MarkerId(snapshot.documentID),
               icon: pinLocationIcon,

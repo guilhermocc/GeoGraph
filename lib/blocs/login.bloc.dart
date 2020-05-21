@@ -53,7 +53,6 @@ class LoginBloc {
         .document(authResult.user.uid)
         .get()
         .catchError((err) => this.isLoading = false);
-    ;
   }
 
   Future<Object> navigateToHomePage(
@@ -65,6 +64,5 @@ class LoginBloc {
                   title: "Bem vindo " + capitalize(userSnapShot["fname"]),
                   uid: userSnapShot["uid"],
                 ))).catchError((err) => this.isLoading = false);
-    ;
   }
 }

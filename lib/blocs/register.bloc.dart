@@ -97,4 +97,12 @@ class RegisterBloc {
       return null;
     }
   }
+
+  String nameValidator(String value) {
+    if (value.length < 3) {
+      return "Por favor insira um segundo nome válido.";
+    } else {
+      return null;
+    }
+  }
 }
