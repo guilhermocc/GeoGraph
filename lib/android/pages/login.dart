@@ -29,7 +29,7 @@ class _LoginPageState extends State<LoginPage> {
                 ? Center(
                     child: CircularProgressIndicator(),
                   )
-                : Expanded(
+                : SingleChildScrollView(
                     child: Form(
                     key: bloc.loginFormKey,
                     child: Column(
@@ -51,7 +51,7 @@ class _LoginPageState extends State<LoginPage> {
                           validator: bloc.pwdValidator,
                         ),
                         Container(
-                            padding: EdgeInsets.only(top: 20, bottom: 15),
+                            padding: EdgeInsets.only(top: 40, bottom: 15),
                             child: RaisedButton(
                                 child: Text("Entrar"),
                                 color: Theme.of(context).primaryColorDark,
