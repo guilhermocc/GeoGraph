@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:geograph/android/pages/home.dart';
 import 'package:geograph/blocs/register.bloc.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -40,21 +37,13 @@ class _RegisterPageState extends State<RegisterPage> {
                           decoration:
                               InputDecoration(labelText: 'Primeiro nome*'),
                           controller: bloc.firstNameInputController,
-                          validator: (value) {
-                            if (value.length < 3) {
-                              return "Por favor insira um primeiro nome válido.";
-                            }
-                          },
+                          validator: bloc.nameValidator,
                         ),
                         TextFormField(
                             decoration:
                                 InputDecoration(labelText: 'Segundo nome*'),
                             controller: bloc.lastNameInputController,
-                            validator: (value) {
-                              if (value.length < 3) {
-                                return "Por favor insira um segundo nome válido.";
-                              }
-                            }),
+                            validator: bloc.nameValidator),
                         TextFormField(
                           decoration: InputDecoration(labelText: 'Email*'),
                           controller: bloc.emailInputController,
@@ -86,18 +75,17 @@ class _RegisterPageState extends State<RegisterPage> {
                               bloc.createAccount(context).catchError((err) {
                                 setState(() {
                                   bloc.isLoading = false;
-                                  if (err.code == "ERROR_EMAIL_ALREADY_IN_USE")
-                                  {
-                                    bloc.showErrorDialog(context, "E-mail já está em uso");
-                                  }
-                                  else {
+                                  if (err.code ==
+                                      "ERROR_EMAIL_ALREADY_IN_USE") {
+                                    bloc.showErrorDialog(
+                                        context, "E-mail já está em uso");
+                                  } else {
                                     {
-                                      bloc.showErrorDialog(context, "Houve um erro ao criar a conta");
+                                      bloc.showErrorDialog(context,
+                                          "Houve um erro ao criar a conta");
                                     }
                                   }
                                 });
-
-
                               });
                             });
                           },
