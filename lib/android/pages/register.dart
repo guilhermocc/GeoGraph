@@ -44,7 +44,7 @@ class _RegisterPageState extends State<RegisterPage> {
                               CircleAvatar(
                                 radius: 50,
                                 backgroundImage: NetworkImage(
-                                    'https://via.placeholder.com/150'),
+                                    'https://scontent.fcgh10-1.fna.fbcdn.net/v/t1.0-9/95000440_1110826205943316_9215072197238849536_n.jpg?_nc_cat=101&_nc_sid=09cbfe&_nc_eui2=AeFZ_PUsfWSiLNJt80r7qnoKoDNo-8fk6Q2gM2j7x-TpDdAEvqKt-Rcrjlf0B-8-BG0Ov2Pq7lKRg4Vsa3UKTayw&_nc_ohc=LsycrnlcH1cAX_Df4q1&_nc_ht=scontent.fcgh10-1.fna&oh=2592e4bba2ae5f78b169e35d9ebfaa18&oe=5EEE2171'),
                                 backgroundColor: Colors.transparent,
                               ),
                               TextFormField(
@@ -93,17 +93,7 @@ class _RegisterPageState extends State<RegisterPage> {
                               // and error handling to bloc class
                               bloc.createAccount(context).catchError((err) {
                                 setState(() {
-                                  bloc.isLoading = false;
-                                  if (err.code ==
-                                      "ERROR_EMAIL_ALREADY_IN_USE") {
-                                    bloc.showErrorDialog(
-                                        context, "E-mail já está em uso");
-                                  } else {
-                                    {
-                                      bloc.showErrorDialog(context,
-                                          "Houve um erro ao criar a conta");
-                                    }
-                                  }
+                                  bloc.handleRegistrationError(err, context);
                                 });
                               });
                             });
