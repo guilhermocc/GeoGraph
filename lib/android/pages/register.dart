@@ -33,36 +33,55 @@ class _RegisterPageState extends State<RegisterPage> {
                     key: bloc.registerFormKey,
                     child: Column(
                       children: <Widget>[
-                        TextFormField(
-                          decoration:
-                              InputDecoration(labelText: 'Primeiro nome*'),
-                          controller: bloc.firstNameInputController,
-                          validator: bloc.nameValidator,
-                        ),
-                        TextFormField(
-                            decoration:
-                                InputDecoration(labelText: 'Segundo nome*'),
-                            controller: bloc.lastNameInputController,
-                            validator: bloc.nameValidator),
-                        TextFormField(
-                          decoration: InputDecoration(labelText: 'Email*'),
-                          controller: bloc.emailInputController,
-                          keyboardType: TextInputType.emailAddress,
-                          validator: bloc.emailValidator,
-                        ),
-                        TextFormField(
-                          decoration: InputDecoration(labelText: 'Senha*'),
-                          controller: bloc.passwordInputController,
-                          obscureText: true,
-                          validator: bloc.pwdValidator,
-                        ),
-                        TextFormField(
-                          decoration: InputDecoration(
-                              labelText: 'Confirmação de senha*',
-                              hintText: "********"),
-                          controller: bloc.confirmPasswordInputController,
-                          obscureText: true,
-                          validator: bloc.pwdValidator,
+                        Container(
+                          decoration: new BoxDecoration(
+                            color: Color(0xFFF9FAFC),
+                            borderRadius: new BorderRadius.circular(5.0),
+                          ),
+                          padding: EdgeInsets.all(15),
+                          child: Column(
+                            children: <Widget>[
+                              CircleAvatar(
+                                radius: 50,
+                                backgroundImage: NetworkImage(
+                                    'https://via.placeholder.com/150'),
+                                backgroundColor: Colors.transparent,
+                              ),
+                              TextFormField(
+                                decoration: InputDecoration(
+                                    labelText: 'Primeiro nome*'),
+                                controller: bloc.firstNameInputController,
+                                validator: bloc.nameValidator,
+                              ),
+                              TextFormField(
+                                  decoration: InputDecoration(
+                                      labelText: 'Segundo nome*'),
+                                  controller: bloc.lastNameInputController,
+                                  validator: bloc.nameValidator),
+                              TextFormField(
+                                decoration:
+                                    InputDecoration(labelText: 'Email*'),
+                                controller: bloc.emailInputController,
+                                keyboardType: TextInputType.emailAddress,
+                                validator: bloc.emailValidator,
+                              ),
+                              TextFormField(
+                                decoration:
+                                    InputDecoration(labelText: 'Senha*'),
+                                controller: bloc.passwordInputController,
+                                obscureText: true,
+                                validator: bloc.pwdValidator,
+                              ),
+                              TextFormField(
+                                decoration: InputDecoration(
+                                    labelText: 'Confirmação de senha*',
+                                    hintText: "********"),
+                                controller: bloc.confirmPasswordInputController,
+                                obscureText: true,
+                                validator: bloc.pwdValidator,
+                              ),
+                            ],
+                          ),
                         ),
                         RaisedButton(
                           child: Text("Criar Conta"),
@@ -90,13 +109,6 @@ class _RegisterPageState extends State<RegisterPage> {
                             });
                           },
                         ),
-                        Text("Já possui uma conta?"),
-                        FlatButton(
-                          child: Text("Faça login aqui!"),
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                        )
                       ],
                     ),
                   ))));
