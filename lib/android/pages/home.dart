@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:geograph/android/pages/map.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -101,38 +102,68 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
       body: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
         children: <Widget>[
-          Row(
-            children: <Widget>[
-              Text("sdsd")
-            ],
-          ),
-          Card(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
+          Expanded(
+            flex: 1,
+            child: Row(
               children: <Widget>[
-                ListTile(
-                  leading: Icon(Icons.album),
-                  title: Text('The Enchanted Nightingale'),
-                  subtitle:
-                      Text('Music by Julie Gable. Lyrics by Sidney Stein.'),
-                ),
-                ButtonBar(
-                  children: <Widget>[
-                    FlatButton(
-                      child: const Text('BUY TICKETS'),
-                      onPressed: () {
-                        /* ... */
-                      },
+                Expanded(
+                  flex: 1,
+                  child: Card(
+                    child: Container(
+                      height: (MediaQuery.of(context).size.height) / 2.5,
+                      width: MediaQuery.of(context).size.width / 2.5,
+                      child: Text("Sample Caixa"),
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10)),
                     ),
-                    FlatButton(
-                      child: const Text('LISTEN'),
-                      onPressed: () {
-                        /* ... */
-                      },
-                    ),
-                  ],
+                  ),
                 ),
+                Expanded(
+                  flex: 1,
+                  child: Card(
+                    child: Container(
+                      height: (MediaQuery.of(context).size.height) / 2.5,
+                      width: MediaQuery.of(context).size.width / 2.5,
+                      child: Text("Sample Caixa"),
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10)),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            flex: 1,
+            child: Row(
+              children: <Widget>[
+                Expanded(
+                  flex: 1,
+                  child: Card(
+                    child: Container(
+                      height: (MediaQuery.of(context).size.height) / 2.5,
+                      width: MediaQuery.of(context).size.width / 2.5,
+                      child: Text("Sample Caixa"),
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10)),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  flex: 1,
+                  child: Card(
+                    child: Container(
+                      padding: EdgeInsets.all(10),
+                      child: Text("Sample Caixa"),
+                      height: (MediaQuery.of(context).size.height) / 2.5,
+                      width: MediaQuery.of(context).size.width / 2.5,
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10)),
+                    ),
+                  ),
+                )
               ],
             ),
           ),
