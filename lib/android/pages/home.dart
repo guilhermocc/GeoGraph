@@ -35,61 +35,108 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
-      appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.arrow_back),
-            onPressed: _onLogout,
-          )
-        ],
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+      appBar: AppBar(title: const Text('GeoGraph')),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
           children: <Widget>[
-            MaterialButton(
-              child: Text("Mostrar meu mapa"),
-              color: Colors.cyanAccent,
-              onPressed: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => MapPage(
-                              userId: widget.uid,
-                            )));
-              },
+            DrawerHeader(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).primaryColor,
+                ),
+                child: Column(
+                  children: <Widget>[
+                    Row(
+                      children: <Widget>[
+                        CircleAvatar(
+                          radius: 40,
+                          backgroundImage: NetworkImage(
+                              'https://scontent.fcgh10-1.fna.fbcdn.net/v/t1.0-9/95000440_1110826205943316_9215072197238849536_n.jpg?_nc_cat=101&_nc_sid=09cbfe&_nc_eui2=AeFZ_PUsfWSiLNJt80r7qnoKoDNo-8fk6Q2gM2j7x-TpDdAEvqKt-Rcrjlf0B-8-BG0Ov2Pq7lKRg4Vsa3UKTayw&_nc_ohc=LsycrnlcH1cAX_Df4q1&_nc_ht=scontent.fcgh10-1.fna&oh=2592e4bba2ae5f78b169e35d9ebfaa18&oe=5EEE2171'),
+                          backgroundColor: Colors.transparent,
+                        ),
+                        Container(
+                            padding: EdgeInsets.only(bottom: 10, left: 10),
+                            child: Text(
+                              'Giovanna Rodrigues',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                              ),
+                            ))
+                      ],
+                    ),
+                    Divider(height: 20),
+                  ],
+                )),
+            ListTile(
+              leading: Icon(Icons.message),
+              title: Text('Criar Grupo'),
             ),
-            MaterialButton(
-              child: Text("Captar minha localizacao"),
-              color: Colors.cyanAccent,
-              onPressed: () {
-                _onGetMyLocation();
-              },
+            ListTile(
+              leading: Icon(Icons.account_circle),
+              title: Text('Meus Grupos'),
             ),
-            (myLocation != null
-                ? Column(
-                    children: <Widget>[
-                      Text(
-                          "Latitude: ${myLocation.latitude}, Longitude: ${myLocation.longitude}"),
-                      Text(
-                          "Address: ${myPlacemark.first.country}, ${myPlacemark.first.administrativeArea}, ${myPlacemark.first.subAdministrativeArea}, ${myPlacemark.first.subLocality}")
-                    ],
-                  )
-                : Text(""))
+            ListTile(
+              leading: Icon(Icons.settings),
+              title: Text('Entrar em um Grupo'),
+            ),
+            ListTile(
+              leading: Icon(Icons.outlined_flag),
+              title: Text('LogOut'),
+            ),
+            Divider(
+              height: 100,
+            ),
+            ListTile(
+              title: Text("LogOut"),
+              leading: Icon(Icons.arrow_back),
+              onTap: _onLogout,
+            ),
+            ListTile(
+              leading: Icon(Icons.android),
+              title: Text('FAQ'),
+            ),
           ],
         ),
+      ),
+      body: Column(
+        children: <Widget>[
+          Row(
+            children: <Widget>[
+              Text("sdsd")
+            ],
+          ),
+          Card(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                ListTile(
+                  leading: Icon(Icons.album),
+                  title: Text('The Enchanted Nightingale'),
+                  subtitle:
+                      Text('Music by Julie Gable. Lyrics by Sidney Stein.'),
+                ),
+                ButtonBar(
+                  children: <Widget>[
+                    FlatButton(
+                      child: const Text('BUY TICKETS'),
+                      onPressed: () {
+                        /* ... */
+                      },
+                    ),
+                    FlatButton(
+                      child: const Text('LISTEN'),
+                      onPressed: () {
+                        /* ... */
+                      },
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
