@@ -159,7 +159,7 @@ class _MapPageState extends State<MapPage> {
     return Scaffold(
         appBar: AppBar(
           title: Text('Mapa do Grupo'),
-          backgroundColor: Colors.cyan,
+          backgroundColor: Theme.of(context).primaryColor,
         ),
         body: Stack(
           children: <Widget>[
@@ -176,7 +176,7 @@ class _MapPageState extends State<MapPage> {
             Align(
               child: FloatingActionButton(
                 child: Icon(Icons.update),
-                backgroundColor: Colors.cyanAccent,
+                backgroundColor: Theme.of(context).primaryColorDark,
                 onPressed: onPressUpdate,
               ),
               alignment: Alignment(0.8, 0.9),
