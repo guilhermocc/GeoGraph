@@ -8,9 +8,8 @@ import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
-  HomePage({Key key, this.title, this.uid}) : super(key: key);
+  HomePage({Key key, this.title}) : super(key: key);
   final String title;
-  final String uid;
 
   @override
   _HomePageState createState() => _HomePageState();

@@ -34,8 +34,6 @@ class LoginBloc {
     }
   }
 
-  String capitalize(String s) => s[0].toUpperCase() + s.substring(1);
-
   login(BuildContext context) async {
     // TODO It would be better to include here the error handling for these
     // methods call
@@ -65,12 +63,8 @@ class LoginBloc {
   Future<Object> navigateToHomePage(
       DocumentSnapshot userSnapShot, BuildContext context) {
     return Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-            builder: (context) => HomePage(
-                  title: "Bem vindo " + capitalize(userSnapShot["fname"]),
-                  uid: userSnapShot["uid"],
-                ))).catchError((err) => this.isLoading = false);
+            context, MaterialPageRoute(builder: (context) => HomePage()))
+        .catchError((err) => this.isLoading = false);
   }
 
   handleLoginError(err, BuildContext context) {
