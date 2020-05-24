@@ -26,7 +26,10 @@ class _RegisterPageState extends State<RegisterPage> {
             padding: const EdgeInsets.all(20.0),
             child: bloc.isLoading
                 ? Center(
-                    child: CircularProgressIndicator(),
+                    child: CircularProgressIndicator(
+                      backgroundColor: Theme.of(context).primaryColorLight,
+                      valueColor: new AlwaysStoppedAnimation<Color>(Theme.of(context).primaryColor),
+                    ),
                   )
                 : SingleChildScrollView(
                     child: Form(
