@@ -4,9 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:geograph/android/pages/home.dart';
+import 'package:geograph/blocs/user.bloc.dart';
 
 class RegisterBloc {
   final GlobalKey<FormState> registerFormKey = GlobalKey<FormState>();
+  final UserBloc userBloc = UserBloc();
   TextEditingController firstNameInputController = new TextEditingController();
   TextEditingController lastNameInputController = new TextEditingController();
   TextEditingController emailInputController = new TextEditingController();
@@ -116,5 +118,9 @@ class RegisterBloc {
     } else {
       return null;
     }
+  }
+
+  void loadUserInfo(DocumentSnapshot userSnapShot, BuildContext context) {
+    userBloc.updateUserStore(userSnapShot, context);
   }
 }
