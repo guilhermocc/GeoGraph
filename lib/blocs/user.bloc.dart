@@ -10,6 +10,7 @@ class UserBloc {
     userStore.setFirstName(userSnapShot["fname"]);
     userStore.setLastName(userSnapShot["surname"]);
     userStore.setEmail(userSnapShot["email"]);
+    userStore.setUid(userSnapShot["uid"]);
   }
 
   void resetUserStore(BuildContext context) {
@@ -17,5 +18,6 @@ class UserBloc {
     userStore.setFirstName("");
     userStore.setLastName("");
     userStore.setEmail("");
+    userStore.setUid("");
   }
 }

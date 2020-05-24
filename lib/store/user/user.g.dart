@@ -9,6 +9,21 @@ part of 'user.dart';
 // ignore_for_file: non_constant_identifier_names, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic
 
 mixin _$User on _User, Store {
+  final _$uidAtom = Atom(name: '_User.uid');
+
+  @override
+  String get uid {
+    _$uidAtom.reportRead();
+    return super.uid;
+  }
+
+  @override
+  set uid(String value) {
+    _$uidAtom.reportWrite(value, super.uid, () {
+      super.uid = value;
+    });
+  }
+
   final _$firstNameAtom = Atom(name: '_User.firstName');
 
   @override
@@ -57,6 +72,17 @@ mixin _$User on _User, Store {
   final _$_UserActionController = ActionController(name: '_User');
 
   @override
+  void setUid(String userUid) {
+    final _$actionInfo =
+        _$_UserActionController.startAction(name: '_User.setUid');
+    try {
+      return super.setUid(userUid);
+    } finally {
+      _$_UserActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   void setFirstName(String name) {
     final _$actionInfo =
         _$_UserActionController.startAction(name: '_User.setFirstName');
@@ -92,6 +118,7 @@ mixin _$User on _User, Store {
   @override
   String toString() {
     return '''
+uid: ${uid},
 firstName: ${firstName},
 lastName: ${lastName},
 email: ${email}
