@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -47,7 +48,27 @@ class _SplashPageState extends State<SplashPage> {
     return Scaffold(
       body: Center(
         child: Container(
-          child: Text("Loading..."),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              Container(
+                  padding: EdgeInsets.only(bottom: 20),
+                  child: Text(
+                    "GeoGraph",
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 40,
+                        color: Theme.of(context).primaryColor),
+                  )),
+              Container(
+                  padding: EdgeInsets.only(top: 90),
+                  child: CircularProgressIndicator(
+                    backgroundColor: Theme.of(context).primaryColorLight,
+                    valueColor: new AlwaysStoppedAnimation<Color>(Theme.of(context).primaryColor),
+                  ))
+            ],
+          ),
         ),
       ),
     );
