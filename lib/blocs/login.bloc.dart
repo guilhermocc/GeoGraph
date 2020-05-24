@@ -5,9 +5,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geograph/android/pages/home.dart';
+import 'package:geograph/blocs/user.bloc.dart';
+import 'package:geograph/store/user/user.dart';
 
 class LoginBloc {
   final GlobalKey<FormState> loginFormKey = GlobalKey<FormState>();
+  final UserBloc userBloc = UserBloc();
   var isLoading = false;
   var emailInputController = new TextEditingController();
   var passwordInputController = new TextEditingController();
@@ -31,8 +34,6 @@ class LoginBloc {
     }
   }
 
-  String capitalize(String s) => s[0].toUpperCase() + s.substring(1);
-
   login(BuildContext context) async {
     // TODO It would be better to include here the error handling for these
     // methods call
@@ -40,6 +41,7 @@ class LoginBloc {
       this.isLoading = true;
       AuthResult authResult = await signInWithLoginInfo();
       DocumentSnapshot userSnapshot = await getUserInfo(authResult);
+      loadUserInfo(userSnapshot, context);
       navigateToHomePage(userSnapshot, context);
     }
   }
@@ -61,15 +63,11 @@ class LoginBloc {
   Future<Object> navigateToHomePage(
       DocumentSnapshot userSnapShot, BuildContext context) {
     return Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-            builder: (context) => HomePage(
-                  title: "Bem vindo " + capitalize(userSnapShot["fname"]),
-                  uid: userSnapShot["uid"],
-                ))).catchError((err) => this.isLoading = false);
+            context, MaterialPageRoute(builder: (context) => HomePage()))
+        .catchError((err) => this.isLoading = false);
   }
 
-  handleLoginError(PlatformException err, BuildContext context) {
+  handleLoginError(err, BuildContext context) {
     this.isLoading = false;
     if (err.code == "ERROR_WRONG_PASSWORD" ||
         err.code == "ERROR_USER_NOT_FOUND") {
@@ -98,5 +96,9 @@ class LoginBloc {
             ],
           );
         });
+  }
+
+  void loadUserInfo(DocumentSnapshot userSnapShot, BuildContext context) {
+    userBloc.updateUserStore(userSnapShot, context);
   }
 }

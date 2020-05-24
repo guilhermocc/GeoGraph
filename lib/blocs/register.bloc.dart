@@ -4,9 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:geograph/android/pages/home.dart';
+import 'package:geograph/blocs/user.bloc.dart';
 
 class RegisterBloc {
   final GlobalKey<FormState> registerFormKey = GlobalKey<FormState>();
+  final UserBloc userBloc = UserBloc();
   TextEditingController firstNameInputController = new TextEditingController();
   TextEditingController lastNameInputController = new TextEditingController();
   TextEditingController emailInputController = new TextEditingController();
@@ -22,14 +24,12 @@ class RegisterBloc {
         this.isLoading = true;
         AuthResult authResult = await createUserWithEmailAndPassword();
         await updateUserData(authResult);
+        await loadUserInfo(context, authResult);
 
         Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(
                 builder: (context) => HomePage(
-                      // TODO this thitle is not beign displayed on home page
-                      title: this.firstNameInputController.text,
-                      uid: authResult.user.uid,
                     )),
             (_) => false);
         this.firstNameInputController.clear();
@@ -116,5 +116,14 @@ class RegisterBloc {
     } else {
       return null;
     }
+  }
+
+  void loadUserInfo(BuildContext context, AuthResult currentuser) async {
+    DocumentSnapshot userSnapShot = await Firestore.instance
+        .collection("users")
+        .document(currentuser.user.uid)
+        .get();
+
+    userBloc.updateUserStore(userSnapShot, context);
   }
 }
