@@ -27,84 +27,79 @@ class _LoginPageState extends State<LoginPage> {
             padding: const EdgeInsets.all(20.0),
             child: bloc.isLoading
                 ? Center(
-              child: CircularProgressIndicator(
-                backgroundColor: Theme.of(context).primaryColorLight,
-                valueColor: new AlwaysStoppedAnimation<Color>(Theme.of(context).primaryColor),
-              ),
-            )
+                    child: CircularProgressIndicator(
+                      backgroundColor: Theme.of(context).primaryColorLight,
+                      valueColor: new AlwaysStoppedAnimation<Color>(
+                          Theme.of(context).primaryColor),
+                    ),
+                  )
                 : SingleChildScrollView(
-                child: Form(
-                  key: bloc.loginFormKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: <Widget>[
-                      TextFormField(
-                        decoration: InputDecoration(
-                            labelText: 'Email',
-                            hintText: "exemplo@email.com"),
-                        controller: bloc.emailInputController,
-                        keyboardType: TextInputType.emailAddress,
-                        validator: bloc.emailValidator,
-                      ),
-                      TextFormField(
-                        decoration: InputDecoration(
-                            labelText: 'Senha', hintText: "********"),
-                        controller: bloc.passwordInputController,
-                        obscureText: true,
-                        validator: bloc.pwdValidator,
-                      ),
-                      Container(
-                          padding: EdgeInsets.only(top: 40, bottom: 15),
-                          child: RaisedButton(
-                              child: Text("Entrar"),
-                              color: Theme
-                                  .of(context)
-                                  .primaryColorDark,
-                              textColor: Colors.white,
-                              onPressed: () {
-                                setState(() {
-                                  // TODO It would be better to extract this logic
-                                  // and error handling to bloc class
-                                  bloc
-                                      .login(context)
-                                      .catchError((err) {
-                                    setState(() {
-                                      bloc.handleLoginError(err, context);
-                                    });
-                                  });
-                                });
-                              })),
-                      Row(children: <Widget>[
-                        Expanded(
-                          flex: 1,
-                          child: Divider(
-                            color: Colors.black,
-                          ),
+                    child: Form(
+                    key: bloc.loginFormKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: <Widget>[
+                        TextFormField(
+                          decoration: InputDecoration(
+                              labelText: 'Email',
+                              hintText: "exemplo@email.com"),
+                          controller: bloc.emailInputController,
+                          keyboardType: TextInputType.emailAddress,
+                          validator: bloc.emailValidator,
+                        ),
+                        TextFormField(
+                          decoration: InputDecoration(
+                              labelText: 'Senha', hintText: "********"),
+                          controller: bloc.passwordInputController,
+                          obscureText: true,
+                          validator: bloc.pwdValidator,
                         ),
                         Container(
-                          padding: EdgeInsets.only(left: 8, right: 8),
-                          child: Text('Ou'),
-                        ),
-                        Expanded(
+                            padding: EdgeInsets.only(top: 40, bottom: 15),
+                            child: RaisedButton(
+                                child: Text("Entrar"),
+                                color: Theme.of(context).primaryColorDark,
+                                textColor: Colors.white,
+                                onPressed: () {
+                                  setState(() {
+                                    // TODO It would be better to extract this logic
+                                    // and error handling to bloc class
+                                    bloc.login(context).catchError((err) {
+                                      setState(() {
+                                        bloc.handleLoginError(err, context);
+                                      });
+                                    });
+                                  });
+                                })),
+                        Row(children: <Widget>[
+                          Expanded(
+                            flex: 1,
                             child: Divider(
                               color: Colors.black,
-                            )),
-                      ]),
-                      Container(
-                        padding: EdgeInsets.only(top: 15),
-                        child: RaisedButton(
-                          child: Text("Crie sua conta"),
-                          color: Theme
-                              .of(context)
-                              .primaryColorDark,
-                          textColor: Colors.white,
-                          onPressed: () {
-                            Navigator.pushNamed(context, "/register");
-                          },
+                            ),
+                          ),
+                          Container(
+                            padding: EdgeInsets.only(left: 8, right: 8),
+                            child: Text('Ou'),
+                          ),
+                          Expanded(
+                              child: Divider(
+                            color: Colors.black,
+                          )),
+                        ]),
+                        Container(
+                          padding: EdgeInsets.only(top: 15),
+                          child: RaisedButton(
+                            child: Text("Crie sua conta"),
+                            color: Theme.of(context).primaryColorDark,
+                            textColor: Colors.white,
+                            onPressed: () {
+                              Navigator.pushNamed(context, "/register");
+                            },
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                ))));
+                      ],
+                    ),
+                  ))));
   }
 }
