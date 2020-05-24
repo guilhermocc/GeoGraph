@@ -69,108 +69,57 @@ class _HomePageState extends State<HomePage> {
                             ))
                       ],
                     ),
-                    Divider(height: 20),
                   ],
                 )),
             ListTile(
-              leading: Icon(Icons.message),
+              leading: Icon(
+                Icons.library_add,
+                color: Theme.of(context).primaryColorDark,
+              ),
               title: Text('Criar Grupo'),
             ),
             ListTile(
-              leading: Icon(Icons.account_circle),
+              leading: Icon(
+                Icons.group,
+                color: Theme.of(context).primaryColorDark,
+              ),
+              onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => MapPage(userId: user.uid))),
               title: Text('Meus Grupos'),
             ),
             ListTile(
-              leading: Icon(Icons.settings),
+              leading: Icon(
+                Icons.group_add,
+                color: Theme.of(context).primaryColorDark,
+              ),
               title: Text('Entrar em um Grupo'),
             ),
-            ListTile(
-              leading: Icon(Icons.outlined_flag),
-              title: Text('LogOut'),
-            ),
             Divider(
-              height: 100,
+              height: 50,
+              thickness: 2,
             ),
             ListTile(
               title: Text("LogOut"),
-              leading: Icon(Icons.arrow_back),
+              leading: Icon(
+                Icons.exit_to_app,
+                color: Theme.of(context).primaryColorDark,
+              ),
               onTap: () => bloc.onLogout(context),
             ),
             ListTile(
-              leading: Icon(Icons.android),
+              leading: Icon(
+                Icons.help,
+                color: Theme.of(context).primaryColorDark,
+              ),
               title: Text('FAQ'),
-              onTap: () => user.setFirstName("asds"),
             ),
           ],
         ),
       ),
       body: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: <Widget>[
-          Expanded(
-            flex: 1,
-            child: Row(
-              children: <Widget>[
-                Expanded(
-                  flex: 1,
-                  child: Card(
-                    child: Container(
-                      height: (MediaQuery.of(context).size.height) / 2.5,
-                      width: MediaQuery.of(context).size.width / 2.5,
-                      child: Text("Sample Caixa"),
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10)),
-                    ),
-                  ),
-                ),
-                Expanded(
-                  flex: 1,
-                  child: Card(
-                    child: Container(
-                      height: (MediaQuery.of(context).size.height) / 2.5,
-                      width: MediaQuery.of(context).size.width / 2.5,
-                      child: Text("Sample Caixa"),
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10)),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            flex: 1,
-            child: Row(
-              children: <Widget>[
-                Expanded(
-                  flex: 1,
-                  child: Card(
-                    child: Container(
-                      height: (MediaQuery.of(context).size.height) / 2.5,
-                      width: MediaQuery.of(context).size.width / 2.5,
-                      child: Text("Sample Caixa"),
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10)),
-                    ),
-                  ),
-                ),
-                Expanded(
-                  flex: 1,
-                  child: Card(
-                    child: Container(
-                      padding: EdgeInsets.all(10),
-                      child: Text("Sample Caixa"),
-                      height: (MediaQuery.of(context).size.height) / 2.5,
-                      width: MediaQuery.of(context).size.width / 2.5,
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10)),
-                    ),
-                  ),
-                )
-              ],
-            ),
-          ),
-        ],
+        children: <Widget>[],
       ),
     );
   }
