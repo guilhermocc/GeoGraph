@@ -3,6 +3,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:geograph/android/pages/map.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:geograph/blocs/home.bloc.dart';
 import 'package:geograph/store/user/user.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
@@ -18,6 +19,8 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   Position myLocation;
   List<Placemark> myPlacemark;
+  HomeBloc bloc = HomeBloc();
+
   Future<void> _onGetMyLocation() async {
     Position currentLocation = await Geolocator()
         .getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
@@ -28,11 +31,6 @@ class _HomePageState extends State<HomePage> {
       myLocation = currentLocation;
       myPlacemark = placemark;
     });
-  }
-
-  void _onLogout() {
-    FirebaseAuth.instance.signOut();
-    Navigator.pushReplacementNamed(context, "/splash");
   }
 
   @override
@@ -96,7 +94,7 @@ class _HomePageState extends State<HomePage> {
             ListTile(
               title: Text("LogOut"),
               leading: Icon(Icons.arrow_back),
-              onTap: _onLogout,
+              onTap: () => bloc.onLogout(context),
             ),
             ListTile(
               leading: Icon(Icons.android),
