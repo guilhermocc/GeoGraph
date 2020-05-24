@@ -1,12 +1,15 @@
+import 'package:flutter/cupertino.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:geograph/android/pages/map.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:geograph/store/user/user.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
-  HomePage({Key key, this.title, this.uid}) : super(key: key);
+  HomePage({Key key, this.title}) : super(key: key);
   final String title;
-  final String uid;
 
   @override
   _HomePageState createState() => _HomePageState();
@@ -15,7 +18,6 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   Position myLocation;
   List<Placemark> myPlacemark;
-
   Future<void> _onGetMyLocation() async {
     Position currentLocation = await Geolocator()
         .getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
@@ -35,6 +37,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    User user = Provider.of<User>(context);
     return Scaffold(
       appBar: AppBar(title: const Text('GeoGraph')),
       drawer: Drawer(
@@ -57,11 +60,13 @@ class _HomePageState extends State<HomePage> {
                         ),
                         Container(
                             padding: EdgeInsets.only(bottom: 10, left: 10),
-                            child: Text(
-                              'Giovanna Rodrigues',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
+                            child: Observer(
+                              builder: (_) => Text(
+                                "${user.firstName}  ${user.lastName}",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                ),
                               ),
                             ))
                       ],
@@ -96,43 +101,74 @@ class _HomePageState extends State<HomePage> {
             ListTile(
               leading: Icon(Icons.android),
               title: Text('FAQ'),
+              onTap: () => user.setFirstName("asds"),
             ),
           ],
         ),
       ),
       body: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
         children: <Widget>[
-          Row(
-            children: <Widget>[
-              Text("sdsd")
-            ],
-          ),
-          Card(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
+          Expanded(
+            flex: 1,
+            child: Row(
               children: <Widget>[
-                ListTile(
-                  leading: Icon(Icons.album),
-                  title: Text('The Enchanted Nightingale'),
-                  subtitle:
-                      Text('Music by Julie Gable. Lyrics by Sidney Stein.'),
-                ),
-                ButtonBar(
-                  children: <Widget>[
-                    FlatButton(
-                      child: const Text('BUY TICKETS'),
-                      onPressed: () {
-                        /* ... */
-                      },
+                Expanded(
+                  flex: 1,
+                  child: Card(
+                    child: Container(
+                      height: (MediaQuery.of(context).size.height) / 2.5,
+                      width: MediaQuery.of(context).size.width / 2.5,
+                      child: Text("Sample Caixa"),
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10)),
                     ),
-                    FlatButton(
-                      child: const Text('LISTEN'),
-                      onPressed: () {
-                        /* ... */
-                      },
-                    ),
-                  ],
+                  ),
                 ),
+                Expanded(
+                  flex: 1,
+                  child: Card(
+                    child: Container(
+                      height: (MediaQuery.of(context).size.height) / 2.5,
+                      width: MediaQuery.of(context).size.width / 2.5,
+                      child: Text("Sample Caixa"),
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10)),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            flex: 1,
+            child: Row(
+              children: <Widget>[
+                Expanded(
+                  flex: 1,
+                  child: Card(
+                    child: Container(
+                      height: (MediaQuery.of(context).size.height) / 2.5,
+                      width: MediaQuery.of(context).size.width / 2.5,
+                      child: Text("Sample Caixa"),
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10)),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  flex: 1,
+                  child: Card(
+                    child: Container(
+                      padding: EdgeInsets.all(10),
+                      child: Text("Sample Caixa"),
+                      height: (MediaQuery.of(context).size.height) / 2.5,
+                      width: MediaQuery.of(context).size.width / 2.5,
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10)),
+                    ),
+                  ),
+                )
               ],
             ),
           ),
