@@ -6,6 +6,14 @@ class User = _User with _$User;
 
 abstract class _User with Store {
   @observable
+  String uid = "";
+
+  @action
+  void setUid(String userUid) {
+    uid = userUid;
+  }
+
+  @observable
   String firstName = "";
 
   @action
