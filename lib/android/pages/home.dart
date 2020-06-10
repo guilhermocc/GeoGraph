@@ -83,11 +83,19 @@ class _HomePageState extends State<HomePage> {
                 Icons.group,
                 color: Theme.of(context).primaryColorDark,
               ),
+              onTap: () => Navigator.pushNamed(context, '/my_groups'),
+              title: Text('Meus Grupos'),
+            ),
+            ListTile(
+              leading: Icon(
+                Icons.map,
+                color: Theme.of(context).primaryColorDark,
+              ),
               onTap: () => Navigator.push(
                   context,
                   MaterialPageRoute(
                       builder: (context) => MapPage(userId: user.uid))),
-              title: Text('Meus Grupos'),
+              title: Text('Mostrar Mapa'),
             ),
             ListTile(
               leading: Icon(
