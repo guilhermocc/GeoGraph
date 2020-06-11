@@ -1,11 +1,15 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:geograph/android/pages/person_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
+import 'package:geograph/store/user/user.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:provider/provider.dart';
 
 class MapPage extends StatefulWidget {
   MapPage({Key key, this.userId}) : super(key: key);
@@ -156,12 +160,90 @@ class _MapPageState extends State<MapPage> {
 
   @override
   Widget build(BuildContext context) {
+    User user = Provider.of<User>(context);
+
     return Scaffold(
-        appBar: AppBar(
-          title: Text('Mapa do Grupo'),
-          backgroundColor: Theme.of(context).primaryColor,
+      appBar: AppBar(title: const Text('Tela de Grupo')),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            DrawerHeader(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).primaryColor,
+                ),
+                child: Column(
+                  children: <Widget>[
+                    Row(
+                      children: <Widget>[
+                        CircleAvatar(
+                          radius: 40,
+                          backgroundImage: NetworkImage(
+                              'https://scontent.fcgh10-1.fna.fbcdn.net/v/t1.0-9/95000440_1110826205943316_9215072197238849536_n.jpg?_nc_cat=101&_nc_sid=09cbfe&_nc_eui2=AeFZ_PUsfWSiLNJt80r7qnoKoDNo-8fk6Q2gM2j7x-TpDdAEvqKt-Rcrjlf0B-8-BG0Ov2Pq7lKRg4Vsa3UKTayw&_nc_ohc=LsycrnlcH1cAX_Df4q1&_nc_ht=scontent.fcgh10-1.fna&oh=2592e4bba2ae5f78b169e35d9ebfaa18&oe=5EEE2171'),
+                          backgroundColor: Colors.transparent,
+                        ),
+                        Container(
+                            padding: EdgeInsets.only(bottom: 10, left: 10),
+                            child: Observer(
+                              builder: (_) => Text(
+                                "Nome do grupo",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ))
+                      ],
+                    ),
+                  ],
+                )),
+            ListTile(
+              leading: Icon(
+                Icons.map,
+                color: Theme.of(context).primaryColorDark,
+              ),
+              onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => MapPage(userId: user.uid))),
+              title: Text('Mostrar Mapa'),
+            ),
+            ListTile(
+              leading: Icon(
+                Icons.list,
+                color: Theme.of(context).primaryColorDark,
+              ),
+              title: Text('Mostrar Lista'),
+              onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => ListPage())),
+            ),
+            Divider(
+              height: 50,
+              thickness: 2,
+            ),
+            ListTile(
+              title: Text("Voltar para Menu"),
+              leading: Icon(
+                Icons.arrow_back,
+                color: Theme.of(context).primaryColorDark,
+              ),
+              onTap: (){
+                Navigator.pushReplacementNamed(context, "/home");
+              },
+            ),
+            ListTile(
+              leading: Icon(
+                Icons.help,
+                color: Theme.of(context).primaryColorDark,
+              ),
+              title: Text('FAQ'),
+            ),
+          ],
         ),
-        body: Stack(
+      ),
+      body: Stack(
           children: <Widget>[
             GoogleMap(
               onMapCreated: _onMapCreated,
@@ -182,7 +264,36 @@ class _MapPageState extends State<MapPage> {
               alignment: Alignment(0.8, 0.9),
             )
           ],
-        ));
+        ),
+    );
+
+//    return Scaffold(
+//        appBar: AppBar(
+//          title: Text('Mapa do Grupo'),
+//          backgroundColor: Theme.of(context).primaryColor,
+//        ),
+//        body: Stack(
+//          children: <Widget>[
+//            GoogleMap(
+//              onMapCreated: _onMapCreated,
+//              initialCameraPosition: CameraPosition(
+//                target: _center,
+//                zoom: 11.0,
+//              ),
+//              markers: _markers.values.toSet(),
+//              myLocationEnabled: true,
+//              myLocationButtonEnabled: true,
+//            ),
+//            Align(
+//              child: FloatingActionButton(
+//                child: Icon(Icons.update),
+//                backgroundColor: Theme.of(context).primaryColorDark,
+//                onPressed: onPressUpdate,
+//              ),
+//              alignment: Alignment(0.8, 0.9),
+//            )
+//          ],
+//        ));
   }
 
   void onPressUpdate() async {
@@ -280,5 +391,106 @@ class _MapPageState extends State<MapPage> {
     setState(() {
       _markers[locationId] = newMarker;
     });
+  }
+}
+
+class ListPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    User user = Provider.of<User>(context);
+
+    return Scaffold(
+      appBar: AppBar(title: const Text('GeoGraph')),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            DrawerHeader(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).primaryColor,
+                ),
+                child: Column(
+                  children: <Widget>[
+                    Row(
+                      children: <Widget>[
+                        CircleAvatar(
+                          radius: 40,
+                          backgroundImage: NetworkImage(
+                              'https://scontent.fcgh10-1.fna.fbcdn.net/v/t1.0-9/95000440_1110826205943316_9215072197238849536_n.jpg?_nc_cat=101&_nc_sid=09cbfe&_nc_eui2=AeFZ_PUsfWSiLNJt80r7qnoKoDNo-8fk6Q2gM2j7x-TpDdAEvqKt-Rcrjlf0B-8-BG0Ov2Pq7lKRg4Vsa3UKTayw&_nc_ohc=LsycrnlcH1cAX_Df4q1&_nc_ht=scontent.fcgh10-1.fna&oh=2592e4bba2ae5f78b169e35d9ebfaa18&oe=5EEE2171'),
+                          backgroundColor: Colors.transparent,
+                        ),
+                        Container(
+                            padding: EdgeInsets.only(bottom: 10, left: 10),
+                            child: Observer(
+                              builder: (_) => Text(
+                                "Nome do grupo",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ))
+                      ],
+                    ),
+                  ],
+                )),
+            ListTile(
+              leading: Icon(
+                Icons.map,
+                color: Theme.of(context).primaryColorDark,
+              ),
+              onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => MapPage(userId: user.uid))),
+              title: Text('Mostrar Mapa'),
+            ),
+            ListTile(
+              leading: Icon(
+                Icons.list,
+                color: Theme.of(context).primaryColorDark,
+              ),
+              title: Text('Mostrar Lista'),
+              onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => ListPage())),
+            ),
+            Divider(
+              height: 50,
+              thickness: 2,
+            ),
+            ListTile(
+              title: Text("Exit Group"),
+              leading: Icon(
+                Icons.exit_to_app,
+                color: Theme.of(context).primaryColorDark,
+              ),
+              onTap: () => {"aasd"},
+            ),
+            ListTile(
+              leading: Icon(
+                Icons.help,
+                color: Theme.of(context).primaryColorDark,
+              ),
+              title: Text('FAQ'),
+            ),
+          ],
+        ),
+      ),
+      body: Stack(
+        children: <Widget>[
+          Text("Lista de membros"),
+          Align(
+            child: FloatingActionButton(
+              child: Icon(Icons.update),
+              backgroundColor: Theme.of(context).primaryColorDark,
+              onPressed: () => { log("sdada")},
+            ),
+            alignment: Alignment(0.8, 0.9),
+          )
+        ],
+      ),
+    );
   }
 }
