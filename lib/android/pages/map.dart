@@ -12,8 +12,11 @@ import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 
 class MapPage extends StatefulWidget {
-  MapPage({Key key, this.userId}) : super(key: key);
+  MapPage({Key key, this.userId, this.groupId, this.membersArray})
+      : super(key: key);
   final String userId;
+  final String groupId;
+  List<dynamic> membersArray;
 
   @override
   _MapPageState createState() => _MapPageState();
@@ -29,7 +32,8 @@ class _MapPageState extends State<MapPage> {
   final locationOptions = LocationOptions(
       accuracy: LocationAccuracy.high, distanceFilter: 1, timeInterval: 5000);
   StreamSubscription<Position> positionSubscription;
-  StreamSubscription<QuerySnapshot> refreshSubscription;
+  StreamSubscription<QuerySnapshot> usersSubscription;
+  StreamSubscription<DocumentSnapshot> groupSubscription;
   GoogleMapController mapController;
 
   @override
@@ -42,7 +46,8 @@ class _MapPageState extends State<MapPage> {
   @override
   dispose() {
     positionSubscription.cancel();
-    refreshSubscription.cancel();
+    usersSubscription.cancel();
+    groupSubscription.cancel();
     super.dispose();
   }
 
@@ -50,15 +55,47 @@ class _MapPageState extends State<MapPage> {
   void initState() {
     super.initState();
     setCustomMapPin();
-    setPositionEventsSubscription();
-    setRefreshEventsSubscription();
+    setSelfPositionEventsSubscription();
+    setGroupUsersPositionsEventsSubscription();
+    setGroupChangesEventsSubscription();
   }
 
-  void setRefreshEventsSubscription() {
-    refreshSubscription = Firestore.instance
-        .collectionGroup("markers")
+  void setGroupChangesEventsSubscription() {
+    groupSubscription = Firestore.instance
+        .collection("groups")
+        .document(widget.groupId)
         .snapshots()
-        .listen((snapshot) {
+        .listen((DocumentSnapshot snapshot) async {
+      await groupChangeHandler(snapshot);
+    });
+  }
+
+  void groupChangeHandler(DocumentSnapshot snapshot) async {
+    var groupData = snapshot.data;
+    List newMembersArray =
+        groupData["members"].map((member) => member.documentID).toList();
+
+    widget.membersArray = newMembersArray;
+    updateGroupUsersPositionsEventsSubscription();
+    var loadedMarkers = await getGroupMarkers();
+
+    setState(() {
+      _markers.clear();
+      _markers.addAll(loadedMarkers);
+    });
+  }
+
+  void updateGroupUsersPositionsEventsSubscription() {
+    usersSubscription.cancel();
+    setGroupUsersPositionsEventsSubscription();
+  }
+
+  void setGroupUsersPositionsEventsSubscription() {
+    usersSubscription = Firestore.instance
+        .collection("users")
+        .where('uid', whereIn: widget.membersArray)
+        .snapshots()
+        .listen((QuerySnapshot snapshot) {
       refreshChangedMarkers(snapshot);
     });
   }
@@ -70,10 +107,14 @@ class _MapPageState extends State<MapPage> {
   // this method is going to be triggered and the location of itself will be updated (again)
   void refreshChangedMarkers(QuerySnapshot snapshot) {
     Map<String, Marker> updatedMarkers = {};
-    snapshot.documentChanges.forEach((documentChange) {
+    snapshot.documentChanges
+        .where((element) => element.document.data["marker"] != null)
+        .forEach((documentChange) {
       var locationId = documentChange.document.documentID;
-      var newLatitude = documentChange.document.data["position"].latitude;
-      var newLongitude = documentChange.document.data["position"].longitude;
+      var newLatitude =
+          documentChange.document.data["marker"]["position"].latitude;
+      var newLongitude =
+          documentChange.document.data["marker"]["position"].longitude;
       var newMarker = _markers[locationId]
           .copyWith(positionParam: LatLng(newLatitude, newLongitude));
       updatedMarkers[locationId] = newMarker;
@@ -91,7 +132,7 @@ class _MapPageState extends State<MapPage> {
         ImageConfiguration(devicePixelRatio: 2.5), 'assets/custom_person.png');
   }
 
-  void setPositionEventsSubscription() {
+  void setSelfPositionEventsSubscription() {
     positionSubscription = geoLocator
         .getPositionStream(locationOptions)
         .listen((Position position) {
@@ -108,27 +149,37 @@ class _MapPageState extends State<MapPage> {
         context: context, builder: (BuildContext context) => personDialog);
   }
 
-  Future<Map<String, Marker>> getGroupMarkers(currentPosition) async {
+  Future<Map<String, Marker>> getGroupMarkers() async {
     Map<String, Marker> markerList = {};
 
-    var markers = await Firestore.instance
-        .collectionGroup("markers")
+    List<DocumentSnapshot> groupUsers = await Firestore.instance
+        .collection("users")
+        .where('uid', whereIn: widget.membersArray)
         .getDocuments()
         .then((result) => result.documents);
 
-    markers.forEach((snapshot) => markerList.addAll({
-          snapshot.documentID: Marker(
-              markerId: MarkerId(snapshot.documentID),
-              icon: pinLocationIcon,
-              position: LatLng(snapshot.data["position"].latitude,
-                  snapshot.data["position"].longitude),
-              infoWindow: InfoWindow(
-                  title: snapshot.data["userName"],
-                  snippet: "Informacoes adicionais ...",
-                  onTap: () {
-                    showPersonDialog(context);
-                  }))
-        }));
+    groupUsers
+        .where((element) => element.data["marker"] != null)
+        .forEach((snapshot) {
+
+          var userPositonLatitude = snapshot.data["marker"]["position"].latitude;
+          var userPositonLongitude = snapshot.data["marker"]["position"].longitude;
+          var userPosition = LatLng(userPositonLatitude, userPositonLongitude);
+          var dialogTitle = snapshot.data["marker"]["userName"];
+
+      markerList.addAll({
+        snapshot.documentID: Marker(
+            markerId: MarkerId(snapshot.documentID),
+            icon: pinLocationIcon,
+            position: userPosition,
+            infoWindow: InfoWindow(
+                title: dialogTitle,
+                snippet: "Informacoes adicionais ...",
+                onTap: () {
+                  showPersonDialog(context);
+                }))
+      });
+    });
 
     return markerList;
   }
@@ -137,7 +188,7 @@ class _MapPageState extends State<MapPage> {
     Position currentPosition = await Geolocator()
         .getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
     await createOrUpdateGeoPoint(currentPosition);
-    var loadedMarkers = await getGroupMarkers(currentPosition);
+    var loadedMarkers = await getGroupMarkers();
 
     setState(() {
       mapController = controller;
@@ -157,6 +208,108 @@ class _MapPageState extends State<MapPage> {
   }
 
   String capitalize(String s) => s[0].toUpperCase() + s.substring(1);
+
+  void onPressUpdate() async {
+    Position currentPosition = await Geolocator()
+        .getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+
+    await createOrUpdateGeoPoint(currentPosition);
+    var loadedMarkers = await getGroupMarkers();
+
+    setState(() {
+      _markers.clear();
+      _markers.addAll(loadedMarkers);
+    });
+  }
+
+  Future createOrUpdateGeoPoint(Position currentPosition) async {
+    if (await geoPointsExists()) {
+      await updateGeoPoints(currentPosition);
+    } else {
+      createGeoPoints(currentPosition);
+    }
+  }
+
+  void createGeoPoints(Position currentPosition) async {
+    var currentUser = await getCurrentUser();
+    Firestore.instance
+        .collection("users")
+        .document(widget.userId)
+        .updateData({
+          "marker": {
+            "userName": capitalize(currentUser.data['fname']) +
+                " " +
+                capitalize(currentUser.data['surname']),
+            "position":
+                GeoPoint(currentPosition.latitude, currentPosition.longitude)
+          }
+        })
+        .then((result) => print("GEOPOINT CREATED "))
+        .catchError((error) => print("ERROR WHILE CREATING GEOPOINT" + error));
+
+    locationExistsOnDataBase = true;
+  }
+
+  Future updateGeoPoints(Position currentPosition) async {
+    var currentUser = await getCurrentUser();
+    var locationId = await getLocationId();
+    if (await geoPointsExists()) {
+      Firestore.instance
+          .collection("users")
+          .document(widget.userId)
+          .updateData({
+        "marker": {
+          "position":
+              GeoPoint(currentPosition.latitude, currentPosition.longitude),
+          "userName": capitalize(currentUser.data['fname']) +
+              " " +
+              capitalize(currentUser.data['surname']),
+        }
+      });
+    }
+    print("GEOPONTO ATUALIZADO");
+  }
+
+  getLocationId() async {
+    return await Firestore.instance
+        .collection("users")
+        .document(widget.userId)
+        .get()
+        .then((DocumentSnapshot document) => document.documentID);
+  }
+
+  geoPointsExists() async {
+    if (!locationHasBeenQueriedOnDataBase) {
+      locationExistsOnDataBase = await Firestore.instance
+          .collection("users")
+          .document(widget.userId)
+          .get()
+          .then((DocumentSnapshot document) =>
+              document.data["marker"] != null ? true : false);
+      locationHasBeenQueriedOnDataBase = true;
+    }
+    return locationExistsOnDataBase;
+  }
+
+  Future<void> updateGeoPointsAndRefreshSelfLocation(
+      Position currentPosition) async {
+    updateGeoPoints(currentPosition);
+    var locationId = await getLocationId();
+    refreshSelfLocation(currentPosition, locationId);
+  }
+
+  void refreshSelfLocation(Position currentPosition, String locationId) {
+    var newMarker = _markers[locationId].copyWith(
+        positionParam:
+            LatLng(currentPosition.latitude, currentPosition.longitude));
+    setState(() {
+      _markers[locationId] = newMarker;
+    });
+  }
+
+  void listenChange(QuerySnapshot snapshot) {
+    log(snapshot.toString());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -215,9 +368,7 @@ class _MapPageState extends State<MapPage> {
               ),
               title: Text('Mostrar Lista'),
               onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => ListPage())),
+                  context, MaterialPageRoute(builder: (context) => ListPage())),
             ),
             Divider(
               height: 50,
@@ -229,168 +380,39 @@ class _MapPageState extends State<MapPage> {
                 Icons.arrow_back,
                 color: Theme.of(context).primaryColorDark,
               ),
-              onTap: (){
+              onTap: () {
                 Navigator.pushReplacementNamed(context, "/home");
               },
-            ),
-            ListTile(
-              leading: Icon(
-                Icons.help,
-                color: Theme.of(context).primaryColorDark,
-              ),
-              title: Text('FAQ'),
             ),
           ],
         ),
       ),
       body: Stack(
-          children: <Widget>[
-            GoogleMap(
-              onMapCreated: _onMapCreated,
-              initialCameraPosition: CameraPosition(
-                target: _center,
-                zoom: 11.0,
-              ),
-              markers: _markers.values.toSet(),
-              myLocationEnabled: true,
-              myLocationButtonEnabled: true,
+        children: <Widget>[
+          GoogleMap(
+            onMapCreated: _onMapCreated,
+            initialCameraPosition: CameraPosition(
+              target: _center,
+              zoom: 11.0,
             ),
-            Align(
-              child: FloatingActionButton(
-                child: Icon(Icons.update),
-                backgroundColor: Theme.of(context).primaryColorDark,
-                onPressed: onPressUpdate,
-              ),
-              alignment: Alignment(0.8, 0.9),
-            )
-          ],
-        ),
-    );
-
-//    return Scaffold(
-//        appBar: AppBar(
-//          title: Text('Mapa do Grupo'),
-//          backgroundColor: Theme.of(context).primaryColor,
-//        ),
-//        body: Stack(
-//          children: <Widget>[
-//            GoogleMap(
-//              onMapCreated: _onMapCreated,
-//              initialCameraPosition: CameraPosition(
-//                target: _center,
-//                zoom: 11.0,
-//              ),
-//              markers: _markers.values.toSet(),
-//              myLocationEnabled: true,
-//              myLocationButtonEnabled: true,
-//            ),
-//            Align(
-//              child: FloatingActionButton(
-//                child: Icon(Icons.update),
-//                backgroundColor: Theme.of(context).primaryColorDark,
+            markers: _markers.values.toSet(),
+            myLocationEnabled: true,
+            myLocationButtonEnabled: true,
+          ),
+          Align(
+            child: FloatingActionButton(
+              child: Icon(Icons.update),
+              backgroundColor: Theme.of(context).primaryColorDark,
 //                onPressed: onPressUpdate,
-//              ),
-//              alignment: Alignment(0.8, 0.9),
-//            )
-//          ],
-//        ));
-  }
-
-  void onPressUpdate() async {
-    Position currentPosition = await Geolocator()
-        .getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-
-    await createOrUpdateGeoPoint(currentPosition);
-    var loadedMarkers = await getGroupMarkers(currentPosition);
-
-    setState(() {
-      _markers.clear();
-      _markers.addAll(loadedMarkers);
-    });
-  }
-
-  Future createOrUpdateGeoPoint(Position currentPosition) async {
-    if (await geoPointsExists()) {
-      await updateGeoPoints(currentPosition);
-    } else {
-      createGeoPoints(currentPosition);
-    }
-  }
-
-  void createGeoPoints(Position currentPosition) async {
-    var currentUser = await getCurrentUser();
-
-    Firestore.instance
-        .collection("users")
-        .document(widget.userId)
-        .collection("markers")
-        .add({
-          "userName": capitalize(currentUser.data['fname']) +
-              " " +
-              capitalize(currentUser.data['surname']),
-          "position":
-              GeoPoint(currentPosition.latitude, currentPosition.longitude)
-        })
-        .then((result) => print("GEOPOINT CREATED " + result.documentID))
-        .catchError((error) => print("ERROR WHILE CREATING GEOPOINT" + error));
-
-    locationExistsOnDataBase = true;
-  }
-
-  Future updateGeoPoints(Position currentPosition) async {
-    var locationId = await getLocationId();
-    if (await geoPointsExists()) {
-      Firestore.instance
-          .collection("users")
-          .document(widget.userId)
-          .collection("markers")
-          .document(locationId)
-          .updateData({
-        "position":
-            GeoPoint(currentPosition.latitude, currentPosition.longitude)
-      });
-    }
-    print("GEOPONTO ATUALIZADO");
-  }
-
-  getLocationId() async {
-    return await Firestore.instance
-        .collection("users")
-        .document(widget.userId)
-        .collection("markers")
-        .limit(1)
-        .getDocuments()
-        .then((QuerySnapshot b) => b.documents.first.documentID);
-  }
-
-  geoPointsExists() async {
-    if (!locationHasBeenQueriedOnDataBase) {
-      locationExistsOnDataBase = await Firestore.instance
-          .collection("users")
-          .document(widget.userId)
-          .collection("markers")
-          .limit(1)
-          .getDocuments()
-          .then((QuerySnapshot b) => b.documents.isEmpty ? false : true);
-      locationHasBeenQueriedOnDataBase = true;
-    }
-    return locationExistsOnDataBase;
-  }
-
-  Future<void> updateGeoPointsAndRefreshSelfLocation(
-      Position currentPosition) async {
-    updateGeoPoints(currentPosition);
-    var locationId = await getLocationId();
-    refreshSelfLocation(currentPosition, locationId);
-  }
-
-  void refreshSelfLocation(Position currentPosition, String locationId) {
-    var newMarker = _markers[locationId].copyWith(
-        positionParam:
-            LatLng(currentPosition.latitude, currentPosition.longitude));
-    setState(() {
-      _markers[locationId] = newMarker;
-    });
+              onPressed: () {
+                log("Floating button click");
+              },
+            ),
+            alignment: Alignment(0.8, 0.9),
+          )
+        ],
+      ),
+    );
   }
 }
 
@@ -452,9 +474,7 @@ class ListPage extends StatelessWidget {
               ),
               title: Text('Mostrar Lista'),
               onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => ListPage())),
+                  context, MaterialPageRoute(builder: (context) => ListPage())),
             ),
             Divider(
               height: 50,
@@ -485,7 +505,7 @@ class ListPage extends StatelessWidget {
             child: FloatingActionButton(
               child: Icon(Icons.update),
               backgroundColor: Theme.of(context).primaryColorDark,
-              onPressed: () => { log("sdada")},
+              onPressed: () => {log("sdada")},
             ),
             alignment: Alignment(0.8, 0.9),
           )

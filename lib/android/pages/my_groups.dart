@@ -6,6 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:geograph/blocs/my_groups.bloc.dart';
 import 'package:geograph/store/user/user.dart';
+import 'package:provider/provider.dart';
+
+import 'map.dart';
 
 class MyGroupsPage extends StatefulWidget {
   MyGroupsPage({Key key}) : super(key: key);
@@ -23,6 +26,7 @@ class MyGroupPageState extends State<MyGroupsPage> {
   @override
   Widget build(BuildContext context) {
     MyGroupsBloc bloc = MyGroupsBloc();
+    User user = Provider.of<User>(context);
 
     return FutureBuilder<List<DocumentSnapshot>>(
       future: bloc.getGroups(context),
@@ -49,7 +53,23 @@ class MyGroupPageState extends State<MyGroupsPage> {
                                 Icons.keyboard_arrow_right,
                                 color: Theme.of(context).primaryColorDark,
                               ),
-                              onTap: () => log("Click group"),
+                              onTap: () async {
+                                var groupSnapShot = await Firestore.instance
+                                    .collection("groups")
+                                    .document(group.documentID)
+                                    .get();
+                                var groupData = groupSnapShot.data;
+                                List membersArray = groupData["members"]
+                                    .map((member) => member.documentID)
+                                    .toList();
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => MapPage(
+                                            userId: user.uid,
+                                            groupId: group.documentID,
+                                            membersArray: membersArray)));
+                              },
                             ),
                           ))
                       .toList(),

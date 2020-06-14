@@ -88,17 +88,6 @@ class _HomePageState extends State<HomePage> {
             ),
             ListTile(
               leading: Icon(
-                Icons.map,
-                color: Theme.of(context).primaryColorDark,
-              ),
-              onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => MapPage(userId: user.uid))),
-              title: Text('Mostrar Mapa'),
-            ),
-            ListTile(
-              leading: Icon(
                 Icons.group_add,
                 color: Theme.of(context).primaryColorDark,
               ),
