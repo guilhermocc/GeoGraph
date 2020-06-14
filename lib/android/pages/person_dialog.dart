@@ -28,19 +28,6 @@ class PersonDialog extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: <Widget>[
                   RaisedButton(
-                    color: Colors.cyan,
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: Text(
-                      'Notificar',
-                      style: TextStyle(fontSize: 18.0, color: Colors.white),
-                    ),
-                  ),
-                  SizedBox(
-                    width: 20,
-                  ),
-                  RaisedButton(
                     color: Colors.red,
                     onPressed: () {
                       Navigator.of(context).pop();
