@@ -73,7 +73,7 @@ class _MapPageState extends State<MapPage> {
   void groupChangeHandler(DocumentSnapshot snapshot) async {
     var groupData = snapshot.data;
     List newMembersArray =
-        groupData["members"].map((member) => member.documentID).toList();
+        groupData["members"].map((member) => member["uid"].documentID).toList();
 
     widget.membersArray = newMembersArray;
     updateGroupUsersPositionsEventsSubscription();
