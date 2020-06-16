@@ -60,7 +60,7 @@ class MyGroupPageState extends State<MyGroupsPage> {
                                     .get();
                                 var groupData = groupSnapShot.data;
                                 List membersArray = groupData["members"]
-                                    .map((member) => member.documentID)
+                                    .map((member) => member["uid"].documentID)
                                     .toList();
                                 Navigator.push(
                                     context,

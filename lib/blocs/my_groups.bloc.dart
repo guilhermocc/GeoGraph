@@ -7,11 +7,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geograph/android/pages/home.dart';
 import 'package:geograph/blocs/user.bloc.dart';
+import 'package:geograph/main.dart';
 import 'package:geograph/store/user/user.dart';
 import 'package:provider/provider.dart';
 
 class MyGroupsBloc {
-
 //  User userStore;
 
 //  MyGroupsBloc(BuildContext context) {
@@ -76,13 +76,16 @@ class MyGroupsBloc {
   Future<List<DocumentSnapshot>> getGroups(context) {
     User userStore = Provider.of<User>(context, listen: false);
 
-    DocumentReference userReference = Firestore.instance.collection("users")
-        .document(userStore.uid);
+    DocumentReference userReference =
+        Firestore.instance.collection("users").document(userStore.uid);
 
-
-    return Firestore.instance.collection("groups").where(
-        'members', arrayContains: userReference).getDocuments().then(
-            (QuerySnapshot queryResult) => queryResult.documents);
+    return Firestore.instance
+        .collection("groups")
+        .where('members', arrayContainsAny: [
+          {'uid': userReference, 'type': 'admin'},
+          {'uid': userReference, 'type': 'neutral'}
+        ])
+        .getDocuments()
+        .then((QuerySnapshot queryResult) => queryResult.documents);
   }
-
 }
