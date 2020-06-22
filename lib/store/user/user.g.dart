@@ -9,6 +9,21 @@ part of 'user.dart';
 // ignore_for_file: non_constant_identifier_names, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic
 
 mixin _$User on _User, Store {
+  final _$documentReferenceAtom = Atom(name: '_User.documentReference');
+
+  @override
+  DocumentReference get documentReference {
+    _$documentReferenceAtom.reportRead();
+    return super.documentReference;
+  }
+
+  @override
+  set documentReference(DocumentReference value) {
+    _$documentReferenceAtom.reportWrite(value, super.documentReference, () {
+      super.documentReference = value;
+    });
+  }
+
   final _$uidAtom = Atom(name: '_User.uid');
 
   @override
@@ -72,6 +87,17 @@ mixin _$User on _User, Store {
   final _$_UserActionController = ActionController(name: '_User');
 
   @override
+  void setDocumentReference(DocumentReference reference) {
+    final _$actionInfo =
+        _$_UserActionController.startAction(name: '_User.setDocumentReference');
+    try {
+      return super.setDocumentReference(reference);
+    } finally {
+      _$_UserActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   void setUid(String userUid) {
     final _$actionInfo =
         _$_UserActionController.startAction(name: '_User.setUid');
@@ -118,6 +144,7 @@ mixin _$User on _User, Store {
   @override
   String toString() {
     return '''
+documentReference: ${documentReference},
 uid: ${uid},
 firstName: ${firstName},
 lastName: ${lastName},

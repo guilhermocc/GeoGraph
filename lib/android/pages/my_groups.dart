@@ -48,7 +48,7 @@ class MyGroupPageState extends State<MyGroupsPage> {
                                 color: Theme.of(context).primaryColorDark,
                               ),
                               title: Text(group.data["title"]),
-                              subtitle: Text(group.data["description"]),
+                              subtitle: Text(descriptionAbstract(group.data["description"])),
                               trailing: Icon(
                                 Icons.keyboard_arrow_right,
                                 color: Theme.of(context).primaryColorDark,
@@ -124,4 +124,12 @@ class MyGroupPageState extends State<MyGroupsPage> {
   }
 
   fetchData(User userStore) async {}
+
+  String descriptionAbstract(String data) {
+    String singleLine = data.replaceAll("\n", " ").trim();
+    if(singleLine.length < 40) {
+      return singleLine;
+    }
+    return singleLine.substring(0, 37).trim() + "...";
+  }
 }

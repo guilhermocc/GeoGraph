@@ -76,6 +76,7 @@ class _HomePageState extends State<HomePage> {
                 Icons.library_add,
                 color: Theme.of(context).primaryColorDark,
               ),
+              onTap: () => Navigator.pushNamed(context, '/create_group'),
               title: Text('Criar Grupo'),
             ),
             ListTile(
