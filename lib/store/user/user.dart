@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:mobx/mobx.dart';
 
 part 'user.g.dart';
@@ -5,6 +6,14 @@ part 'user.g.dart';
 class User = _User with _$User;
 
 abstract class _User with Store {
+  @observable
+  DocumentReference documentReference;
+
+  @action
+  void setDocumentReference(DocumentReference reference) {
+    documentReference = reference;
+  }
+
   @observable
   String uid = "";
 

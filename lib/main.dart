@@ -1,3 +1,4 @@
+import 'package:geograph/android/pages/create_group.dart';
 import 'package:geograph/android/pages/map.dart';
 import 'package:geograph/android/pages/register.dart';
 import 'package:geograph/android/pages/splash.dart';
@@ -31,7 +32,8 @@ class App extends StatelessWidget {
               '/register': (BuildContext context) => RegisterPage(),
               '/map': (BuildContext context) => MapPage(),
               '/splash': (BuildContext context) => SplashPage(),
-              '/my_groups': (BuildContext context) => MyGroupsPage()
+              '/my_groups': (BuildContext context) => MyGroupsPage(),
+              '/create_group': (BuildContext context) => CreateGroup()
             }));
   }
 }
