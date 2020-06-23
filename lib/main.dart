@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:geograph/store/user/user.dart';
 import 'package:provider/provider.dart';
 
+import 'android/pages/enter_new_group.dart';
 import 'android/pages/home.dart';
 import 'android/pages/login.dart';
 import 'android/pages/my_groups.dart';
@@ -33,7 +34,8 @@ class App extends StatelessWidget {
               '/map': (BuildContext context) => MapPage(),
               '/splash': (BuildContext context) => SplashPage(),
               '/my_groups': (BuildContext context) => MyGroupsPage(),
-              '/create_group': (BuildContext context) => CreateGroup()
+              '/create_group': (BuildContext context) => CreateGroupPage(),
+              '/enter_new_group': (BuildContext context) => EnterNewGroupPage(),
             }));
   }
 }

@@ -33,6 +33,7 @@ class CreateGroupBloc {
         Firestore.instance.collection("groups").add(
           {
             "identifier": uuid.v1(),
+            "password": passwordInputController.text,
             "title": nameInputController.text,
             "description": descriptionInputController.text,
             "members": [
