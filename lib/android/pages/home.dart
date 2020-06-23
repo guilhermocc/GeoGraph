@@ -53,7 +53,7 @@ class _HomePageState extends State<HomePage> {
                         CircleAvatar(
                           radius: 40,
                           backgroundImage: NetworkImage(
-                            'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y'),
+                              'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y'),
                           backgroundColor: Colors.transparent,
                         ),
                         Container(
@@ -92,6 +92,7 @@ class _HomePageState extends State<HomePage> {
                 Icons.group_add,
                 color: Theme.of(context).primaryColorDark,
               ),
+              onTap: () => Navigator.pushNamed(context, '/enter_new_group'),
               title: Text('Entrar em um Grupo'),
             ),
             Divider(

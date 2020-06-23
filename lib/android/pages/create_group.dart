@@ -11,14 +11,14 @@ import 'package:provider/provider.dart';
 
 import 'map.dart';
 
-class CreateGroup extends StatefulWidget {
-  CreateGroup({Key key}) : super(key: key);
+class CreateGroupPage extends StatefulWidget {
+  CreateGroupPage({Key key}) : super(key: key);
 
   @override
-  CreateGroupState createState() => CreateGroupState();
+  CreateGroupPageState createState() => CreateGroupPageState();
 }
 
-class CreateGroupState extends State<CreateGroup> {
+class CreateGroupPageState extends State<CreateGroupPage> {
   CreateGroupBloc bloc = new CreateGroupBloc();
 
   @override
