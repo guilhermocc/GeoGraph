@@ -22,7 +22,7 @@ class _EnterNewGroupPageState extends State<EnterNewGroupPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text("GeoGraph"),
+          title: Text("Entrar em um novo grupo"),
         ),
         body: Container(
             padding: const EdgeInsets.all(20.0),

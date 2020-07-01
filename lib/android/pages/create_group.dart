@@ -60,7 +60,7 @@ class CreateGroupPageState extends State<CreateGroupPage> {
                               CircleAvatar(
                                 radius: 50,
                                 backgroundImage: NetworkImage(
-                                    'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y'),
+                                    'https://i.picsum.photos/id/866/200/300.jpg?hmac=rcadCENKh4rD6MAp6V_ma-AyWv641M4iiOpe1RyFHeI'),
                                 backgroundColor: Colors.transparent,
                               ),
                               TextFormField(
