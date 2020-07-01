@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:geograph/android/pages/home.dart';
+import 'package:geograph/android/pages/map.dart';
 import 'package:geograph/blocs/user.bloc.dart';
 import 'package:geograph/store/user/user.dart';
 import 'package:provider/provider.dart';
@@ -30,7 +31,7 @@ class CreateGroupBloc {
         var uuid = new Uuid();
 
 
-        Firestore.instance.collection("groups").add(
+        DocumentReference groupCreated = await Firestore.instance.collection("groups").add(
           {
             "identifier": uuid.v1(),
             "password": passwordInputController.text,
@@ -45,8 +46,9 @@ class CreateGroupBloc {
           }
         );
 
-        Navigator.pushAndRemoveUntil(context,
-            MaterialPageRoute(builder: (context) => HomePage()), (_) => false);
+        DocumentSnapshot groupSnapShot = await groupCreated.get();
+
+        navigateToGroupPage(groupSnapShot, context, user);
         this.nameInputController.clear();
         this.descriptionInputController.clear();
         this.passwordInputController.clear();
@@ -107,6 +109,19 @@ class CreateGroupBloc {
         this.showErrorDialog(context, "Houve um erro ao criar a conta");
       }
     }
+  }
+
+  navigateToGroupPage(DocumentSnapshot groupSnapShot, BuildContext context, User user) async {
+    var groupData = groupSnapShot.data;
+    List membersArray =
+    groupData["members"].map((member) => member["uid"].documentID).toList();
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => MapPage(
+                userId: user.uid,
+                groupId: groupSnapShot.documentID,
+                membersArray: membersArray)));
   }
 
   String pwdValidator(String value) {
