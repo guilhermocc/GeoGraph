@@ -16,8 +16,7 @@ class CreateGroupBloc {
   TextEditingController nameInputController = new TextEditingController();
   TextEditingController descriptionInputController =
       new TextEditingController();
-  TextEditingController passwordInputController =
-      new TextEditingController();
+  TextEditingController passwordInputController = new TextEditingController();
   TextEditingController confirmPasswordInputController =
       new TextEditingController();
   bool isLoading = false;
@@ -30,21 +29,16 @@ class CreateGroupBloc {
         User user = Provider.of<User>(context, listen: false);
         var uuid = new Uuid();
 
-
-        DocumentReference groupCreated = await Firestore.instance.collection("groups").add(
-          {
-            "identifier": uuid.v1(),
-            "password": passwordInputController.text,
-            "title": nameInputController.text,
-            "description": descriptionInputController.text,
-            "members": [
-              {
-                "type": "admin",
-                "uid": user.documentReference
-              }
-            ]
-          }
-        );
+        DocumentReference groupCreated =
+            await Firestore.instance.collection("groups").add({
+          "identifier": uuid.v1(),
+          "password": passwordInputController.text,
+          "title": nameInputController.text,
+          "description": descriptionInputController.text,
+          "members": [
+            {"type": "admin", "uid": user.documentReference}
+          ]
+        });
 
         DocumentSnapshot groupSnapShot = await groupCreated.get();
 
@@ -111,17 +105,23 @@ class CreateGroupBloc {
     }
   }
 
-  navigateToGroupPage(DocumentSnapshot groupSnapShot, BuildContext context, User user) async {
+  navigateToGroupPage(
+      DocumentSnapshot groupSnapShot, BuildContext context, User user) async {
     var groupData = groupSnapShot.data;
-    List membersArray =
-    groupData["members"].map((member) => member["uid"].documentID).toList();
+    List<String> membersUidList = List<String>.from(groupData["members"]
+        .map((member) => member["uid"].documentID)
+        .toList());
+    List<dynamic> membersList = groupData["members"];
+
     Navigator.push(
         context,
         MaterialPageRoute(
             builder: (context) => MapPage(
-                userId: user.uid,
-                groupId: groupSnapShot.documentID,
-                membersArray: membersArray)));
+                  userId: user.uid,
+                  groupId: groupSnapShot.documentID,
+                  membersUidList: membersUidList,
+                  membersList: membersList,
+                )));
   }
 
   String pwdValidator(String value) {
@@ -139,5 +139,4 @@ class CreateGroupBloc {
       return null;
     }
   }
-
 }

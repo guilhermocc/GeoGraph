@@ -47,7 +47,7 @@ class EnterNewGroupBloc {
       QuerySnapshot groupQuery = await Firestore.instance
           .collection("groups")
           .where("identifier",
-              isEqualTo: identifierInputController.text)
+          isEqualTo: identifierInputController.text)
           .limit(1)
           .getDocuments();
       DocumentSnapshot group = groupQuery.documents.first;
@@ -56,7 +56,6 @@ class EnterNewGroupBloc {
         await navigateToGroupPage(group, context, user);
       } else {
         throw ("Wrong password");
-
       }
     }
   }
@@ -75,17 +74,23 @@ class EnterNewGroupBloc {
         .catchError((err) => this.isLoading = false);
   }
 
-  navigateToGroupPage(DocumentSnapshot groupSnapShot, BuildContext context, User user) async {
+  navigateToGroupPage(DocumentSnapshot groupSnapShot, BuildContext context,
+      User user) async {
     var groupData = groupSnapShot.data;
-    List membersArray =
-        groupData["members"].map((member) => member["uid"].documentID).toList();
+    List<String> membersUidList = new List<String>.from(
+        groupData["members"].map((member) => member["uid"].documentID).toList()
+    );
+    List<dynamic> membersList = groupData["members"];
     Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => MapPage(
-                userId: user.uid,
-                groupId: groupSnapShot.documentID,
-                membersArray: membersArray)));
+            builder: (context) =>
+                MapPage(
+                    userId: user.uid,
+                    groupId: groupSnapShot.documentID,
+                    membersUidList: membersUidList,
+                    membersList: membersList
+                )));
   }
 
   handleEnterGroupError(err, BuildContext context) {

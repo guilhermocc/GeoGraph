@@ -48,7 +48,8 @@ class MyGroupPageState extends State<MyGroupsPage> {
                                 color: Theme.of(context).primaryColorDark,
                               ),
                               title: Text(group.data["title"]),
-                              subtitle: Text(descriptionAbstract(group.data["description"])),
+                              subtitle: Text(descriptionAbstract(
+                                  group.data["description"])),
                               trailing: Icon(
                                 Icons.keyboard_arrow_right,
                                 color: Theme.of(context).primaryColorDark,
@@ -59,16 +60,21 @@ class MyGroupPageState extends State<MyGroupsPage> {
                                     .document(group.documentID)
                                     .get();
                                 var groupData = groupSnapShot.data;
-                                List membersArray = groupData["members"]
-                                    .map((member) => member["uid"].documentID)
-                                    .toList();
+                                List<String> membersUidList =
+                                    new List<String>.from(groupData["members"]
+                                        .map((member) =>
+                                            member["uid"].documentID)
+                                        .toList());
+                                List<dynamic> membersList = groupData["members"];
+
                                 Navigator.push(
                                     context,
                                     MaterialPageRoute(
                                         builder: (context) => MapPage(
                                             userId: user.uid,
                                             groupId: group.documentID,
-                                            membersArray: membersArray)));
+                                            membersUidList: membersUidList,
+                                            membersList: membersList)));
                               },
                             ),
                           ))
@@ -127,7 +133,7 @@ class MyGroupPageState extends State<MyGroupsPage> {
 
   String descriptionAbstract(String data) {
     String singleLine = data.replaceAll("\n", " ").trim();
-    if(singleLine.length < 40) {
+    if (singleLine.length < 40) {
       return singleLine;
     }
     return singleLine.substring(0, 37).trim() + "...";
