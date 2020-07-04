@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:developer';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:geograph/android/pages/person_dialog.dart';
@@ -10,6 +9,8 @@ import 'package:geograph/store/user/user.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
+import 'dart:math';
+
 
 class MapPage extends StatefulWidget {
   MapPage({Key key,
@@ -32,7 +33,9 @@ class MapPage extends StatefulWidget {
 class _MapPageState extends State<MapPage> {
   final LatLng _center = LatLng(-23.563900, -46.653641);
   final Map<String, Marker> _markers = {};
-  BitmapDescriptor pinLocationIcon;
+  BitmapDescriptor pinLocationIconAdmin;
+  BitmapDescriptor pinLocationIconNeutral;
+
   final geoLocator = Geolocator();
   var locationHasBeenQueriedOnDataBase = false;
   var locationExistsOnDataBase = false;
@@ -43,6 +46,8 @@ class _MapPageState extends State<MapPage> {
   StreamSubscription<DocumentSnapshot> groupSubscription;
   GoogleMapController mapController;
   String userType;
+  final Map<String, dynamic> groupMembersInfos = {};
+  LatLng currentUserPosition;
 
   @override
   void setState(fn) {
@@ -62,11 +67,65 @@ class _MapPageState extends State<MapPage> {
   @override
   void initState() {
     super.initState();
+    loadGroupMembersInfos();
+    loadInitialMarkers();
+    loadFirstCurrentPosition();
     setUserType();
     setCustomMapPin();
     setSelfPositionEventsSubscription();
     setGroupUsersPositionsEventsSubscription();
     setGroupChangesEventsSubscription();
+  }
+
+  void loadFirstCurrentPosition() async {
+    Position currentPosition = await Geolocator()
+        .getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    setState(() {
+      currentUserPosition =
+          LatLng(currentPosition.latitude, currentPosition.longitude);
+    });
+  }
+
+  void loadInitialMarkers() async {
+    Position currentPosition = await Geolocator()
+        .getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    await createOrUpdateGeoPoint(currentPosition);
+    var loadedMarkers = await getGroupMarkers();
+    setState(() {
+      _markers.clear();
+      _markers.addAll(loadedMarkers);
+    });
+  }
+
+  void loadGroupMembersInfos() async {
+    Map<String, dynamic> updatedGroupMembers = {};
+
+    List<DocumentSnapshot> groupUsers = await Firestore.instance
+        .collection("users")
+        .where('uid', whereIn: widget.membersUidList)
+        .getDocuments()
+        .then((result) => result.documents);
+
+    groupUsers
+        .where((element) => element.data["marker"] != null)
+        .forEach((snapshot) {
+      var userData = snapshot.data;
+      updatedGroupMembers.addAll({
+        userData["uid"]: {
+          "uid": userData["uid"],
+          "email": userData["email"],
+          "fullname": userData["fname"] + " " + userData["surname"],
+          "type": widget.membersList.firstWhere(
+                  (element) =>
+              element["uid"].documentID == userData["uid"])["type"]
+        }
+      });
+    });
+
+    setState(() {
+      groupMembersInfos.clear();
+      groupMembersInfos.addAll(updatedGroupMembers);
+    });
   }
 
   void setGroupChangesEventsSubscription() {
@@ -81,11 +140,15 @@ class _MapPageState extends State<MapPage> {
 
   void groupChangeHandler(DocumentSnapshot snapshot) async {
     var groupData = snapshot.data;
-    List<String> newMembersArray = new List<String>.from(groupData["members"]
+    List<String> newMembersUidList = new List<String>.from(groupData["members"]
         .map((member) => member["uid"].documentID)
         .toList());
 
-    widget.membersUidList = newMembersArray;
+    List newMembersList = groupData["members"];
+
+    widget.membersUidList = newMembersUidList;
+    widget.membersList = newMembersList;
+
     updateGroupUsersPositionsEventsSubscription();
     var loadedMarkers = await getGroupMarkers();
 
@@ -107,6 +170,31 @@ class _MapPageState extends State<MapPage> {
         .snapshots()
         .listen((QuerySnapshot snapshot) {
       refreshChangedMarkers(snapshot);
+      refreshMembersInfos(snapshot);
+    });
+  }
+
+  void refreshMembersInfos(QuerySnapshot snapshot) {
+    Map<String, dynamic> updatedMemberInfos = {};
+    snapshot.documentChanges
+        .where((element) => element.document.data["marker"] != null)
+        .forEach((documentChange) {
+      var userData = documentChange.document.data;
+      updatedMemberInfos.addAll({
+        userData["uid"]: {
+          "uid": userData["uid"],
+          "email": userData["email"],
+          "fullname": userData["fname"] + " " + userData["surname"],
+          "type": widget.membersList.firstWhere(
+                  (element) =>
+              element["uid"].documentID == userData["uid"])["type"]
+        }
+      });
+    });
+    setState(() {
+      updatedMemberInfos.forEach((String userId, dynamic info) {
+        groupMembersInfos[userId] = info;
+      });
     });
   }
 
@@ -125,9 +213,19 @@ class _MapPageState extends State<MapPage> {
           documentChange.document.data["marker"]["position"].latitude;
       var newLongitude =
           documentChange.document.data["marker"]["position"].longitude;
-      // A lot of errors are being raised here when marker are null
+      // A lot of errors are being raised here when markers are null
+      InfoWindow infoWindowOld = _markers[locationId].infoWindow;
+      InfoWindow newInfoWindow = InfoWindow(
+        title: infoWindowOld.title,
+        snippet: Haversine.formatedDistance(
+            currentUserPosition.latitude, currentUserPosition.longitude,
+            newLatitude,
+            newLongitude),
+        onTap: infoWindowOld.onTap
+      );
       var newMarker = _markers[locationId]
-          .copyWith(positionParam: LatLng(newLatitude, newLongitude));
+          .copyWith(positionParam: LatLng(newLatitude, newLongitude),
+      infoWindowParam: newInfoWindow);
       updatedMarkers[locationId] = newMarker;
     });
 
@@ -139,8 +237,10 @@ class _MapPageState extends State<MapPage> {
   }
 
   void setCustomMapPin() async {
-    pinLocationIcon = await BitmapDescriptor.fromAssetImage(
-        ImageConfiguration(devicePixelRatio: 2.5), 'assets/custom_person.png');
+    pinLocationIconNeutral = await BitmapDescriptor.fromAssetImage(
+        ImageConfiguration(devicePixelRatio: 2.5), 'assets/neutral_user.png');
+    pinLocationIconAdmin = await BitmapDescriptor.fromAssetImage(
+        ImageConfiguration(devicePixelRatio: 2.5), 'assets/admin_user.png');
   }
 
   void setSelfPositionEventsSubscription() {
@@ -172,19 +272,23 @@ class _MapPageState extends State<MapPage> {
     groupUsers
         .where((element) => element.data["marker"] != null)
         .forEach((snapshot) {
-      var userPositonLatitude = snapshot.data["marker"]["position"].latitude;
-      var userPositonLongitude = snapshot.data["marker"]["position"].longitude;
-      var userPosition = LatLng(userPositonLatitude, userPositonLongitude);
+      var memberPositonLatitude = snapshot.data["marker"]["position"].latitude;
+      var memberPositonLongitude = snapshot.data["marker"]["position"].longitude;
+      var memberPosition = LatLng(memberPositonLatitude, memberPositonLongitude);
       var dialogTitle = snapshot.data["marker"]["userName"];
+
 
       markerList.addAll({
         snapshot.documentID: Marker(
             markerId: MarkerId(snapshot.documentID),
-            icon: pinLocationIcon,
-            position: userPosition,
+            icon: pinLocationIconNeutral,
+            position: memberPosition,
             infoWindow: InfoWindow(
                 title: dialogTitle,
-                snippet: "Informacoes adicionais ...",
+                snippet: Haversine.formatedDistance(
+                    currentUserPosition.latitude, currentUserPosition.longitude,
+                    memberPosition.latitude,
+                    memberPosition.longitude),
                 onTap: () {
                   showPersonDialog(context);
                 }))
@@ -197,16 +301,12 @@ class _MapPageState extends State<MapPage> {
   Future<void> _onMapCreated(GoogleMapController controller) async {
     Position currentPosition = await Geolocator()
         .getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-    await createOrUpdateGeoPoint(currentPosition);
-    var loadedMarkers = await getGroupMarkers();
 
     setState(() {
       mapController = controller;
       mapController.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
           target: LatLng(currentPosition.latitude, currentPosition.longitude),
           zoom: 17.0)));
-      _markers.clear();
-      _markers.addAll(loadedMarkers);
     });
   }
 
@@ -297,6 +397,10 @@ class _MapPageState extends State<MapPage> {
     updateGeoPoints(currentPosition);
     var locationId = widget.userId;
     refreshSelfLocation(currentPosition, locationId);
+    setState(() {
+      currentUserPosition =
+          LatLng(currentPosition.latitude, currentPosition.longitude);
+    });
   }
 
   void refreshSelfLocation(Position currentPosition, String locationId) {
@@ -309,14 +413,14 @@ class _MapPageState extends State<MapPage> {
   }
 
   void listenChange(QuerySnapshot snapshot) {
-    log(snapshot.toString());
+    print(snapshot.toString());
   }
 
   @override
   Widget build(BuildContext context) {
     User user = Provider.of<User>(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('Tela de Grupo')),
+      appBar: AppBar(title: const Text('Tela do Grupo')),
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
@@ -402,7 +506,7 @@ class _MapPageState extends State<MapPage> {
                     .primaryColorDark,
               ),
               title: Text('Alterar informações de grupo'),
-              onTap: () => log("sadasd"),
+              onTap: () => print("sadasd"),
             )
                 : Container(),
             userType == "admin"
@@ -414,7 +518,7 @@ class _MapPageState extends State<MapPage> {
                     .primaryColorDark,
               ),
               title: Text('Encerrar Grupo'),
-              onTap: () => log("sadasd"),
+              onTap: () => print("sadasd"),
             )
                 : Container(),
             Divider(
@@ -457,7 +561,7 @@ class _MapPageState extends State<MapPage> {
                   .primaryColorDark,
 //                onPressed: onPressUpdate,
               onPressed: () {
-                log("Floating button click");
+                print(_markers[0].toString());
               },
             ),
             alignment: Alignment(0.8, 0.9),
@@ -465,40 +569,47 @@ class _MapPageState extends State<MapPage> {
         ],
       )
           : ListView(
-        children: widget.membersList
-            .map((member) {
-              String memberType = member["type"];
-          return Card(
-            child: ListTile(
-              leading: Column(
-                children: <Widget>[
-                  CircleAvatar(
-                    radius: 20,
-                    backgroundImage: NetworkImage(
-                        'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y'),
-                    backgroundColor: Colors.transparent,
-                  ),
-                  Padding(padding: EdgeInsets.only(top: 0.0)),
-              (memberType == "admin")
-                      ? Text(memberType)
-                      : SizedBox()
-                ],
-              ),
-              title: Text(member["uid"].documentID),
-              subtitle: Text("asihdasdas"),
-              trailing: Icon(
-                Icons.keyboard_arrow_right,
-                color: Theme
-                    .of(context)
-                    .primaryColorDark,
-              ),
-              onTap: () => log("sdfsdf"),
-            ),
-          );
-        })
-            .toList(),
+        children: listOfUserCards(),
       ),
     );
+  }
+
+  List<Widget> listOfUserCards() {
+    List<Card> cardsList = [];
+    groupMembersInfos.forEach((uid, info) async {
+      String memberType = info["type"];
+      LatLng memberPosition = _markers[uid].position;
+      String formatedDistance = Haversine.formatedDistance(
+          currentUserPosition.latitude, currentUserPosition.longitude,
+          memberPosition.latitude,
+          memberPosition.longitude);
+      cardsList.add(Card(
+        child: ListTile(
+          leading: Column(
+            children: <Widget>[
+              CircleAvatar(
+                radius: 20,
+                backgroundImage: NetworkImage(
+                    'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y'),
+                backgroundColor: Colors.transparent,
+              ),
+              Padding(padding: EdgeInsets.only(top: 0.0)),
+              (memberType == "admin") ? Text("Admin") : SizedBox()
+            ],
+          ),
+          title: Text(info["fullname"]),
+          subtitle: Text(formatedDistance),
+          trailing: Icon(
+            Icons.keyboard_arrow_right,
+            color: Theme
+                .of(context)
+                .primaryColorDark,
+          ),
+          onTap: () => print("sdfsdf"),
+        ),
+      ));
+    });
+    return cardsList;
   }
 
   void setUserType() {
@@ -508,4 +619,43 @@ class _MapPageState extends State<MapPage> {
       userType = userMember["type"];
     });
   }
+
+
 }
+
+
+class Haversine {
+  static final R = 6372.8; // In kilometers
+
+  static double haversine(double lat1, lon1, lat2, lon2) {
+    double dLat = _toRadians(lat2 - lat1);
+    double dLon = _toRadians(lon2 - lon1);
+    lat1 = _toRadians(lat1);
+    lat2 = _toRadians(lat2);
+    double a = pow(sin(dLat / 2), 2) +
+        pow(sin(dLon / 2), 2) * cos(lat1) * cos(lat2);
+    double c = 2 * asin(sqrt(a));
+    return R * c;
+  }
+
+
+  static String formatedDistance(double lat1, lon1, lat2, lon2) {
+    String result = "";
+    double distanceInKilometers = haversine(lat1, lon1, lat2, lon2);
+    double distanceInMeters = distanceInKilometers * 1000;
+    double distanceInCentimeters = distanceInMeters * 100;
+    if (distanceInKilometers < 1.0) {
+      if (distanceInMeters < 1.0) {
+        return (distanceInCentimeters).toStringAsFixed(0) + " cm";
+      }
+      return (distanceInMeters).toStringAsFixed(2) + " m";
+    }
+    return distanceInKilometers.toStringAsFixed(2) + " km";
+  }
+
+  static double _toRadians(double degree) {
+    return degree * pi / 180;
+  }
+}
+
+
