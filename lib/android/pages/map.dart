@@ -191,6 +191,7 @@ class _MapPageState extends State<MapPage> {
         .listen((QuerySnapshot snapshot) {
       refreshChangedMarkers(snapshot);
       refreshMembersInfos(snapshot);
+      setUserType();
     });
   }
 
