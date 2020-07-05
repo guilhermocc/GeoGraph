@@ -127,7 +127,8 @@ class _MapPageState extends State<MapPage> {
           "fullname": userData["fname"] + " " + userData["surname"],
           "type": widget.membersList.firstWhere((element) =>
               element["uid"].documentID == userData["uid"])["type"],
-          "thoroughfare": placemark.thoroughfare
+          "thoroughfare": placemark.thoroughfare,
+          "placemark": placemark
         }
       };
     });
@@ -214,7 +215,8 @@ class _MapPageState extends State<MapPage> {
           "fullname": userData["fname"] + " " + userData["surname"],
           "type": widget.membersList.firstWhere((element) =>
               element["uid"].documentID == userData["uid"])["type"],
-          "thoroughfare": placemark.thoroughfare
+          "thoroughfare": placemark.thoroughfare,
+          "placemark": placemark
         }
       };
     });
@@ -666,7 +668,8 @@ class _MapPageState extends State<MapPage> {
             Icons.keyboard_arrow_right,
             color: Theme.of(context).primaryColorDark,
           ),
-          onTap: () => print("sdfsdf"),
+          onTap: () => showPersonDialog(context, info["placemark"], formattedDistance,
+              info["fullname"]),
         ),
       ));
     });
