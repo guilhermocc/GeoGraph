@@ -379,7 +379,7 @@ class _MapPageState extends State<MapPage> {
   }
 
   void showPersonDialog(BuildContext context, Placemark placemark,
-      String formatedDistance, String username, String memberUid) {
+      String formatedDistance, String username, String memberUid, String memberType) {
     Widget personDialog = PersonDialog(
       placemark: placemark,
       username: username,
@@ -387,6 +387,8 @@ class _MapPageState extends State<MapPage> {
       memberUid: memberUid,
       groupUid: widget.groupId,
       controllerUserType: userType,
+      memberType: memberType,
+      controllerUserUid: widget.userId,
     );
     showDialog(
         context: context, builder: (BuildContext context) => personDialog);
@@ -445,7 +447,7 @@ class _MapPageState extends State<MapPage> {
                     : "${placemark.thoroughfare} - $formattedDistance",
                 onTap: () {
                   showPersonDialog(context, placemark, formattedDistance,
-                      snapshot.data["marker"]["userName"], snapshot.documentID);
+                      snapshot.data["marker"]["userName"], snapshot.documentID, memberType);
                 }))
       };
     }).toList();
@@ -760,7 +762,7 @@ class _MapPageState extends State<MapPage> {
             color: Theme.of(context).primaryColorDark,
           ),
           onTap: () => showPersonDialog(context, info["placemark"],
-              formattedDistance, info["fullname"], uid),
+              formattedDistance, info["fullname"], uid, memberType),
         ),
       ));
     });
