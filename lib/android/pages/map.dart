@@ -107,19 +107,38 @@ class _MapPageState extends State<MapPage> {
         .getDocuments()
         .then((result) => result.documents);
 
-    groupUsers
-        .where((element) => element.data["marker"] != null)
-        .forEach((snapshot) {
+    Iterable<Future<Map<dynamic, Map<String, dynamic>>>>
+        updatedGroupMembersFutures = groupUsers
+            .where((element) => element.data["marker"] != null)
+            .map((snapshot) async {
       var userData = snapshot.data;
-      updatedGroupMembers.addAll({
+
+      List<Placemark> placemarList = await Geolocator()
+          .placemarkFromCoordinates(userData['marker']['position'].latitude,
+              userData['marker']["position"].longitude,
+              localeIdentifier: "pt-br");
+
+      Placemark placemark = placemarList.first;
+
+      return {
         userData["uid"]: {
           "uid": userData["uid"],
           "email": userData["email"],
           "fullname": userData["fname"] + " " + userData["surname"],
-          "type": widget.membersList.firstWhere(
-              (element) => element["uid"].documentID == userData["uid"])["type"]
+          "type": widget.membersList.firstWhere((element) =>
+              element["uid"].documentID == userData["uid"])["type"],
+          "thoroughfare": placemark.thoroughfare
         }
-      });
+      };
+    });
+
+    List<Map<dynamic, Map<String, dynamic>>> updatedGroupMembersFuturesList =
+        await Future.wait(updatedGroupMembersFutures);
+
+    updatedGroupMembersFuturesList.forEach((e) {
+      String key = e.keys.first;
+      dynamic value = e.values.first;
+      updatedGroupMembers.addAll({key: value});
     });
 
     setState(() {
@@ -174,22 +193,41 @@ class _MapPageState extends State<MapPage> {
     });
   }
 
-  void refreshMembersInfos(QuerySnapshot snapshot) {
+  void refreshMembersInfos(QuerySnapshot snapshot) async {
     Map<String, dynamic> updatedMemberInfos = {};
-    snapshot.documentChanges
-        .where((element) => element.document.data["marker"] != null)
-        .forEach((documentChange) {
+    Iterable<Future<Map<dynamic, Map<String, dynamic>>>>
+        updatedMemberInfosFutures = snapshot.documentChanges
+            .where((element) => element.document.data["marker"] != null)
+            .map((documentChange) async {
       var userData = documentChange.document.data;
-      updatedMemberInfos.addAll({
+      List<Placemark> placemarList = await Geolocator()
+          .placemarkFromCoordinates(userData["marker"]["position"].latitude,
+              userData["marker"]["position"].longitude,
+              localeIdentifier: "pt-br");
+
+      Placemark placemark = placemarList.first;
+
+      return {
         userData["uid"]: {
           "uid": userData["uid"],
           "email": userData["email"],
           "fullname": userData["fname"] + " " + userData["surname"],
-          "type": widget.membersList.firstWhere(
-              (element) => element["uid"].documentID == userData["uid"])["type"]
+          "type": widget.membersList.firstWhere((element) =>
+              element["uid"].documentID == userData["uid"])["type"],
+          "thoroughfare": placemark.thoroughfare
         }
-      });
+      };
     });
+
+    List<Map<dynamic, Map<String, dynamic>>> updatedGroupMembersFuturesList =
+        await Future.wait(updatedMemberInfosFutures);
+
+    updatedGroupMembersFuturesList.forEach((e) {
+      String key = e.keys.first;
+      dynamic value = e.values.first;
+      updatedMemberInfos.addAll({key: value});
+    });
+
     setState(() {
       updatedMemberInfos.forEach((String userId, dynamic info) {
         groupMembersInfos[userId] = info;
@@ -202,29 +240,51 @@ class _MapPageState extends State<MapPage> {
   // this logic should be implemented here. By the docs, there is no way to
   // exclude a document in a query, so every time the user location is updated,
   // this method is going to be triggered and the location of itself will be updated (again)
-  void refreshChangedMarkers(QuerySnapshot snapshot) {
+  Future<void> refreshChangedMarkers(QuerySnapshot snapshot) async {
     Map<String, Marker> updatedMarkers = {};
-    snapshot.documentChanges
+    Iterable<Future<Map<String, Marker>>> updatedMarkersFutures = snapshot
+        .documentChanges
         .where((element) => element.document.data["marker"] != null)
-        .forEach((documentChange) {
+        .map((documentChange) async {
       var locationId = documentChange.document.documentID;
       var newLatitude =
           documentChange.document.data["marker"]["position"].latitude;
       var newLongitude =
           documentChange.document.data["marker"]["position"].longitude;
+
+      List<Placemark> placemarList = await Geolocator()
+          .placemarkFromCoordinates(newLatitude, newLongitude,
+              localeIdentifier: "pt-br");
+
+      Placemark placemark = placemarList.first;
+
+      String formattedDistance = Haversine.formattedDistance(
+          currentUserPosition.latitude,
+          currentUserPosition.longitude,
+          newLatitude,
+          newLongitude);
+
       // A lot of errors are being raised here when markers are null
       InfoWindow infoWindowOld = _markers[locationId].infoWindow;
       InfoWindow newInfoWindow = InfoWindow(
           title: infoWindowOld.title,
-          snippet: Haversine.formatedDistance(currentUserPosition.latitude,
-              currentUserPosition.longitude, newLatitude, newLongitude),
+          snippet: (placemark.thoroughfare == "")
+              ? "formattedDistance"
+              : "${placemark.thoroughfare} - $formattedDistance",
           onTap: infoWindowOld.onTap);
       var newMarker = _markers[locationId].copyWith(
           positionParam: LatLng(newLatitude, newLongitude),
           infoWindowParam: newInfoWindow);
-      updatedMarkers[locationId] = newMarker;
+      return {locationId: newMarker};
     });
 
+    List<Map<String, Marker>> updatedMarkersList =
+        await Future.wait(updatedMarkersFutures);
+    updatedMarkersList.forEach((element) {
+      String key = element.keys.first;
+      Marker value = element.values.first;
+      updatedMarkers.addAll({key: value});
+    });
     setState(() {
       updatedMarkers.forEach((String locationId, Marker newMarker) {
         _markers[locationId] = newMarker;
@@ -286,7 +346,7 @@ class _MapPageState extends State<MapPage> {
               localeIdentifier: "pt-br");
 
       Placemark placemark = placemarList.first;
-      String formatedDistance = Haversine.formatedDistance(
+      String formattedDistance = Haversine.formattedDistance(
           currentUserPosition.latitude,
           currentUserPosition.longitude,
           memberPosition.latitude,
@@ -299,9 +359,11 @@ class _MapPageState extends State<MapPage> {
             position: memberPosition,
             infoWindow: InfoWindow(
                 title: dialogTitle,
-                snippet: "${placemark.thoroughfare} - ${formatedDistance}",
+                snippet: (placemark.thoroughfare == "")
+                    ? "$formattedDistance"
+                    : "${placemark.thoroughfare} - $formattedDistance",
                 onTap: () {
-                  showPersonDialog(context, placemark, formatedDistance,
+                  showPersonDialog(context, placemark, formattedDistance,
                       snapshot.data["marker"]["userName"]);
                 }))
       };
@@ -575,8 +637,9 @@ class _MapPageState extends State<MapPage> {
     List<Card> cardsList = [];
     groupMembersInfos.forEach((uid, info) async {
       String memberType = info["type"];
+      String thoroughfare = info["thoroughfare"];
       LatLng memberPosition = _markers[uid].position;
-      String formatedDistance = Haversine.formatedDistance(
+      String formattedDistance = Haversine.formattedDistance(
           currentUserPosition.latitude,
           currentUserPosition.longitude,
           memberPosition.latitude,
@@ -596,7 +659,9 @@ class _MapPageState extends State<MapPage> {
             ],
           ),
           title: Text(info["fullname"]),
-          subtitle: Text(formatedDistance),
+          subtitle: Text((thoroughfare == "")
+              ? "$formattedDistance"
+              : "$thoroughfare - $formattedDistance"),
           trailing: Icon(
             Icons.keyboard_arrow_right,
             color: Theme.of(context).primaryColorDark,
@@ -631,7 +696,7 @@ class Haversine {
     return R * c;
   }
 
-  static String formatedDistance(double lat1, lon1, lat2, lon2) {
+  static String formattedDistance(double lat1, lon1, lat2, lon2) {
     String result = "";
     double distanceInKilometers = haversine(lat1, lon1, lat2, lon2);
     double distanceInMeters = distanceInKilometers * 1000;
