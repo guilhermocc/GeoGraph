@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:geograph/android/pages/exit_group_dialog.dart';
 import 'package:geograph/android/pages/person_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
@@ -13,12 +14,13 @@ import 'package:provider/provider.dart';
 import 'dart:math';
 
 class MapPage extends StatefulWidget {
-  MapPage({Key key,
-    this.userId,
-    this.groupId,
-    this.membersUidList,
-    this.membersList,
-    this.viewType})
+  MapPage(
+      {Key key,
+      this.userId,
+      this.groupId,
+      this.membersUidList,
+      this.membersList,
+      this.viewType})
       : super(key: key);
   final String userId;
   final String groupId;
@@ -107,15 +109,15 @@ class _MapPageState extends State<MapPage> {
         .then((result) => result.documents);
 
     Iterable<Future<Map<dynamic, Map<String, dynamic>>>>
-    updatedGroupMembersFutures = groupUsers
-        .where((element) => element.data["marker"] != null)
-        .map((snapshot) async {
+        updatedGroupMembersFutures = groupUsers
+            .where((element) => element.data["marker"] != null)
+            .map((snapshot) async {
       var userData = snapshot.data;
 
       List<Placemark> placemarList = await Geolocator()
           .placemarkFromCoordinates(userData['marker']['position'].latitude,
-          userData['marker']["position"].longitude,
-          localeIdentifier: "pt-br");
+              userData['marker']["position"].longitude,
+              localeIdentifier: "pt-br");
 
       Placemark placemark = placemarList.first;
 
@@ -125,7 +127,7 @@ class _MapPageState extends State<MapPage> {
           "email": userData["email"],
           "fullname": userData["fname"] + " " + userData["surname"],
           "type": widget.membersList.firstWhere((element) =>
-          element["uid"].documentID == userData["uid"])["type"],
+              element["uid"].documentID == userData["uid"])["type"],
           "thoroughfare": placemark.thoroughfare,
           "placemark": placemark
         }
@@ -133,7 +135,7 @@ class _MapPageState extends State<MapPage> {
     });
 
     List<Map<dynamic, Map<String, dynamic>>> updatedGroupMembersFuturesList =
-    await Future.wait(updatedGroupMembersFutures);
+        await Future.wait(updatedGroupMembersFutures);
 
     updatedGroupMembersFuturesList.forEach((e) {
       String key = e.keys.first;
@@ -197,71 +199,73 @@ class _MapPageState extends State<MapPage> {
 
   void checkGroupRemoval(DocumentSnapshot snapshot) {
     List<dynamic> groupMembers = snapshot.data["members"];
-    bool userDeleted = ! groupMembers.any((element) => element["uid"].documentID == widget.userId);
+    bool userDeleted = !groupMembers
+        .any((element) => element["uid"].documentID == widget.userId);
     if (userDeleted) {
       showDialog(
-          context: context, builder: (BuildContext context) => Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12.0),
-        ),
-        child: Container(
-          height: 300.0,
-          width: 300.0,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Padding(
-                padding: EdgeInsets.all(15.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text(
-                          "Você foi removido do grupo",
-                      style: TextStyle(color: Colors.black),
-                    ),
-                  ],
+          context: context,
+          builder: (BuildContext context) => Dialog(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12.0),
                 ),
-              ),
-              Padding(
-                padding:
-                const EdgeInsets.only(left: 10, right: 10, top: 50),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: <Widget>[
-                    RaisedButton(
-                      color: Theme.of(context).primaryColorDark,
-                      onPressed: () {
-                        Navigator.pushReplacementNamed(context, "/home");
-                      },
-                      child: Text(
-                        'Fechar',
-                        style:
-                        TextStyle(fontSize: 18.0, color: Colors.white),
+                child: Container(
+                  height: 300.0,
+                  width: 300.0,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Padding(
+                        padding: EdgeInsets.all(15.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Text(
+                              "Você não faz mais parte deste grupo",
+                              style: TextStyle(color: Colors.black),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                      Padding(
+                        padding:
+                            const EdgeInsets.only(left: 10, right: 10, top: 50),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: <Widget>[
+                            RaisedButton(
+                              color: Theme.of(context).primaryColorDark,
+                              onPressed: () {
+                                Navigator.pushReplacementNamed(
+                                    context, "/home");
+                              },
+                              child: Text(
+                                'Fechar',
+                                style: TextStyle(
+                                    fontSize: 18.0, color: Colors.white),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
-          ),
-        ),
-      ));
+              ));
     }
-
   }
 
   void refreshMembersInfos(QuerySnapshot snapshot) async {
     Map<String, dynamic> updatedMemberInfos = {};
     Iterable<Future<Map<dynamic, Map<String, dynamic>>>>
-    updatedMemberInfosFutures = snapshot.documentChanges
-        .where((element) => element.document.data["marker"] != null)
-        .map((documentChange) async {
+        updatedMemberInfosFutures = snapshot.documentChanges
+            .where((element) => element.document.data["marker"] != null)
+            .map((documentChange) async {
       var userData = documentChange.document.data;
       List<Placemark> placemarList = await Geolocator()
           .placemarkFromCoordinates(userData["marker"]["position"].latitude,
-          userData["marker"]["position"].longitude,
-          localeIdentifier: "pt-br");
+              userData["marker"]["position"].longitude,
+              localeIdentifier: "pt-br");
 
       Placemark placemark = placemarList.first;
 
@@ -271,7 +275,7 @@ class _MapPageState extends State<MapPage> {
           "email": userData["email"],
           "fullname": userData["fname"] + " " + userData["surname"],
           "type": widget.membersList.firstWhere((element) =>
-          element["uid"].documentID == userData["uid"])["type"],
+              element["uid"].documentID == userData["uid"])["type"],
           "thoroughfare": placemark.thoroughfare,
           "placemark": placemark
         }
@@ -279,7 +283,7 @@ class _MapPageState extends State<MapPage> {
     });
 
     List<Map<dynamic, Map<String, dynamic>>> updatedGroupMembersFuturesList =
-    await Future.wait(updatedMemberInfosFutures);
+        await Future.wait(updatedMemberInfosFutures);
 
     updatedGroupMembersFuturesList.forEach((e) {
       String key = e.keys.first;
@@ -313,7 +317,7 @@ class _MapPageState extends State<MapPage> {
 
       List<Placemark> placemarList = await Geolocator()
           .placemarkFromCoordinates(newLatitude, newLongitude,
-          localeIdentifier: "pt-br");
+              localeIdentifier: "pt-br");
 
       Placemark placemark = placemarList.first;
 
@@ -343,7 +347,7 @@ class _MapPageState extends State<MapPage> {
     });
 
     List<Map<String, Marker>> updatedMarkersList =
-    await Future.wait(updatedMarkersFutures);
+        await Future.wait(updatedMarkersFutures);
     updatedMarkersList.forEach((element) {
       String key = element.keys.first;
       Marker value = element.values.first;
@@ -388,6 +392,12 @@ class _MapPageState extends State<MapPage> {
         context: context, builder: (BuildContext context) => personDialog);
   }
 
+  void showExitGroupDialog(BuildContext context) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) => ExitGroupDialog(memberUid: widget.userId, groupUid: widget.groupId));
+  }
+
   Future<Map<String, Marker>> getGroupMarkers() async {
     Map<String, Marker> markerList = {};
 
@@ -404,13 +414,13 @@ class _MapPageState extends State<MapPage> {
       var memberPositonLongitude =
           snapshot.data["marker"]["position"].longitude;
       var memberPosition =
-      LatLng(memberPositonLatitude, memberPositonLongitude);
+          LatLng(memberPositonLatitude, memberPositonLongitude);
       var dialogTitle = snapshot.data["marker"]["userName"];
 
       List<Placemark> placemarList = await Geolocator()
           .placemarkFromCoordinates(
-          memberPositonLatitude, memberPositonLongitude,
-          localeIdentifier: "pt-br");
+              memberPositonLatitude, memberPositonLongitude,
+              localeIdentifier: "pt-br");
 
       Placemark placemark = placemarList.first;
       String formattedDistance = Haversine.formattedDistance(
@@ -495,14 +505,14 @@ class _MapPageState extends State<MapPage> {
         .collection("users")
         .document(widget.userId)
         .updateData({
-      "marker": {
-        "userName": capitalize(currentUser.data['fname']) +
-            " " +
-            capitalize(currentUser.data['surname']),
-        "position":
-        GeoPoint(currentPosition.latitude, currentPosition.longitude)
-      }
-    })
+          "marker": {
+            "userName": capitalize(currentUser.data['fname']) +
+                " " +
+                capitalize(currentUser.data['surname']),
+            "position":
+                GeoPoint(currentPosition.latitude, currentPosition.longitude)
+          }
+        })
         .then((result) => print("GEOPOINT CREATED "))
         .catchError((error) => print("ERROR WHILE CREATING GEOPOINT" + error));
 
@@ -518,7 +528,7 @@ class _MapPageState extends State<MapPage> {
           .updateData({
         "marker": {
           "position":
-          GeoPoint(currentPosition.latitude, currentPosition.longitude),
+              GeoPoint(currentPosition.latitude, currentPosition.longitude),
           "userName": capitalize(currentUser.data['fname']) +
               " " +
               capitalize(currentUser.data['surname']),
@@ -535,7 +545,7 @@ class _MapPageState extends State<MapPage> {
           .document(widget.userId)
           .get()
           .then((DocumentSnapshot document) =>
-      document.data["marker"] != null ? true : false);
+              document.data["marker"] != null ? true : false);
       locationHasBeenQueriedOnDataBase = true;
     }
     return locationExistsOnDataBase;
@@ -555,7 +565,7 @@ class _MapPageState extends State<MapPage> {
   void refreshSelfLocation(Position currentPosition, String locationId) {
     var newMarker = _markers[locationId].copyWith(
         positionParam:
-        LatLng(currentPosition.latitude, currentPosition.longitude));
+            LatLng(currentPosition.latitude, currentPosition.longitude));
     setState(() {
       _markers[locationId] = newMarker;
     });
@@ -576,9 +586,7 @@ class _MapPageState extends State<MapPage> {
           children: <Widget>[
             DrawerHeader(
                 decoration: BoxDecoration(
-                  color: Theme
-                      .of(context)
-                      .primaryColor,
+                  color: Theme.of(context).primaryColor,
                 ),
                 child: Column(
                   children: <Widget>[
@@ -593,14 +601,13 @@ class _MapPageState extends State<MapPage> {
                         Container(
                             padding: EdgeInsets.only(bottom: 10, left: 10),
                             child: Observer(
-                              builder: (_) =>
-                                  Text(
-                                    "Nome do grupo",
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 16,
-                                    ),
-                                  ),
+                              builder: (_) => Text(
+                                "Nome do grupo",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                ),
+                              ),
                             ))
                       ],
                     ),
@@ -609,66 +616,66 @@ class _MapPageState extends State<MapPage> {
             ListTile(
               leading: Icon(
                 Icons.map,
-                color: Theme
-                    .of(context)
-                    .primaryColorDark,
+                color: Theme.of(context).primaryColorDark,
               ),
-              onTap: () =>
-                  Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) =>
-                              MapPage(
-                                  userId: user.uid,
-                                  groupId: widget.groupId,
-                                  membersUidList: widget.membersUidList,
-                                  membersList: widget.membersList))),
+              onTap: () => Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => MapPage(
+                          userId: user.uid,
+                          groupId: widget.groupId,
+                          membersUidList: widget.membersUidList,
+                          membersList: widget.membersList))),
               title: Text('Mostrar Mapa'),
             ),
             ListTile(
               leading: Icon(
                 Icons.list,
-                color: Theme
-                    .of(context)
-                    .primaryColorDark,
+                color: Theme.of(context).primaryColorDark,
               ),
               title: Text('Mostrar Lista'),
-              onTap: () =>
-                  Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) =>
-                              MapPage(
-                                userId: user.uid,
-                                groupId: widget.groupId,
-                                membersUidList: widget.membersUidList,
-                                membersList: widget.membersList,
-                                viewType: "list",
-                              ))),
+              onTap: () => Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => MapPage(
+                            userId: user.uid,
+                            groupId: widget.groupId,
+                            membersUidList: widget.membersUidList,
+                            membersList: widget.membersList,
+                            viewType: "list",
+                          ))),
             ),
-            userType == "admin"
+            userType == "neutral"
                 ? ListTile(
-              leading: Icon(
-                Icons.settings,
-                color: Theme
-                    .of(context)
-                    .primaryColorDark,
-              ),
-              title: Text('Alterar informações de grupo'),
-              onTap: () => print("sadasd"),
-            )
+                    leading: Icon(
+                      Icons.exit_to_app,
+                      color: Theme.of(context).primaryColorDark,
+                    ),
+                    title: Text('Sair do grupo'),
+                    onTap: () {
+                      showExitGroupDialog(context);
+                    },
+                  )
                 : Container(),
             userType == "admin"
                 ? ListTile(
-              leading: Icon(
-                Icons.delete,
-                color: Theme
-                    .of(context)
-                    .primaryColorDark,
-              ),
-              title: Text('Encerrar Grupo'),
-              onTap: () => print("sadasd"),
-            )
+                    leading: Icon(
+                      Icons.settings,
+                      color: Theme.of(context).primaryColorDark,
+                    ),
+                    title: Text('Alterar informações de grupo'),
+                    onTap: () => print("sadasd"),
+                  )
+                : Container(),
+            userType == "admin"
+                ? ListTile(
+                    leading: Icon(
+                      Icons.delete,
+                      color: Theme.of(context).primaryColorDark,
+                    ),
+                    title: Text('Encerrar Grupo'),
+                    onTap: () => print("sadasd"),
+                  )
                 : Container(),
             Divider(
               height: 50,
@@ -678,9 +685,7 @@ class _MapPageState extends State<MapPage> {
               title: Text("Voltar para Menu"),
               leading: Icon(
                 Icons.arrow_back,
-                color: Theme
-                    .of(context)
-                    .primaryColorDark,
+                color: Theme.of(context).primaryColorDark,
               ),
               onTap: () {
                 Navigator.pushReplacementNamed(context, "/home");
@@ -691,35 +696,33 @@ class _MapPageState extends State<MapPage> {
       ),
       body: widget.viewType == null
           ? Stack(
-        children: <Widget>[
-          GoogleMap(
-            onMapCreated: _onMapCreated,
-            initialCameraPosition: CameraPosition(
-              target: _center,
-              zoom: 11.0,
-            ),
-            markers: _markers.values.toSet(),
-            myLocationEnabled: true,
-            myLocationButtonEnabled: true,
-          ),
-          Align(
-            child: FloatingActionButton(
-              child: Icon(Icons.update),
-              backgroundColor: Theme
-                  .of(context)
-                  .primaryColorDark,
+              children: <Widget>[
+                GoogleMap(
+                  onMapCreated: _onMapCreated,
+                  initialCameraPosition: CameraPosition(
+                    target: _center,
+                    zoom: 11.0,
+                  ),
+                  markers: _markers.values.toSet(),
+                  myLocationEnabled: true,
+                  myLocationButtonEnabled: true,
+                ),
+                Align(
+                  child: FloatingActionButton(
+                    child: Icon(Icons.update),
+                    backgroundColor: Theme.of(context).primaryColorDark,
 //                onPressed: onPressUpdate,
-              onPressed: () {
-                print(_markers[0].toString());
-              },
-            ),
-            alignment: Alignment(0.8, 0.9),
-          )
-        ],
-      )
+                    onPressed: () {
+                      print(_markers[0].toString());
+                    },
+                  ),
+                  alignment: Alignment(0.8, 0.9),
+                )
+              ],
+            )
           : ListView(
-        children: listOfUserCards(),
-      ),
+              children: listOfUserCards(),
+            ),
     );
   }
 
@@ -754,13 +757,10 @@ class _MapPageState extends State<MapPage> {
               : "$thoroughfare - $formattedDistance"),
           trailing: Icon(
             Icons.keyboard_arrow_right,
-            color: Theme
-                .of(context)
-                .primaryColorDark,
+            color: Theme.of(context).primaryColorDark,
           ),
-          onTap: () =>
-              showPersonDialog(context, info["placemark"],
-                  formattedDistance, info["fullname"], uid),
+          onTap: () => showPersonDialog(context, info["placemark"],
+              formattedDistance, info["fullname"], uid),
         ),
       ));
     });
@@ -774,6 +774,7 @@ class _MapPageState extends State<MapPage> {
       userType = userMember["type"];
     });
   }
+
 }
 
 class Haversine {
