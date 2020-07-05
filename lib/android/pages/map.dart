@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:geograph/android/pages/delete_group_dialog.dart';
 import 'package:geograph/android/pages/exit_group_dialog.dart';
 import 'package:geograph/android/pages/person_dialog.dart';
 import 'package:flutter/material.dart';
@@ -82,9 +83,11 @@ class _MapPageState extends State<MapPage> {
   }
 
   void setOnlyOneAdminStatus() {
-    int adminsNumber = widget.membersList.where((element) => element["type"] == "admin").length;
+    int adminsNumber = widget.membersList
+        .where((element) => element["type"] == "admin")
+        .length;
     setState(() {
-      onlyOneAdmin = adminsNumber == 1? true: false;
+      onlyOneAdmin = adminsNumber == 1 ? true : false;
     });
   }
 
@@ -166,7 +169,18 @@ class _MapPageState extends State<MapPage> {
         .listen((DocumentSnapshot snapshot) async {
       groupChangeHandler(snapshot);
       checkGroupRemoval(snapshot);
-//      checkUserTypeChanged(snapshot);
+      checkUserTypeChanged(snapshot);
+    });
+  }
+
+  void checkUserTypeChanged(DocumentSnapshot snapshot) async {
+    var groupData = snapshot.data;
+
+    var userMember = groupData["members"]
+        .firstWhere((member) => member["uid"].documentID == widget.userId);
+
+    setState(() {
+      userType = userMember["type"];
     });
   }
 
@@ -181,8 +195,9 @@ class _MapPageState extends State<MapPage> {
     widget.membersUidList = newMembersUidList;
     widget.membersList = newMembersList;
 
-    int adminsNumber = widget.membersList.where((element) => element["type"] == "admin").length;
-
+    int adminsNumber = widget.membersList
+        .where((element) => element["type"] == "admin")
+        .length;
 
     updateGroupUsersPositionsEventsSubscription();
     var loadedMarkers = await getGroupMarkers();
@@ -190,7 +205,7 @@ class _MapPageState extends State<MapPage> {
     setState(() {
       _markers.clear();
       _markers.addAll(loadedMarkers);
-      onlyOneAdmin = adminsNumber == 1? true: false;
+      onlyOneAdmin = adminsNumber == 1 ? true : false;
     });
   }
 
@@ -391,8 +406,13 @@ class _MapPageState extends State<MapPage> {
     });
   }
 
-  void showPersonDialog(BuildContext context, Placemark placemark,
-      String formatedDistance, String username, String memberUid, String memberType) {
+  void showPersonDialog(
+      BuildContext context,
+      Placemark placemark,
+      String formatedDistance,
+      String username,
+      String memberUid,
+      String memberType) {
     Widget personDialog = PersonDialog(
       placemark: placemark,
       username: username,
@@ -410,7 +430,15 @@ class _MapPageState extends State<MapPage> {
   void showExitGroupDialog(BuildContext context) {
     showDialog(
         context: context,
-        builder: (BuildContext context) => ExitGroupDialog(memberUid: widget.userId, groupUid: widget.groupId));
+        builder: (BuildContext context) => ExitGroupDialog(
+            memberUid: widget.userId, groupUid: widget.groupId));
+  }
+
+  void showDeleteGroupDialog(BuildContext context) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) => DeleteGroupDialog(
+            memberUid: widget.userId, groupUid: widget.groupId));
   }
 
   Future<Map<String, Marker>> getGroupMarkers() async {
@@ -459,8 +487,13 @@ class _MapPageState extends State<MapPage> {
                     ? "$formattedDistance"
                     : "${placemark.thoroughfare} - $formattedDistance",
                 onTap: () {
-                  showPersonDialog(context, placemark, formattedDistance,
-                      snapshot.data["marker"]["userName"], snapshot.documentID, memberType);
+                  showPersonDialog(
+                      context,
+                      placemark,
+                      formattedDistance,
+                      snapshot.data["marker"]["userName"],
+                      snapshot.documentID,
+                      memberType);
                 }))
       };
     }).toList();
@@ -689,7 +722,7 @@ class _MapPageState extends State<MapPage> {
                       color: Theme.of(context).primaryColorDark,
                     ),
                     title: Text('Encerrar Grupo'),
-                    onTap: () => print("sadasd"),
+                    onTap: () => showDeleteGroupDialog(context),
                   )
                 : Container(),
             Divider(
@@ -789,7 +822,6 @@ class _MapPageState extends State<MapPage> {
       userType = userMember["type"];
     });
   }
-
 }
 
 class Haversine {
