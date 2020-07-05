@@ -281,8 +281,7 @@ class _MapPageState extends State<MapPage> {
           infoWindowParam: newInfoWindow,
           iconParam: memberType == "admin"
               ? pinLocationIconAdmin
-              : pinLocationIconNeutral
-      );
+              : pinLocationIconNeutral);
       return {locationId: newMarker};
     });
 
@@ -319,11 +318,14 @@ class _MapPageState extends State<MapPage> {
   }
 
   void showPersonDialog(BuildContext context, Placemark placemark,
-      String formatedDistance, String username) {
+      String formatedDistance, String username, String memberUid) {
     Widget personDialog = PersonDialog(
       placemark: placemark,
       username: username,
       formatedDistance: formatedDistance,
+      memberUid: memberUid,
+      groupUid: widget.groupId,
+      controllerUserType: userType,
     );
     showDialog(
         context: context, builder: (BuildContext context) => personDialog);
@@ -376,7 +378,7 @@ class _MapPageState extends State<MapPage> {
                     : "${placemark.thoroughfare} - $formattedDistance",
                 onTap: () {
                   showPersonDialog(context, placemark, formattedDistance,
-                      snapshot.data["marker"]["userName"]);
+                      snapshot.data["marker"]["userName"], snapshot.documentID);
                 }))
       };
     }).toList();
@@ -678,8 +680,8 @@ class _MapPageState extends State<MapPage> {
             Icons.keyboard_arrow_right,
             color: Theme.of(context).primaryColorDark,
           ),
-          onTap: () => showPersonDialog(
-              context, info["placemark"], formattedDistance, info["fullname"]),
+          onTap: () => showPersonDialog(context, info["placemark"],
+              formattedDistance, info["fullname"], uid),
         ),
       ));
     });
