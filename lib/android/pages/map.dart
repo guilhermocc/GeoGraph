@@ -50,6 +50,7 @@ class _MapPageState extends State<MapPage> {
   String userType;
   final Map<String, dynamic> groupMembersInfos = {};
   LatLng currentUserPosition;
+  bool onlyOneAdmin = true;
 
   @override
   void setState(fn) {
@@ -69,6 +70,7 @@ class _MapPageState extends State<MapPage> {
   @override
   void initState() {
     super.initState();
+    setOnlyOneAdminStatus();
     loadGroupMembersInfos();
     loadInitialMarkers();
     loadFirstCurrentPosition();
@@ -77,6 +79,13 @@ class _MapPageState extends State<MapPage> {
     setSelfPositionEventsSubscription();
     setGroupUsersPositionsEventsSubscription();
     setGroupChangesEventsSubscription();
+  }
+
+  void setOnlyOneAdminStatus() {
+    int adminsNumber = widget.membersList.where((element) => element["type"] == "admin").length;
+    setState(() {
+      onlyOneAdmin = adminsNumber == 1? true: false;
+    });
   }
 
   void loadFirstCurrentPosition() async {
@@ -172,12 +181,16 @@ class _MapPageState extends State<MapPage> {
     widget.membersUidList = newMembersUidList;
     widget.membersList = newMembersList;
 
+    int adminsNumber = widget.membersList.where((element) => element["type"] == "admin").length;
+
+
     updateGroupUsersPositionsEventsSubscription();
     var loadedMarkers = await getGroupMarkers();
 
     setState(() {
       _markers.clear();
       _markers.addAll(loadedMarkers);
+      onlyOneAdmin = adminsNumber == 1? true: false;
     });
   }
 
@@ -647,7 +660,7 @@ class _MapPageState extends State<MapPage> {
                             viewType: "list",
                           ))),
             ),
-            userType == "neutral"
+            !onlyOneAdmin
                 ? ListTile(
                     leading: Icon(
                       Icons.exit_to_app,
