@@ -266,6 +266,8 @@ class _MapPageState extends State<MapPage> {
           newLatitude,
           newLongitude);
 
+      String memberType = groupMembersInfos[locationId]["type"];
+
       // A lot of errors are being raised here when markers are null
       InfoWindow infoWindowOld = _markers[locationId].infoWindow;
       InfoWindow newInfoWindow = InfoWindow(
@@ -276,7 +278,11 @@ class _MapPageState extends State<MapPage> {
           onTap: infoWindowOld.onTap);
       var newMarker = _markers[locationId].copyWith(
           positionParam: LatLng(newLatitude, newLongitude),
-          infoWindowParam: newInfoWindow);
+          infoWindowParam: newInfoWindow,
+          iconParam: memberType == "admin"
+              ? pinLocationIconAdmin
+              : pinLocationIconNeutral
+      );
       return {locationId: newMarker};
     });
 
@@ -354,10 +360,14 @@ class _MapPageState extends State<MapPage> {
           memberPosition.latitude,
           memberPosition.longitude);
 
+      String memberType = groupMembersInfos[snapshot.documentID]["type"];
+
       return {
         snapshot.documentID: Marker(
             markerId: MarkerId(snapshot.documentID),
-            icon: pinLocationIconNeutral,
+            icon: memberType == "admin"
+                ? pinLocationIconAdmin
+                : pinLocationIconNeutral,
             position: memberPosition,
             infoWindow: InfoWindow(
                 title: dialogTitle,
@@ -668,8 +678,8 @@ class _MapPageState extends State<MapPage> {
             Icons.keyboard_arrow_right,
             color: Theme.of(context).primaryColorDark,
           ),
-          onTap: () => showPersonDialog(context, info["placemark"], formattedDistance,
-              info["fullname"]),
+          onTap: () => showPersonDialog(
+              context, info["placemark"], formattedDistance, info["fullname"]),
         ),
       ));
     });
