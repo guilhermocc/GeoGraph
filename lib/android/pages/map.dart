@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:geograph/android/pages/delete_group_dialog.dart';
 import 'package:geograph/android/pages/exit_group_dialog.dart';
+import 'package:geograph/android/pages/home.dart';
 import 'package:geograph/android/pages/person_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
@@ -167,8 +168,8 @@ class _MapPageState extends State<MapPage> {
         .document(widget.groupId)
         .snapshots()
         .listen((DocumentSnapshot snapshot) async {
+      await checkGroupRemovalOrDelete(snapshot);
       groupChangeHandler(snapshot);
-      checkGroupRemoval(snapshot);
       checkUserTypeChanged(snapshot);
     });
   }
@@ -225,12 +226,10 @@ class _MapPageState extends State<MapPage> {
     });
   }
 
-  void checkGroupRemoval(DocumentSnapshot snapshot) {
-    List<dynamic> groupMembers = snapshot.data["members"];
-    bool userDeleted = !groupMembers
-        .any((element) => element["uid"].documentID == widget.userId);
-    if (userDeleted) {
-      showDialog(
+  Future<bool> checkGroupRemovalOrDelete(DocumentSnapshot snapshot) async {
+    bool groupExists = snapshot.exists;
+    if (!groupExists) {
+      await showDialog(
           context: context,
           builder: (BuildContext context) => Dialog(
                 shape: RoundedRectangleBorder(
@@ -248,7 +247,7 @@ class _MapPageState extends State<MapPage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
                             Text(
-                              "Você não faz mais parte deste grupo",
+                              "Este grupo não existe mais.",
                               style: TextStyle(color: Colors.black),
                             ),
                           ],
@@ -280,6 +279,67 @@ class _MapPageState extends State<MapPage> {
                   ),
                 ),
               ));
+      Navigator.pushReplacementNamed(context, "/home");
+      return false;
+    } else {
+      List<dynamic> groupMembers = snapshot.data["members"];
+      bool userDeleted = !groupMembers
+          .any((element) => element["uid"].documentID == widget.userId);
+      if (userDeleted) {
+        await showDialog(
+            context: context,
+            builder: (BuildContext context) => Dialog(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12.0),
+                  ),
+                  child: Container(
+                    height: 300.0,
+                    width: 300.0,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Padding(
+                          padding: EdgeInsets.all(15.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              Text(
+                                "Você não faz mais parte deste grupo",
+                                style: TextStyle(color: Colors.black),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(
+                              left: 10, right: 10, top: 50),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: <Widget>[
+                              RaisedButton(
+                                color: Theme.of(context).primaryColorDark,
+                                onPressed: () {
+                                  Navigator.pushReplacementNamed(
+                                      context, "/home");
+                                },
+                                child: Text(
+                                  'Fechar',
+                                  style: TextStyle(
+                                      fontSize: 18.0, color: Colors.white),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ));
+        Navigator.pushReplacementNamed(context, "/home");
+        return false;
+      }
+      return true;
     }
   }
 
