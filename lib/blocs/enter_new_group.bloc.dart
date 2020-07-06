@@ -51,9 +51,14 @@ class EnterNewGroupBloc {
           .limit(1)
           .getDocuments();
       DocumentSnapshot group = groupQuery.documents.first;
+
+      if (group.data["members"].any((member) => member["uid"].documentID == user.uid)) {
+        throw ("Already in group");
+      }
+
       if (group.data["password"] == passwordInputController.text) {
-        await addUserToGroup(group, user);
-        await navigateToGroupPage(group, context, user);
+        var newMembersList =  await addUserToGroup(group, user);
+        await navigateToGroupPage(newMembersList, context, user, group);
       } else {
         throw ("Wrong password");
       }
@@ -74,13 +79,12 @@ class EnterNewGroupBloc {
         .catchError((err) => this.isLoading = false);
   }
 
-  navigateToGroupPage(DocumentSnapshot groupSnapShot, BuildContext context,
-      User user) async {
-    var groupData = groupSnapShot.data;
+  navigateToGroupPage(List newMembersList, BuildContext context,
+      User user, DocumentSnapshot groupSnapShot) async {
     List<String> membersUidList = new List<String>.from(
-        groupData["members"].map((member) => member["uid"].documentID).toList()
+        newMembersList.map((member) => member["uid"].documentID).toList()
     );
-    List<dynamic> membersList = groupData["members"];
+    List<dynamic> membersList = newMembersList;
     Navigator.push(
         context,
         MaterialPageRoute(
@@ -95,7 +99,10 @@ class EnterNewGroupBloc {
 
   handleEnterGroupError(err, BuildContext context) {
     this.isLoading = false;
-    this.showErrorDialog(context, "Erro ao entrar no grupo");
+    if (err == "Already in group")
+      this.showErrorDialog(context, "Você já está neste grupo!");
+    else
+      this.showErrorDialog(context, "Erro ao entrar no grupo");
   }
 
   showErrorDialog(BuildContext context, String textContent) {
@@ -117,7 +124,7 @@ class EnterNewGroupBloc {
         });
   }
 
-  void addUserToGroup(DocumentSnapshot snapshot, User user) async {
+  Future<List> addUserToGroup(DocumentSnapshot snapshot, User user) async {
     // TODO i should use FieldValue arrayUnion here
     List<dynamic> membersList = snapshot.data["members"];
     membersList
@@ -126,5 +133,6 @@ class EnterNewGroupBloc {
         .collection("groups")
         .document(snapshot.reference.documentID)
         .updateData({"members": membersList});
+    return membersList;
   }
 }
