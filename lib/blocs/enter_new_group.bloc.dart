@@ -92,6 +92,8 @@ class EnterNewGroupBloc {
                 MapPage(
                     userId: user.uid,
                     groupId: groupSnapShot.documentID,
+                    groupTitle: groupSnapShot["title"],
+                    groupDescription: groupSnapShot["description"],
                     membersUidList: membersUidList,
                     membersList: membersList
                 )));

@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:geograph/android/pages/delete_group_dialog.dart';
 import 'package:geograph/android/pages/exit_group_dialog.dart';
+import 'package:geograph/android/pages/group_info_page.dart';
 import 'package:geograph/android/pages/home.dart';
 import 'package:geograph/android/pages/person_dialog.dart';
 import 'package:flutter/material.dart';
@@ -20,12 +21,16 @@ class MapPage extends StatefulWidget {
       {Key key,
       this.userId,
       this.groupId,
+      this.groupTitle,
+      this.groupDescription,
       this.membersUidList,
       this.membersList,
       this.viewType})
       : super(key: key);
   final String userId;
   final String groupId;
+  final String groupTitle;
+  final String groupDescription;
   String viewType;
   List<String> membersUidList;
   List<dynamic> membersList;
@@ -53,6 +58,8 @@ class _MapPageState extends State<MapPage> {
   final Map<String, dynamic> groupMembersInfos = {};
   LatLng currentUserPosition;
   bool onlyOneAdmin = true;
+  String groupTitle;
+  String groupDescription;
 
   @override
   void setState(fn) {
@@ -72,6 +79,7 @@ class _MapPageState extends State<MapPage> {
   @override
   void initState() {
     super.initState();
+    setInitiaGroupInfo();
     setOnlyOneAdminStatus();
     loadGroupMembersInfos();
     loadInitialMarkers();
@@ -81,6 +89,13 @@ class _MapPageState extends State<MapPage> {
     setSelfPositionEventsSubscription();
     setGroupUsersPositionsEventsSubscription();
     setGroupChangesEventsSubscription();
+  }
+
+  void setInitiaGroupInfo() {
+    setState(() {
+      groupDescription = widget.groupDescription;
+      groupTitle = widget.groupTitle;
+    });
   }
 
   void setOnlyOneAdminStatus() {
@@ -171,7 +186,17 @@ class _MapPageState extends State<MapPage> {
       await checkGroupRemovalOrDelete(snapshot);
       groupChangeHandler(snapshot);
       checkUserTypeChanged(snapshot);
+      updateGroupInfo(snapshot);
     });
+  }
+
+  void updateGroupInfo(DocumentSnapshot snapshot) {
+    if (groupDescription != snapshot.data["description"] ||
+        groupTitle != snapshot.data["title"])
+      setState(() {
+        groupTitle = snapshot.data["title"];
+        groupDescription = snapshot.data["description"];
+      });
   }
 
   void checkUserTypeChanged(DocumentSnapshot snapshot) async {
@@ -279,6 +304,7 @@ class _MapPageState extends State<MapPage> {
                   ),
                 ),
               ));
+      dispose();
       Navigator.pushReplacementNamed(context, "/home");
       return false;
     } else {
@@ -336,6 +362,7 @@ class _MapPageState extends State<MapPage> {
                     ),
                   ),
                 ));
+        dispose();
         Navigator.pushReplacementNamed(context, "/home");
         return false;
       }
@@ -710,7 +737,7 @@ class _MapPageState extends State<MapPage> {
                             padding: EdgeInsets.only(bottom: 10, left: 10),
                             child: Observer(
                               builder: (_) => Text(
-                                "Nome do grupo",
+                                capitalize(groupTitle),
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 16,
@@ -732,28 +759,32 @@ class _MapPageState extends State<MapPage> {
                       builder: (context) => MapPage(
                           userId: user.uid,
                           groupId: widget.groupId,
+                          groupDescription: groupDescription,
+                          groupTitle: groupTitle,
                           membersUidList: widget.membersUidList,
                           membersList: widget.membersList))),
-              title: Text('Mostrar Mapa'),
+              title: Text('Mapa Interativo'),
             ),
             ListTile(
               leading: Icon(
                 Icons.list,
                 color: Theme.of(context).primaryColorDark,
               ),
-              title: Text('Mostrar Lista'),
+              title: Text('Lista de Membros'),
               onTap: () => Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
                       builder: (context) => MapPage(
                             userId: user.uid,
                             groupId: widget.groupId,
+                            groupDescription: groupDescription,
+                            groupTitle: groupTitle,
                             membersUidList: widget.membersUidList,
                             membersList: widget.membersList,
                             viewType: "list",
                           ))),
             ),
-            !onlyOneAdmin
+            (!onlyOneAdmin || userType != "admin")
                 ? ListTile(
                     leading: Icon(
                       Icons.exit_to_app,
@@ -765,16 +796,17 @@ class _MapPageState extends State<MapPage> {
                     },
                   )
                 : Container(),
-            userType == "admin"
-                ? ListTile(
+                ListTile(
                     leading: Icon(
                       Icons.settings,
                       color: Theme.of(context).primaryColorDark,
                     ),
-                    title: Text('Alterar informações de grupo'),
-                    onTap: () => print("sadasd"),
-                  )
-                : Container(),
+                    title: Text(userType == "admin"? 'Alterar informações de grupo': "Visualizar informações do grupo"),
+                    onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => GroupInfoPage(groupId: widget.groupId, userType: userType,))),
+                  ),
             userType == "admin"
                 ? ListTile(
                     leading: Icon(
