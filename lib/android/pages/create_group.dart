@@ -89,7 +89,7 @@ class CreateGroupPageState extends State<CreateGroupPage> {
                                 decoration: InputDecoration(
                                     labelText: 'Descrição do grupo*'),
                                 controller: bloc.descriptionInputController,
-                                validator: bloc.nameValidator,
+                                validator: bloc.descriptionValidator,
                                 maxLines: 2,
                                   keyboardType: TextInputType.multiline
 

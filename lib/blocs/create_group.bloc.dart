@@ -32,9 +32,9 @@ class CreateGroupBloc {
         DocumentReference groupCreated =
             await Firestore.instance.collection("groups").add({
           "identifier": uuid.v1(),
-          "password": passwordInputController.text,
-          "title": nameInputController.text,
-          "description": descriptionInputController.text,
+          "password": passwordInputController.text.trim(),
+          "title": nameInputController.text.trim(),
+          "description": descriptionInputController.text.trim(),
           "members": [
             {"type": "admin", "uid": user.documentReference}
           ]
@@ -137,6 +137,18 @@ class CreateGroupBloc {
   String nameValidator(String value) {
     if (value.length < 3) {
       return "O nome do grupo deve possuir ao menos 3 caracteres";
+    } else if (value.length > 18) {
+      return "O nome do grupo deve possuir no máximo 18 caracteres";
+    } else {
+      return null;
+    }
+  }
+
+  String descriptionValidator(String value) {
+    if (value.length < 10) {
+      return "A descrição do grupo deve possuir ao menos 10 caracteres";
+    } else if (value.length > 100) {
+      return "A descrição do grupo deve possuir no máximo 100 caracteres";
     } else {
       return null;
     }

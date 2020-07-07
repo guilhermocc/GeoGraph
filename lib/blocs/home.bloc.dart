@@ -8,6 +8,7 @@ class HomeBloc {
   onLogout(BuildContext context) {
     FirebaseAuth.instance.signOut();
     userBloc.resetUserStore(context);
-    Navigator.pushReplacementNamed(context, "/splash");
+    Navigator.of(context).pushNamedAndRemoveUntil(
+        '/splash', (Route r) => r == null);
   }
 }

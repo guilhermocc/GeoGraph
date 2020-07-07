@@ -60,7 +60,7 @@ class _HomePageState extends State<HomePage> {
                             padding: EdgeInsets.only(bottom: 10, left: 10),
                             child: Observer(
                               builder: (_) => Text(
-                                "${user.firstName}  ${user.lastName}",
+                                "${user.firstName}  ${user.lastName}".trim(),
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 16,
