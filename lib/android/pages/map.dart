@@ -849,7 +849,8 @@ class _MapPageState extends State<MapPage> {
                 color: Theme.of(context).primaryColorDark,
               ),
               onTap: () {
-                Navigator.pushReplacementNamed(context, "/home");
+                Navigator.of(context).pushNamedAndRemoveUntil(
+                    '/home', (Route r) => r == null);
               },
             ),
           ],

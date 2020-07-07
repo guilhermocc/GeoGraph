@@ -74,9 +74,9 @@ class RegisterBloc {
         .document(currentUser.user.uid)
         .setData({
       "uid": currentUser.user.uid,
-      "fname": this.firstNameInputController.text,
-      "surname": this.lastNameInputController.text,
-      "email": this.emailInputController.text,
+      "fname": this.firstNameInputController.text.trim(),
+      "surname": this.lastNameInputController.text.trim(),
+      "email": this.emailInputController.text.trim(),
     });
   }
 
@@ -111,8 +111,8 @@ class RegisterBloc {
   }
 
   String nameValidator(String value) {
-    if (value.length < 3) {
-      return "Por favor insira um segundo nome válido.";
+    if (value.length < 1) {
+      return "O nome deve ter ao menos 1 caractere.";
     } else {
       return null;
     }
