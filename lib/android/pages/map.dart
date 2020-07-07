@@ -4,7 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:geograph/android/pages/delete_group_dialog.dart';
 import 'package:geograph/android/pages/exit_group_dialog.dart';
-import 'package:geograph/android/pages/group_info_page.dart';
+import 'package:geograph/android/pages/group_update_page.dart';
 import 'package:geograph/android/pages/home.dart';
 import 'package:geograph/android/pages/person_dialog.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +15,8 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
 import 'dart:math';
+
+import 'group_info_page.dart';
 
 class MapPage extends StatefulWidget {
   MapPage(
@@ -784,6 +786,46 @@ class _MapPageState extends State<MapPage> {
                             viewType: "list",
                           ))),
             ),
+            ListTile(
+              leading: Icon(
+                Icons.remove_red_eye,
+                color: Theme.of(context).primaryColorDark,
+              ),
+              title: Text('Informações do grupo'),
+              onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => GroupInfoPage(
+                            groupId: widget.groupId,
+                            userType: userType,
+                          ))),
+            ),
+            userType == "admin"
+                ? ListTile(
+                    leading: Icon(
+                      Icons.settings,
+                      color: Theme.of(context).primaryColorDark,
+                    ),
+                    title: Text('Alterar informações de grupo'),
+                    onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => GroupUpdatePage(
+                                  groupId: widget.groupId,
+                                  userType: userType,
+                                ))),
+                  )
+                : Container(),
+            userType == "admin"
+                ? ListTile(
+                    leading: Icon(
+                      Icons.delete,
+                      color: Theme.of(context).primaryColorDark,
+                    ),
+                    title: Text('Encerrar Grupo'),
+                    onTap: () => showDeleteGroupDialog(context),
+                  )
+                : Container(),
             (!onlyOneAdmin || userType != "admin")
                 ? ListTile(
                     leading: Icon(
@@ -794,27 +836,6 @@ class _MapPageState extends State<MapPage> {
                     onTap: () {
                       showExitGroupDialog(context);
                     },
-                  )
-                : Container(),
-                ListTile(
-                    leading: Icon(
-                      Icons.settings,
-                      color: Theme.of(context).primaryColorDark,
-                    ),
-                    title: Text(userType == "admin"? 'Alterar informações de grupo': "Visualizar informações do grupo"),
-                    onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => GroupInfoPage(groupId: widget.groupId, userType: userType,))),
-                  ),
-            userType == "admin"
-                ? ListTile(
-                    leading: Icon(
-                      Icons.delete,
-                      color: Theme.of(context).primaryColorDark,
-                    ),
-                    title: Text('Encerrar Grupo'),
-                    onTap: () => showDeleteGroupDialog(context),
                   )
                 : Container(),
             Divider(

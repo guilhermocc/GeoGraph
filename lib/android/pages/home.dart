@@ -107,13 +107,6 @@ class _HomePageState extends State<HomePage> {
               ),
               onTap: () => bloc.onLogout(context),
             ),
-            ListTile(
-              leading: Icon(
-                Icons.help,
-                color: Theme.of(context).primaryColorDark,
-              ),
-              title: Text('FAQ'),
-            ),
           ],
         ),
       ),
