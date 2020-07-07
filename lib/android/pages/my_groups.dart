@@ -73,6 +73,8 @@ class MyGroupPageState extends State<MyGroupsPage> {
                                         builder: (context) => MapPage(
                                             userId: user.uid,
                                             groupId: group.documentID,
+                                            groupTitle: group["title"],
+                                            groupDescription: group["description"],
                                             membersUidList: membersUidList,
                                             membersList: membersList)));
                               },

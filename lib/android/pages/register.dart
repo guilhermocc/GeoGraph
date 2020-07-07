@@ -58,7 +58,7 @@ class _RegisterPageState extends State<RegisterPage> {
                               ),
                               TextFormField(
                                   decoration: InputDecoration(
-                                      labelText: 'Segundo nome*'),
+                                      labelText: 'Sobrenome *'),
                                   controller: bloc.lastNameInputController,
                                   validator: bloc.nameValidator),
                               TextFormField(

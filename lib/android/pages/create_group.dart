@@ -71,7 +71,7 @@ class CreateGroupPageState extends State<CreateGroupPage> {
                               ),
                               TextFormField(
                                 decoration:
-                                    InputDecoration(labelText: 'Senha*'),
+                                    InputDecoration(labelText: 'Senha do grupo*'),
                                 controller: bloc.passwordInputController,
                                 obscureText: true,
                                 validator: bloc.pwdValidator,
