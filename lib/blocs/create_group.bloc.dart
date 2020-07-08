@@ -33,7 +33,7 @@ class CreateGroupBloc {
             await Firestore.instance.collection("groups").add({
           "identifier": uuid.v1(),
           "password": passwordInputController.text.trim(),
-          "title": nameInputController.text.trim(),
+          "title": capitalize(nameInputController.text.trim()),
           "description": descriptionInputController.text.trim(),
           "members": [
             {"type": "admin", "uid": user.documentReference}
@@ -93,6 +93,9 @@ class CreateGroupBloc {
       return null;
     }
   }
+
+  String capitalize(String s) => s[0].toUpperCase() + s.substring(1);
+
 
   handleGroupCreationError(PlatformException err, BuildContext context) {
     this.isLoading = false;

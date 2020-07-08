@@ -81,11 +81,11 @@ class _MapPageState extends State<MapPage> {
   @override
   void initState() {
     super.initState();
+    loadFirstCurrentPosition();
     setInitiaGroupInfo();
     setOnlyOneAdminStatus();
     loadGroupMembersInfos();
     loadInitialMarkers();
-    loadFirstCurrentPosition();
     setUserType();
     setCustomMapPin();
     setSelfPositionEventsSubscription();
@@ -446,6 +446,7 @@ class _MapPageState extends State<MapPage> {
                 element.document.data["marker"]["position"].longitude != 0.0))
         .map((documentChange) async {
       var locationId = documentChange.document.documentID;
+
       var newLatitude =
           documentChange.document.data["marker"]["position"].latitude;
       var newLongitude =
@@ -466,11 +467,23 @@ class _MapPageState extends State<MapPage> {
       // A lot of errors are being raised here when markers are null
       InfoWindow infoWindowOld = _markers[locationId].infoWindow;
       InfoWindow newInfoWindow = InfoWindow(
-          title: infoWindowOld.title,
+          title:  capitalize(documentChange.document.data['fname']) +
+              " " +
+              capitalize(documentChange.document.data['surname']),
           snippet: (placemark.thoroughfare == "")
-              ? "formattedDistance"
+              ? formattedDistance
               : "${placemark.thoroughfare} - $formattedDistance",
-          onTap: infoWindowOld.onTap);
+          onTap: () =>  showPersonDialog(
+              context,
+              placemark,
+              formattedDistance,
+              capitalize(documentChange.document.data['fname']) +
+                  " " +
+                  capitalize(documentChange.document.data['surname']),
+              documentChange.document.documentID,
+              memberType,
+              true));
+
       var newMarker = _markers[locationId].copyWith(
           positionParam: LatLng(newLatitude, newLongitude),
           infoWindowParam: newInfoWindow,
@@ -569,7 +582,7 @@ class _MapPageState extends State<MapPage> {
           snapshot.data["marker"]["position"].longitude;
       var memberPosition =
           LatLng(memberPositonLatitude, memberPositonLongitude);
-      var dialogTitle = snapshot.data["marker"]["userName"];
+      var dialogTitle = snapshot.data["fname"] + " " +  snapshot.data["surname"];
 
       List<Placemark> placemarList =
           await makeGeoCoding(memberPositonLatitude, memberPositonLongitude);
@@ -600,7 +613,9 @@ class _MapPageState extends State<MapPage> {
                       context,
                       placemark,
                       formattedDistance,
-                      snapshot.data["marker"]["userName"],
+                      capitalize(snapshot.data['fname']) +
+                          " " +
+                          capitalize(snapshot.data['surname']),
                       snapshot.documentID,
                       memberType,
                       true);
@@ -622,7 +637,7 @@ class _MapPageState extends State<MapPage> {
       mapController = controller;
       // Quando for posicao invalida animar para o meio do brasil
       mapController.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
-          target: currentUserPosition.latitude != 0.0 ||
+          target: currentPosition.latitude != 0.0 ||
                   currentPosition.longitude != 0
               ? LatLng(currentPosition.latitude, currentPosition.longitude)
               : LatLng(-23.563210, -46.654251),
@@ -674,9 +689,6 @@ class _MapPageState extends State<MapPage> {
         .document(widget.userId)
         .updateData({
           "marker": {
-            "userName": capitalize(currentUser.data['fname']) +
-                " " +
-                capitalize(currentUser.data['surname']),
             "position":
                 GeoPoint(currentPosition.latitude, currentPosition.longitude)
           }
@@ -696,10 +708,7 @@ class _MapPageState extends State<MapPage> {
           .updateData({
         "marker": {
           "position":
-              GeoPoint(currentPosition.latitude, currentPosition.longitude),
-          "userName": capitalize(currentUser.data['fname']) +
-              " " +
-              capitalize(currentUser.data['surname']),
+              GeoPoint(currentPosition.latitude, currentPosition.longitude)
         }
       });
     }
