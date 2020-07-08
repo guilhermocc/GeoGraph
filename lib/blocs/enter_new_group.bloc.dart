@@ -19,11 +19,10 @@ class EnterNewGroupBloc {
   var passwordInputController = new TextEditingController();
 
   String identifierValidator(String value) {
-//    Pattern pattern =
-//        r'........-....-....-....-............';
-//    RegExp regex = new RegExp(pattern);
-//    if (!regex.hasMatch(value)) {
-    if (false) {
+    Pattern pattern =
+        r'\b[0-9a-f]{8}\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\b[0-9a-f]{12}\b';
+    RegExp regex = new RegExp(pattern);
+    if (!regex.hasMatch(value)) {
       return 'O identificador está em um formato inválido';
     } else {
       return null;
