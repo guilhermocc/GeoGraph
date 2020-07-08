@@ -68,14 +68,17 @@ class RegisterBloc {
         });
   }
 
+  String capitalize(String s) => s[0].toUpperCase() + s.substring(1);
+
+
   updateUserData(AuthResult currentUser) async {
     return Firestore.instance
         .collection("users")
         .document(currentUser.user.uid)
         .setData({
       "uid": currentUser.user.uid,
-      "fname": this.firstNameInputController.text.trim(),
-      "surname": this.lastNameInputController.text.trim(),
+      "fname": capitalize(this.firstNameInputController.text.trim()),
+      "surname": capitalize(this.lastNameInputController.text.trim()),
       "email": this.emailInputController.text.trim(),
       "marker": {
         "position":
