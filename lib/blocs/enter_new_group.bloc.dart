@@ -103,7 +103,7 @@ class EnterNewGroupBloc {
     if (err == "Already in group")
       this.showErrorDialog(context, "Você já está neste grupo!");
     else
-      this.showErrorDialog(context, "Erro ao entrar no grupo");
+      this.showErrorDialog(context, "A senha ou identificador do grupo estão incorretos");
   }
 
   showErrorDialog(BuildContext context, String textContent) {
