@@ -110,8 +110,7 @@ class _MapPageState extends State<MapPage> {
   }
 
   void loadFirstCurrentPosition() async {
-    Position currentPosition = await Geolocator()
-        .getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    Position currentPosition = await getCurrentPositionOrLast();
     setState(() {
       currentUserPosition =
           LatLng(currentPosition.latitude, currentPosition.longitude);
@@ -119,8 +118,7 @@ class _MapPageState extends State<MapPage> {
   }
 
   void loadInitialMarkers() async {
-    Position currentPosition = await Geolocator()
-        .getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    Position currentPosition = await getCurrentPositionOrLast();
     await createOrUpdateGeoPoint(currentPosition);
     var loadedMarkers = await getGroupMarkers();
     setState(() {
@@ -144,10 +142,9 @@ class _MapPageState extends State<MapPage> {
             .map((snapshot) async {
       var userData = snapshot.data;
 
-      List<Placemark> placemarList = await Geolocator()
-          .placemarkFromCoordinates(userData['marker']['position'].latitude,
-              userData['marker']["position"].longitude,
-              localeIdentifier: "pt-br");
+      List<Placemark> placemarList = await makeGeoCoding(
+          userData['marker']['position'].latitude,
+          userData['marker']["position"].longitude);
 
       Placemark placemark = placemarList.first;
 
@@ -379,10 +376,9 @@ class _MapPageState extends State<MapPage> {
             .where((element) => element.document.data["marker"] != null)
             .map((documentChange) async {
       var userData = documentChange.document.data;
-      List<Placemark> placemarList = await Geolocator()
-          .placemarkFromCoordinates(userData["marker"]["position"].latitude,
-              userData["marker"]["position"].longitude,
-              localeIdentifier: "pt-br");
+      List<Placemark> placemarList = await makeGeoCoding(
+          userData["marker"]["position"].latitude,
+          userData["marker"]["position"].longitude);
 
       Placemark placemark = placemarList.first;
 
@@ -415,6 +411,26 @@ class _MapPageState extends State<MapPage> {
     });
   }
 
+  Future<List<Placemark>> makeGeoCoding(latitude, longitude) async {
+    try {
+      List<Placemark> geolocatorGeocoding = await Geolocator()
+          .placemarkFromCoordinates(latitude, longitude,
+              localeIdentifier: "pt-br");
+
+      return geolocatorGeocoding;
+    } catch (Exception) {
+      return [
+        Placemark(
+            thoroughfare: "",
+            administrativeArea: "",
+            subAdministrativeArea: "",
+            country: "",
+            subLocality: "",
+            subThoroughfare: "")
+      ];
+    }
+  }
+
   // This method is missing the logic to exclude the document of the self user,
   // since the above query does not exclude the document change of the user itself,
   // this logic should be implemented here. By the docs, there is no way to
@@ -424,7 +440,10 @@ class _MapPageState extends State<MapPage> {
     Map<String, Marker> updatedMarkers = {};
     Iterable<Future<Map<String, Marker>>> updatedMarkersFutures = snapshot
         .documentChanges
-        .where((element) => element.document.data["marker"] != null)
+        .where((element) =>
+            element.document.data["marker"] != null &&
+            (element.document.data["marker"]["position"].longitude != 0.0 ||
+                element.document.data["marker"]["position"].longitude != 0.0))
         .map((documentChange) async {
       var locationId = documentChange.document.documentID;
       var newLatitude =
@@ -432,10 +451,8 @@ class _MapPageState extends State<MapPage> {
       var newLongitude =
           documentChange.document.data["marker"]["position"].longitude;
 
-      List<Placemark> placemarList = await Geolocator()
-          .placemarkFromCoordinates(newLatitude, newLongitude,
-              localeIdentifier: "pt-br");
-
+      List<Placemark> placemarList =
+          await makeGeoCoding(newLatitude, newLongitude);
       Placemark placemark = placemarList.first;
 
       String formattedDistance = Haversine.formattedDistance(
@@ -501,7 +518,8 @@ class _MapPageState extends State<MapPage> {
       String formatedDistance,
       String username,
       String memberUid,
-      String memberType) {
+      String memberType,
+      bool positionIsValid) {
     Widget personDialog = PersonDialog(
       placemark: placemark,
       username: username,
@@ -511,6 +529,7 @@ class _MapPageState extends State<MapPage> {
       controllerUserType: userType,
       memberType: memberType,
       controllerUserUid: widget.userId,
+      positionValid: positionIsValid,
     );
     showDialog(
         context: context, builder: (BuildContext context) => personDialog);
@@ -540,7 +559,10 @@ class _MapPageState extends State<MapPage> {
         .then((result) => result.documents);
 
     List<Future<Map<String, Marker>>> markersFutures = groupUsers
-        .where((element) => element.data["marker"] != null)
+        .where((element) =>
+            element.data["marker"] != null &&
+            (element.data["marker"]["position"].latitude != 0 ||
+                element.data["marker"]["position"].longitude != 0))
         .map((snapshot) async {
       var memberPositonLatitude = snapshot.data["marker"]["position"].latitude;
       var memberPositonLongitude =
@@ -549,10 +571,8 @@ class _MapPageState extends State<MapPage> {
           LatLng(memberPositonLatitude, memberPositonLongitude);
       var dialogTitle = snapshot.data["marker"]["userName"];
 
-      List<Placemark> placemarList = await Geolocator()
-          .placemarkFromCoordinates(
-              memberPositonLatitude, memberPositonLongitude,
-              localeIdentifier: "pt-br");
+      List<Placemark> placemarList =
+          await makeGeoCoding(memberPositonLatitude, memberPositonLongitude);
 
       Placemark placemark = placemarList.first;
       String formattedDistance = Haversine.formattedDistance(
@@ -582,7 +602,8 @@ class _MapPageState extends State<MapPage> {
                       formattedDistance,
                       snapshot.data["marker"]["userName"],
                       snapshot.documentID,
-                      memberType);
+                      memberType,
+                      true);
                 }))
       };
     }).toList();
@@ -595,15 +616,38 @@ class _MapPageState extends State<MapPage> {
   }
 
   Future<void> _onMapCreated(GoogleMapController controller) async {
-    Position currentPosition = await Geolocator()
-        .getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    Position currentPosition = await getCurrentPositionOrLast();
 
     setState(() {
       mapController = controller;
+      // Quando for posicao invalida animar para o meio do brasil
       mapController.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
-          target: LatLng(currentPosition.latitude, currentPosition.longitude),
-          zoom: 17.0)));
+          target: currentUserPosition.latitude != 0.0 ||
+                  currentPosition.longitude != 0
+              ? LatLng(currentPosition.latitude, currentPosition.longitude)
+              : LatLng(-23.563210, -46.654251),
+          zoom: 10.0)));
     });
+  }
+
+  Future<Position> getCurrentPositionOrLast() async {
+    if (await Geolocator().isLocationServiceEnabled()) {
+      return await Geolocator()
+          .getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    } else {
+      var lastKnownPosition = await Geolocator().getLastKnownPosition();
+      if (lastKnownPosition == null) {
+        DocumentSnapshot userSnapShot = await Firestore.instance
+            .collection("users")
+            .document(widget.userId)
+            .get();
+        GeoPoint geopoint = userSnapShot.data["marker"]["position"];
+        return Position(
+            latitude: geopoint.latitude, longitude: geopoint.longitude);
+      } else {
+        return lastKnownPosition;
+      }
+    }
   }
 
   getCurrentUser() async {
@@ -614,19 +658,6 @@ class _MapPageState extends State<MapPage> {
   }
 
   String capitalize(String s) => s[0].toUpperCase() + s.substring(1);
-
-  void onPressUpdate() async {
-    Position currentPosition = await Geolocator()
-        .getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-
-    await createOrUpdateGeoPoint(currentPosition);
-    var loadedMarkers = await getGroupMarkers();
-
-    setState(() {
-      _markers.clear();
-      _markers.addAll(loadedMarkers);
-    });
-  }
 
   Future createOrUpdateGeoPoint(Position currentPosition) async {
     if (await geoPointsExists()) {
@@ -849,8 +880,8 @@ class _MapPageState extends State<MapPage> {
                 color: Theme.of(context).primaryColorDark,
               ),
               onTap: () {
-                Navigator.of(context).pushNamedAndRemoveUntil(
-                    '/home', (Route r) => r == null);
+                Navigator.of(context)
+                    .pushNamedAndRemoveUntil('/home', (Route r) => r == null);
               },
             ),
           ],
@@ -869,17 +900,6 @@ class _MapPageState extends State<MapPage> {
                   myLocationEnabled: true,
                   myLocationButtonEnabled: true,
                 ),
-                Align(
-                  child: FloatingActionButton(
-                    child: Icon(Icons.update),
-                    backgroundColor: Theme.of(context).primaryColorDark,
-//                onPressed: onPressUpdate,
-                    onPressed: () {
-                      print(_markers[0].toString());
-                    },
-                  ),
-                  alignment: Alignment(0.8, 0.9),
-                )
               ],
             )
           : ListView(
@@ -893,38 +913,73 @@ class _MapPageState extends State<MapPage> {
     groupMembersInfos.forEach((uid, info) async {
       String memberType = info["type"];
       String thoroughfare = info["thoroughfare"];
-      LatLng memberPosition = _markers[uid].position;
-      String formattedDistance = Haversine.formattedDistance(
-          currentUserPosition.latitude,
-          currentUserPosition.longitude,
-          memberPosition.latitude,
-          memberPosition.longitude);
-      cardsList.add(Card(
-        child: ListTile(
-          leading: Column(
-            children: <Widget>[
-              CircleAvatar(
-                radius: 20,
-                backgroundImage: NetworkImage(
-                    'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y'),
-                backgroundColor: Colors.transparent,
-              ),
-              Padding(padding: EdgeInsets.only(top: 0.0)),
-              (memberType == "admin") ? Text("Admin") : SizedBox()
-            ],
+      if (_markers[uid] == null) {
+        cardsList.add(Card(
+          child: ListTile(
+            leading: Column(
+              children: <Widget>[
+                CircleAvatar(
+                  radius: 20,
+                  backgroundImage: NetworkImage(
+                      'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y'),
+                  backgroundColor: Colors.transparent,
+                ),
+                Padding(padding: EdgeInsets.only(top: 0.0)),
+                (memberType == "admin") ? Text("Admin") : SizedBox()
+              ],
+            ),
+            title: Text(info["fullname"]),
+            subtitle: Text("Sem informações disponíveis"),
+            trailing: Icon(
+              Icons.keyboard_arrow_right,
+              color: Theme.of(context).primaryColorDark,
+            ),
+            onTap: () => showPersonDialog(context, info["placemark"], "",
+                info["fullname"], uid, memberType, false),
           ),
-          title: Text(info["fullname"]),
-          subtitle: Text((thoroughfare == "")
-              ? "$formattedDistance"
-              : "$thoroughfare - $formattedDistance"),
-          trailing: Icon(
-            Icons.keyboard_arrow_right,
-            color: Theme.of(context).primaryColorDark,
+        ));
+      } else {
+        LatLng memberPosition = _markers[uid].position;
+        bool userDontHavePosition =
+            memberPosition.latitude == 0.0 && memberPosition.longitude == 0.0;
+        String formattedDistance = Haversine.formattedDistance(
+            currentUserPosition.latitude,
+            currentUserPosition.longitude,
+            memberPosition.latitude,
+            memberPosition.longitude);
+        cardsList.add(Card(
+          child: ListTile(
+            leading: Column(
+              children: <Widget>[
+                CircleAvatar(
+                  radius: 20,
+                  backgroundImage: NetworkImage(
+                      'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y'),
+                  backgroundColor: Colors.transparent,
+                ),
+                Padding(padding: EdgeInsets.only(top: 0.0)),
+                (memberType == "admin") ? Text("Admin") : SizedBox()
+              ],
+            ),
+            title: Text(info["fullname"]),
+            subtitle: Text((thoroughfare == "")
+                ? (userDontHavePosition) ? "" : "$formattedDistance"
+                : "$thoroughfare - $formattedDistance"),
+            trailing: Icon(
+              Icons.keyboard_arrow_right,
+              color: Theme.of(context).primaryColorDark,
+            ),
+            onTap: () => showPersonDialog(
+                context,
+                info["placemark"],
+                formattedDistance,
+                info["fullname"],
+                uid,
+                memberType,
+                !userDontHavePosition),
           ),
-          onTap: () => showPersonDialog(context, info["placemark"],
-              formattedDistance, info["fullname"], uid, memberType),
-        ),
-      ));
+        ));
+      }
     });
     return cardsList;
   }

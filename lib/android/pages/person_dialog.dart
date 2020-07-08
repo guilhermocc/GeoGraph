@@ -13,7 +13,9 @@ class PersonDialog extends StatefulWidget {
       this.memberType,
       this.groupUid,
       this.controllerUserType,
-      this.controllerUserUid})
+      this.controllerUserUid,
+      this.positionValid
+      })
       : super(key: key);
 
   final String username;
@@ -24,6 +26,7 @@ class PersonDialog extends StatefulWidget {
   final groupUid;
   final String controllerUserType;
   final String controllerUserUid;
+  bool positionValid = true;
 
   @override
   _PersonDialogState createState() => _PersonDialogState();
@@ -313,7 +316,7 @@ class _PersonDialogState extends State<PersonDialog> {
                           style: TextStyle(color: Colors.black),
                         )
                       : Container(),
-                  widget.formatedDistance != ""
+                  widget.formatedDistance != "" && widget.positionValid
                       ? Text(
                           'Distância: ${widget.formatedDistance}',
                           style: TextStyle(color: Colors.black),

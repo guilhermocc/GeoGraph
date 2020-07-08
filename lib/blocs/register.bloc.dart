@@ -77,6 +77,13 @@ class RegisterBloc {
       "fname": this.firstNameInputController.text.trim(),
       "surname": this.lastNameInputController.text.trim(),
       "email": this.emailInputController.text.trim(),
+      "marker": {
+        "position":
+        GeoPoint(0.0, 0.0),
+        "userName": this.firstNameInputController.text.trim() +
+            " " +
+            this.lastNameInputController.text.trim(),
+      }
     });
   }
 
