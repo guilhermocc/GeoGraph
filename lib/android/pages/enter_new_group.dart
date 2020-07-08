@@ -49,7 +49,7 @@ class _EnterNewGroupPageState extends State<EnterNewGroupPage> {
                         ),
                         TextFormField(
                           decoration: InputDecoration(
-                              labelText: 'Senha', hintText: "********"),
+                              labelText: 'Senha do grupo', hintText: "********"),
                           controller: bloc.passwordInputController,
                           obscureText: true,
                           validator: bloc.pwdValidator,
