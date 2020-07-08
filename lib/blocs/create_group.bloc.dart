@@ -96,13 +96,7 @@ class CreateGroupBloc {
 
   handleGroupCreationError(PlatformException err, BuildContext context) {
     this.isLoading = false;
-    if (err.code == "ERROR_EMAIL_ALREADY_IN_USE") {
-      this.showErrorDialog(context, "E-mail já está em uso");
-    } else {
-      {
-        this.showErrorDialog(context, "Houve um erro ao criar a conta");
-      }
-    }
+    this.showErrorDialog(context, "Houve um erro ao criar o grupo");
   }
 
   navigateToGroupPage(
