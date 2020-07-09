@@ -367,7 +367,7 @@ class _PersonDialogState extends State<PersonDialog> {
                             });
                           },
                           child: Text(
-                            'Tornar membro administrador',
+                            'Tornar administrador',
                             style:
                                 TextStyle(fontSize: 18.0, color: Colors.white),
                           ),
