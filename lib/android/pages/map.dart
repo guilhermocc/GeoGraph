@@ -63,18 +63,13 @@ class _MapPageState extends State<MapPage> {
   String groupTitle;
   String groupDescription;
 
-  @override
-  void setState(fn) {
-    if (mounted) {
-      super.setState(fn);
-    }
-  }
 
   @override
   dispose() {
     positionSubscription.cancel();
     usersSubscription.cancel();
     groupSubscription.cancel();
+
     super.dispose();
   }
 
