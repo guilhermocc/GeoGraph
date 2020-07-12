@@ -467,13 +467,13 @@ class _MapPageState extends State<MapPage> {
       // A lot of errors are being raised here when markers are null
       InfoWindow infoWindowOld = _markers[locationId].infoWindow;
       InfoWindow newInfoWindow = InfoWindow(
-          title:  capitalize(documentChange.document.data['fname']) +
+          title: capitalize(documentChange.document.data['fname']) +
               " " +
               capitalize(documentChange.document.data['surname']),
           snippet: (placemark.thoroughfare == "")
               ? formattedDistance
               : "${placemark.thoroughfare} - $formattedDistance",
-          onTap: () =>  showPersonDialog(
+          onTap: () => showPersonDialog(
               context,
               placemark,
               formattedDistance,
@@ -514,15 +514,21 @@ class _MapPageState extends State<MapPage> {
         ImageConfiguration(devicePixelRatio: 2.5), 'assets/admin_user.png');
   }
 
-  void setSelfPositionEventsSubscription() {
-    positionSubscription = geoLocator
-        .getPositionStream(locationOptions)
-        .listen((Position position) {
-      print("*** GEOLOCATION UPDATE EVENT FIRED ***");
-      FlutterRingtonePlayer.play(
-          android: AndroidSounds.notification, ios: IosSounds.glass);
-      updateGeoPointsAndRefreshSelfLocation(position);
-    });
+  Future<void> setSelfPositionEventsSubscription() async {
+    try {
+      GeolocationStatus permissionStatus = await  Geolocator().checkGeolocationPermissionStatus();
+      if (permissionStatus.toString() == "GeolocationStatus.granted")
+      positionSubscription = geoLocator
+          .getPositionStream(locationOptions)
+          .listen((Position position) {
+        print("*** GEOLOCATION UPDATE EVENT FIRED ***");
+        FlutterRingtonePlayer.play(
+            android: AndroidSounds.notification, ios: IosSounds.glass);
+        updateGeoPointsAndRefreshSelfLocation(position);
+      });
+    } catch (PlatformException) {
+      return null;
+    }
   }
 
   void showPersonDialog(
@@ -582,7 +588,7 @@ class _MapPageState extends State<MapPage> {
           snapshot.data["marker"]["position"].longitude;
       var memberPosition =
           LatLng(memberPositonLatitude, memberPositonLongitude);
-      var dialogTitle = snapshot.data["fname"] + " " +  snapshot.data["surname"];
+      var dialogTitle = snapshot.data["fname"] + " " + snapshot.data["surname"];
 
       List<Placemark> placemarList =
           await makeGeoCoding(memberPositonLatitude, memberPositonLongitude);
@@ -637,21 +643,45 @@ class _MapPageState extends State<MapPage> {
       mapController = controller;
       // Quando for posicao invalida animar para o meio do brasil
       mapController.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
-          target: currentPosition.latitude != 0.0 ||
-                  currentPosition.longitude != 0
-              ? LatLng(currentPosition.latitude, currentPosition.longitude)
-              : LatLng(-23.563210, -46.654251),
+          target:
+              currentPosition.latitude != 0.0 || currentPosition.longitude != 0
+                  ? LatLng(currentPosition.latitude, currentPosition.longitude)
+                  : LatLng(-23.563210, -46.654251),
           zoom: 10.0)));
     });
   }
 
   Future<Position> getCurrentPositionOrLast() async {
-    if (await Geolocator().isLocationServiceEnabled()) {
+    GeolocationStatus permissionStatus = await  Geolocator().checkGeolocationPermissionStatus();
+    if (permissionStatus.toString() == "GeolocationStatus.granted" && await Geolocator().isLocationServiceEnabled()) {
       return await Geolocator()
           .getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
     } else {
-      var lastKnownPosition = await Geolocator().getLastKnownPosition();
-      if (lastKnownPosition == null) {
+      try {
+        if (permissionStatus.toString() == "GeolocationStatus.granted") {
+          var lastKnownPosition = await Geolocator().getLastKnownPosition();
+          if (lastKnownPosition == null) {
+            DocumentSnapshot userSnapShot = await Firestore.instance
+                .collection("users")
+                .document(widget.userId)
+                .get();
+            GeoPoint geopoint = userSnapShot.data["marker"]["position"];
+            return Position(
+                latitude: geopoint.latitude, longitude: geopoint.longitude);
+          } else {
+            return lastKnownPosition;
+          }
+        }
+        else {
+          DocumentSnapshot userSnapShot = await Firestore.instance
+              .collection("users")
+              .document(widget.userId)
+              .get();
+          GeoPoint geopoint = userSnapShot.data["marker"]["position"];
+          return Position(
+              latitude: geopoint.latitude, longitude: geopoint.longitude);
+        }
+      } catch (Exception) {
         DocumentSnapshot userSnapShot = await Firestore.instance
             .collection("users")
             .document(widget.userId)
@@ -659,8 +689,6 @@ class _MapPageState extends State<MapPage> {
         GeoPoint geopoint = userSnapShot.data["marker"]["position"];
         return Position(
             latitude: geopoint.latitude, longitude: geopoint.longitude);
-      } else {
-        return lastKnownPosition;
       }
     }
   }

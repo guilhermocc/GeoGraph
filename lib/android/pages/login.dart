@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:geograph/blocs/login.bloc.dart';
+import 'package:location_permissions/location_permissions.dart';
 
 class LoginPage extends StatefulWidget {
   LoginPage({Key key}) : super(key: key);
@@ -13,7 +14,8 @@ class _LoginPageState extends State<LoginPage> {
   var bloc = new LoginBloc();
 
   @override
-  initState() {
+  initState()  {
+    requestLocationPermission();
     super.initState();
   }
 
@@ -101,5 +103,9 @@ class _LoginPageState extends State<LoginPage> {
                       ],
                     ),
                   ))));
+  }
+
+  Future<void> requestLocationPermission() async {
+    await LocationPermissions().requestPermissions();
   }
 }
