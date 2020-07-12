@@ -441,6 +441,7 @@ class _MapPageState extends State<MapPage> {
     Iterable<Future<Map<String, Marker>>> updatedMarkersFutures = snapshot
         .documentChanges
         .where((element) =>
+            _markers[element.document.documentID] != null &&
             element.document.data["marker"] != null &&
             (element.document.data["marker"]["position"].longitude != 0.0 ||
                 element.document.data["marker"]["position"].longitude != 0.0))
@@ -516,16 +517,15 @@ class _MapPageState extends State<MapPage> {
 
   Future<void> setSelfPositionEventsSubscription() async {
     try {
-      GeolocationStatus permissionStatus = await  Geolocator().checkGeolocationPermissionStatus();
+      GeolocationStatus permissionStatus =
+          await Geolocator().checkGeolocationPermissionStatus();
       if (permissionStatus.toString() == "GeolocationStatus.granted")
-      positionSubscription = geoLocator
-          .getPositionStream(locationOptions)
-          .listen((Position position) {
-        print("*** GEOLOCATION UPDATE EVENT FIRED ***");
-        FlutterRingtonePlayer.play(
-            android: AndroidSounds.notification, ios: IosSounds.glass);
-        updateGeoPointsAndRefreshSelfLocation(position);
-      });
+        positionSubscription = geoLocator
+            .getPositionStream(locationOptions)
+            .listen((Position position) {
+          print("*** GEOLOCATION UPDATE EVENT FIRED ***");
+          updateGeoPointsAndRefreshSelfLocation(position);
+        });
     } catch (PlatformException) {
       return null;
     }
@@ -643,17 +643,22 @@ class _MapPageState extends State<MapPage> {
       mapController = controller;
       // Quando for posicao invalida animar para o meio do brasil
       mapController.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
-          target:
-              currentPosition.latitude != 0.0 || currentPosition.longitude != 0
-                  ? LatLng(currentPosition.latitude, currentPosition.longitude)
-                  : LatLng(-23.563210, -46.654251),
-          zoom: 10.0)));
+          target: currentPosition.latitude != 0.0 ||
+                  currentPosition.longitude != 0.0
+              ? LatLng(currentPosition.latitude, currentPosition.longitude)
+              : LatLng(-23.563210, -46.654251),
+          zoom: currentPosition.latitude != 0.0 ||
+                  currentPosition.longitude != 0.0
+              ? 15.0
+              : 10.0)));
     });
   }
 
   Future<Position> getCurrentPositionOrLast() async {
-    GeolocationStatus permissionStatus = await  Geolocator().checkGeolocationPermissionStatus();
-    if (permissionStatus.toString() == "GeolocationStatus.granted" && await Geolocator().isLocationServiceEnabled()) {
+    GeolocationStatus permissionStatus =
+        await Geolocator().checkGeolocationPermissionStatus();
+    if (permissionStatus.toString() == "GeolocationStatus.granted" &&
+        await Geolocator().isLocationServiceEnabled()) {
       return await Geolocator()
           .getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
     } else {
@@ -671,8 +676,7 @@ class _MapPageState extends State<MapPage> {
           } else {
             return lastKnownPosition;
           }
-        }
-        else {
+        } else {
           DocumentSnapshot userSnapShot = await Firestore.instance
               .collection("users")
               .document(widget.userId)
@@ -768,12 +772,14 @@ class _MapPageState extends State<MapPage> {
   }
 
   void refreshSelfLocation(Position currentPosition, String locationId) {
-    var newMarker = _markers[locationId].copyWith(
-        positionParam:
+    if (_markers[locationId] != null) {
+      var newMarker = _markers[locationId].copyWith(
+            positionParam:
             LatLng(currentPosition.latitude, currentPosition.longitude));
-    setState(() {
-      _markers[locationId] = newMarker;
-    });
+        setState(() {
+          _markers[locationId] = newMarker;
+        });
+      }
   }
 
   void listenChange(QuerySnapshot snapshot) {
