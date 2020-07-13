@@ -63,7 +63,6 @@ class _MapPageState extends State<MapPage> {
   String groupTitle;
   String groupDescription;
 
-
   @override
   dispose() {
     positionSubscription.cancel();
@@ -769,12 +768,12 @@ class _MapPageState extends State<MapPage> {
   void refreshSelfLocation(Position currentPosition, String locationId) {
     if (_markers[locationId] != null) {
       var newMarker = _markers[locationId].copyWith(
-            positionParam:
-            LatLng(currentPosition.latitude, currentPosition.longitude));
-        setState(() {
-          _markers[locationId] = newMarker;
-        });
-      }
+          positionParam:
+              LatLng(currentPosition.latitude, currentPosition.longitude));
+      setState(() {
+        _markers[locationId] = newMarker;
+      });
+    }
   }
 
   void listenChange(QuerySnapshot snapshot) {
@@ -800,8 +799,7 @@ class _MapPageState extends State<MapPage> {
                       children: <Widget>[
                         CircleAvatar(
                           radius: 40,
-                          backgroundImage: NetworkImage(
-                              'https://i.picsum.photos/id/866/200/300.jpg?hmac=rcadCENKh4rD6MAp6V_ma-AyWv641M4iiOpe1RyFHeI'),
+                          backgroundImage: AssetImage('assets/groups.jpg'),
                           backgroundColor: Colors.transparent,
                         ),
                         Container(
@@ -948,7 +946,9 @@ class _MapPageState extends State<MapPage> {
 
   List<Widget> listOfUserCards() {
     List<Card> cardsList = [];
+    int personCount = 2;
     groupMembersInfos.forEach((uid, info) async {
+      print(personCount);
       String memberType = info["type"];
       String thoroughfare = info["thoroughfare"];
       if (_markers[uid] == null) {
@@ -958,8 +958,7 @@ class _MapPageState extends State<MapPage> {
               children: <Widget>[
                 CircleAvatar(
                   radius: 20,
-                  backgroundImage: NetworkImage(
-                      'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y'),
+                  backgroundImage: AssetImage('assets/person_$personCount.jpg'),
                   backgroundColor: Colors.transparent,
                 ),
                 Padding(padding: EdgeInsets.only(top: 0.0)),
@@ -991,8 +990,7 @@ class _MapPageState extends State<MapPage> {
               children: <Widget>[
                 CircleAvatar(
                   radius: 20,
-                  backgroundImage: NetworkImage(
-                      'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y'),
+                  backgroundImage: AssetImage('assets/person_$personCount.jpg'),
                   backgroundColor: Colors.transparent,
                 ),
                 Padding(padding: EdgeInsets.only(top: 0.0)),
@@ -1017,6 +1015,7 @@ class _MapPageState extends State<MapPage> {
                 !userDontHavePosition),
           ),
         ));
+        personCount = (personCount == 12) ? 2 : personCount + 1;
       }
     });
     return cardsList;
