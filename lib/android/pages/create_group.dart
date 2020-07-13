@@ -59,8 +59,7 @@ class CreateGroupPageState extends State<CreateGroupPage> {
                             children: <Widget>[
                               CircleAvatar(
                                 radius: 50,
-                                backgroundImage: NetworkImage(
-                                    'https://i.picsum.photos/id/866/200/300.jpg?hmac=rcadCENKh4rD6MAp6V_ma-AyWv641M4iiOpe1RyFHeI'),
+                                backgroundImage: AssetImage('assets/groups.jpg'),
                                 backgroundColor: Colors.transparent,
                               ),
                               TextFormField(

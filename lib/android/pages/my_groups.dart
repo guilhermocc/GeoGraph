@@ -43,9 +43,10 @@ class MyGroupPageState extends State<MyGroupsPage> {
                   children: groups
                       .map((group) => Card(
                             child: ListTile(
-                              leading: Icon(
-                                Icons.people,
-                                color: Theme.of(context).primaryColorDark,
+                              leading:                 CircleAvatar(
+                                radius: 30,
+                                backgroundImage: AssetImage('assets/groups.jpg'),
+                                backgroundColor: Colors.transparent,
                               ),
                               title: Text(group.data["title"]),
                               subtitle: Text(descriptionAbstract(
