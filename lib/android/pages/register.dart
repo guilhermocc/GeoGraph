@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:geograph/blocs/register.bloc.dart';
+import 'dart:io';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:path/path.dart' as Path;
 
 class RegisterPage extends StatefulWidget {
   RegisterPage({Key key}) : super(key: key);
@@ -10,10 +14,42 @@ class RegisterPage extends StatefulWidget {
 
 class _RegisterPageState extends State<RegisterPage> {
   RegisterBloc bloc = new RegisterBloc();
+  PickedFile _image;
+  String _uploadedFileURL;
 
   @override
   initState() {
     super.initState();
+  }
+
+  clearSelection() {
+    setState(() {
+      _image = null;
+    });
+  }
+
+  Future uploadFile() async {
+    StorageReference storageReference =
+        FirebaseStorage.instance.ref().child('/${Path.basename(_image.path)}}');
+    StorageUploadTask uploadTask = storageReference.putFile(File(_image.path));
+    await uploadTask.onComplete;
+    print('File Uploaded');
+    storageReference.getDownloadURL().then((fileURL) {
+      setState(() {
+        _uploadedFileURL = fileURL;
+      });
+    });
+  }
+
+  Future chooseFile() async {
+    await ImagePicker()
+        .getImage(source: ImageSource.gallery)
+        .then((PickedFile file) {
+      setState(() {
+        bloc.userProfileImage = File(file.path);
+        _image = file;
+      });
+    });
   }
 
   @override
@@ -28,7 +64,8 @@ class _RegisterPageState extends State<RegisterPage> {
                 ? Center(
                     child: CircularProgressIndicator(
                       backgroundColor: Theme.of(context).primaryColorLight,
-                      valueColor: new AlwaysStoppedAnimation<Color>(Theme.of(context).primaryColor),
+                      valueColor: new AlwaysStoppedAnimation<Color>(
+                          Theme.of(context).primaryColor),
                     ),
                   )
                 : SingleChildScrollView(
@@ -44,11 +81,18 @@ class _RegisterPageState extends State<RegisterPage> {
                           padding: EdgeInsets.all(15),
                           child: Column(
                             children: <Widget>[
-                              CircleAvatar(
-                                radius: 50,
-                                backgroundImage: NetworkImage(
-                                  'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y'),
-                                backgroundColor: Colors.transparent,
+                              GestureDetector(
+                                onTap: chooseFile,
+                                child: CircleAvatar(
+                                  radius: 50,
+                                  backgroundImage:
+                                      _image != null?
+                                      AssetImage(
+                                        _image.path
+                                      ):
+                                      AssetImage('assets/person_2.jpg'),
+                                  backgroundColor: Colors.transparent,
+                                ),
                               ),
                               TextFormField(
                                 decoration: InputDecoration(
@@ -57,8 +101,8 @@ class _RegisterPageState extends State<RegisterPage> {
                                 validator: bloc.nameValidator,
                               ),
                               TextFormField(
-                                  decoration: InputDecoration(
-                                      labelText: 'Sobrenome *'),
+                                  decoration:
+                                      InputDecoration(labelText: 'Sobrenome *'),
                                   controller: bloc.lastNameInputController,
                                   validator: bloc.nameValidator),
                               TextFormField(

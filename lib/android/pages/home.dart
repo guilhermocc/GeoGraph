@@ -52,7 +52,10 @@ class _HomePageState extends State<HomePage> {
                         children: <Widget>[
                           CircleAvatar(
                             radius: 40,
-                            backgroundImage: AssetImage('assets/person_1.jpg'),
+                            backgroundImage: user.profileImageLink != null &&
+                                    user.profileImageLink.isNotEmpty
+                                ? NetworkImage(user.profileImageLink)
+                                : AssetImage('assets/person_2.jpg'),
                             backgroundColor: Colors.transparent,
                           ),
                           Container(

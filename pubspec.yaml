@@ -19,11 +19,13 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  cloud_firestore: ^0.13.7
   firebase_auth: 0.15.4
+  cloud_firestore: ^0.13.7
+  firebase_storage: ^3.1.6
+  image_picker: ^0.6.7+4
   flutter_ringtone_player: 2.0.0
-  mobx: 1.2.1
   flutter_mobx: 1.1.0
+  mobx: 1.2.1
   provider: ^4.1.2
   uuid: ^2.1.0
   location_permissions: ^3.0.0
@@ -39,6 +41,12 @@ dev_dependencies:
   geolocator: ^5.2.1
   mobx_codegen: ^1.1.0
   build_runner: ^1.10.0
+  flutter_launcher_icons: ^0.7.0
+
+flutter_icons:
+  ios: true
+  android: true
+  image_path: "assets/launcher/icon.png"
 
 
 # For information on the generic Dart part of this file, see the

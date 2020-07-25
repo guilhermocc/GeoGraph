@@ -15,6 +15,14 @@ abstract class _User with Store {
   }
 
   @observable
+  String profileImageLink;
+
+  @action
+  void setProfileImageLink(String link) {
+    profileImageLink = link;
+  }
+
+  @observable
   String uid = "";
 
   @action

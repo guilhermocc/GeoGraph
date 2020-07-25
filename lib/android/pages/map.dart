@@ -150,7 +150,8 @@ class _MapPageState extends State<MapPage> {
           "type": widget.membersList.firstWhere((element) =>
               element["uid"].documentID == userData["uid"])["type"],
           "thoroughfare": placemark.thoroughfare,
-          "placemark": placemark
+          "placemark": placemark,
+          "profileImageLink": userData["profileImage"]
         }
       };
     });
@@ -384,7 +385,8 @@ class _MapPageState extends State<MapPage> {
           "type": widget.membersList.firstWhere((element) =>
               element["uid"].documentID == userData["uid"])["type"],
           "thoroughfare": placemark.thoroughfare,
-          "placemark": placemark
+          "placemark": placemark,
+          "profileImageLink": userData["profileImage"]
         }
       };
     });
@@ -958,7 +960,7 @@ class _MapPageState extends State<MapPage> {
               children: <Widget>[
                 CircleAvatar(
                   radius: 20,
-                  backgroundImage: AssetImage('assets/person_$personCount.jpg'),
+                  backgroundImage: info["profileImageLink"].isNotEmpty  ?  NetworkImage(info["profileImageLink"]) : AssetImage('assets/person_$personCount.jpg'),
                   backgroundColor: Colors.transparent,
                 ),
                 Padding(padding: EdgeInsets.only(top: 0.0)),
@@ -990,7 +992,7 @@ class _MapPageState extends State<MapPage> {
               children: <Widget>[
                 CircleAvatar(
                   radius: 20,
-                  backgroundImage: AssetImage('assets/person_$personCount.jpg'),
+                  backgroundImage:  info["profileImageLink"].isNotEmpty  ?  NetworkImage(info["profileImageLink"]) : AssetImage('assets/person_$personCount.jpg'),
                   backgroundColor: Colors.transparent,
                 ),
                 Padding(padding: EdgeInsets.only(top: 0.0)),

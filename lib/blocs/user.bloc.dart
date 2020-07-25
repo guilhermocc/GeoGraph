@@ -12,6 +12,7 @@ class UserBloc {
     userStore.setEmail(userSnapShot["email"]);
     userStore.setUid(userSnapShot["uid"]);
     userStore.setDocumentReference(userSnapShot.reference);
+    userStore.setProfileImageLink(userSnapShot["profileImage"]);
   }
 
   void resetUserStore(BuildContext context) {
@@ -20,6 +21,8 @@ class UserBloc {
     userStore.setLastName("");
     userStore.setEmail("");
     userStore.setUid("");
+    userStore.setUid("");
     userStore.setDocumentReference(null);
+    userStore.setProfileImageLink("");
   }
 }
