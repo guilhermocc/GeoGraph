@@ -53,14 +53,14 @@ class _HomePageState extends State<HomePage> {
                         CircleAvatar(
                           radius: 40,
                           backgroundImage: NetworkImage(
-                              'https://scontent.fcgh10-1.fna.fbcdn.net/v/t1.0-9/95000440_1110826205943316_9215072197238849536_n.jpg?_nc_cat=101&_nc_sid=09cbfe&_nc_eui2=AeFZ_PUsfWSiLNJt80r7qnoKoDNo-8fk6Q2gM2j7x-TpDdAEvqKt-Rcrjlf0B-8-BG0Ov2Pq7lKRg4Vsa3UKTayw&_nc_ohc=LsycrnlcH1cAX_Df4q1&_nc_ht=scontent.fcgh10-1.fna&oh=2592e4bba2ae5f78b169e35d9ebfaa18&oe=5EEE2171'),
+                              'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y'),
                           backgroundColor: Colors.transparent,
                         ),
                         Container(
                             padding: EdgeInsets.only(bottom: 10, left: 10),
                             child: Observer(
                               builder: (_) => Text(
-                                "${user.firstName}  ${user.lastName}",
+                                "${user.firstName}  ${user.lastName}".trim(),
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 16,
@@ -76,6 +76,7 @@ class _HomePageState extends State<HomePage> {
                 Icons.library_add,
                 color: Theme.of(context).primaryColorDark,
               ),
+              onTap: () => Navigator.pushNamed(context, '/create_group'),
               title: Text('Criar Grupo'),
             ),
             ListTile(
@@ -83,10 +84,7 @@ class _HomePageState extends State<HomePage> {
                 Icons.group,
                 color: Theme.of(context).primaryColorDark,
               ),
-              onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => MapPage(userId: user.uid))),
+              onTap: () => Navigator.pushNamed(context, '/my_groups'),
               title: Text('Meus Grupos'),
             ),
             ListTile(
@@ -94,6 +92,7 @@ class _HomePageState extends State<HomePage> {
                 Icons.group_add,
                 color: Theme.of(context).primaryColorDark,
               ),
+              onTap: () => Navigator.pushNamed(context, '/enter_new_group'),
               title: Text('Entrar em um Grupo'),
             ),
             Divider(
@@ -108,18 +107,12 @@ class _HomePageState extends State<HomePage> {
               ),
               onTap: () => bloc.onLogout(context),
             ),
-            ListTile(
-              leading: Icon(
-                Icons.help,
-                color: Theme.of(context).primaryColorDark,
-              ),
-              title: Text('FAQ'),
-            ),
           ],
         ),
       ),
       body: Column(
-        children: <Widget>[],
+        children: <Widget>[
+        ],
       ),
     );
   }

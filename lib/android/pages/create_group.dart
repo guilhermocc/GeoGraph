@@ -1,15 +1,25 @@
-import 'package:flutter/material.dart';
-import 'package:geograph/blocs/register.bloc.dart';
+import 'dart:collection';
+import 'dart:developer';
 
-class RegisterPage extends StatefulWidget {
-  RegisterPage({Key key}) : super(key: key);
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:geograph/blocs/create_group.bloc.dart';
+import 'package:geograph/blocs/my_groups.bloc.dart';
+import 'package:geograph/store/user/user.dart';
+import 'package:provider/provider.dart';
+
+import 'map.dart';
+
+class CreateGroupPage extends StatefulWidget {
+  CreateGroupPage({Key key}) : super(key: key);
 
   @override
-  _RegisterPageState createState() => _RegisterPageState();
+  CreateGroupPageState createState() => CreateGroupPageState();
 }
 
-class _RegisterPageState extends State<RegisterPage> {
-  RegisterBloc bloc = new RegisterBloc();
+class CreateGroupPageState extends State<CreateGroupPage> {
+  CreateGroupBloc bloc = new CreateGroupBloc();
 
   @override
   initState() {
@@ -18,9 +28,11 @@ class _RegisterPageState extends State<RegisterPage> {
 
   @override
   Widget build(BuildContext context) {
+    User user = Provider.of<User>(context);
+
     return Scaffold(
         appBar: AppBar(
-          title: Text("Cadastro de Conta"),
+          title: Text("Criar novo grupo"),
         ),
         body: Container(
             padding: const EdgeInsets.all(20.0),
@@ -28,12 +40,13 @@ class _RegisterPageState extends State<RegisterPage> {
                 ? Center(
                     child: CircularProgressIndicator(
                       backgroundColor: Theme.of(context).primaryColorLight,
-                      valueColor: new AlwaysStoppedAnimation<Color>(Theme.of(context).primaryColor),
+                      valueColor: new AlwaysStoppedAnimation<Color>(
+                          Theme.of(context).primaryColor),
                     ),
                   )
                 : SingleChildScrollView(
                     child: Form(
-                    key: bloc.registerFormKey,
+                    key: bloc.createGroupFormKey,
                     child: Column(
                       children: <Widget>[
                         Container(
@@ -47,30 +60,18 @@ class _RegisterPageState extends State<RegisterPage> {
                               CircleAvatar(
                                 radius: 50,
                                 backgroundImage: NetworkImage(
-                                  'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y'),
+                                    'https://i.picsum.photos/id/866/200/300.jpg?hmac=rcadCENKh4rD6MAp6V_ma-AyWv641M4iiOpe1RyFHeI'),
                                 backgroundColor: Colors.transparent,
                               ),
                               TextFormField(
                                 decoration: InputDecoration(
-                                    labelText: 'Primeiro nome*'),
-                                controller: bloc.firstNameInputController,
+                                    labelText: 'Nome do grupo*'),
+                                controller: bloc.nameInputController,
                                 validator: bloc.nameValidator,
                               ),
                               TextFormField(
-                                  decoration: InputDecoration(
-                                      labelText: 'Sobrenome *'),
-                                  controller: bloc.lastNameInputController,
-                                  validator: bloc.nameValidator),
-                              TextFormField(
                                 decoration:
-                                    InputDecoration(labelText: 'Email*'),
-                                controller: bloc.emailInputController,
-                                keyboardType: TextInputType.emailAddress,
-                                validator: bloc.emailValidator,
-                              ),
-                              TextFormField(
-                                decoration:
-                                    InputDecoration(labelText: 'Senha*'),
+                                    InputDecoration(labelText: 'Senha do grupo*'),
                                 controller: bloc.passwordInputController,
                                 obscureText: true,
                                 validator: bloc.pwdValidator,
@@ -79,24 +80,33 @@ class _RegisterPageState extends State<RegisterPage> {
                                 decoration: InputDecoration(
                                     labelText: 'Confirmação de senha*',
                                     hintText: "********"),
-                                controller: bloc.confirmPasswordInputController,
+                                controller:
+                                    bloc.confirmPasswordInputController,
                                 obscureText: true,
                                 validator: bloc.pwdValidator,
                               ),
+                              TextFormField(
+                                decoration: InputDecoration(
+                                    labelText: 'Descrição do grupo*'),
+                                controller: bloc.descriptionInputController,
+                                validator: bloc.descriptionValidator,
+                                maxLines: 2,
+                                  keyboardType: TextInputType.multiline
+
+                              ),
+
                             ],
                           ),
                         ),
                         RaisedButton(
-                          child: Text("Criar Conta"),
+                          child: Text("Criar Grupo"),
                           color: Theme.of(context).primaryColor,
                           textColor: Colors.white,
                           onPressed: () {
                             setState(() {
-                              // TODO It would be better to extract this logic
-                              // and error handling to bloc class
-                              bloc.createAccount(context).catchError((err) {
+                              bloc.createGroup(context).catchError((err) {
                                 setState(() {
-                                  bloc.handleRegistrationError(err, context);
+                                  bloc.handleGroupCreationError(err, context);
                                 });
                               });
                             });
@@ -106,4 +116,6 @@ class _RegisterPageState extends State<RegisterPage> {
                     ),
                   ))));
   }
+
+  fetchData(User userStore) async {}
 }

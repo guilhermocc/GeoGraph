@@ -1,21 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:geograph/blocs/enter_new_group.bloc.dart';
 import 'package:geograph/blocs/login.bloc.dart';
-import 'package:location_permissions/location_permissions.dart';
 
-class LoginPage extends StatefulWidget {
-  LoginPage({Key key}) : super(key: key);
+class EnterNewGroupPage extends StatefulWidget {
+  EnterNewGroupPage({Key key}) : super(key: key);
 
   @override
-  _LoginPageState createState() => _LoginPageState();
+  _EnterNewGroupPageState createState() => _EnterNewGroupPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
-  var bloc = new LoginBloc();
+class _EnterNewGroupPageState extends State<EnterNewGroupPage> {
+  var bloc = new EnterNewGroupBloc();
 
   @override
-  initState()  {
-    requestLocationPermission();
+  initState() {
     super.initState();
   }
 
@@ -23,7 +22,7 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text("GeoGraph"),
+          title: Text("Entrar em um novo grupo"),
         ),
         body: Container(
             padding: const EdgeInsets.all(20.0),
@@ -37,21 +36,20 @@ class _LoginPageState extends State<LoginPage> {
                   )
                 : SingleChildScrollView(
                     child: Form(
-                    key: bloc.loginFormKey,
+                    key: bloc.enterGroupFormKey,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: <Widget>[
                         TextFormField(
                           decoration: InputDecoration(
-                              labelText: 'Email',
-                              hintText: "exemplo@email.com"),
-                          controller: bloc.emailInputController,
-                          keyboardType: TextInputType.emailAddress,
-                          validator: bloc.emailValidator,
+                              labelText: 'Identificador do grupo'),
+                          controller: bloc.identifierInputController,
+                          keyboardType: TextInputType.text,
+                          validator: bloc.identifierValidator,
                         ),
                         TextFormField(
                           decoration: InputDecoration(
-                              labelText: 'Senha', hintText: "********"),
+                              labelText: 'Senha do grupo', hintText: "********"),
                           controller: bloc.passwordInputController,
                           obscureText: true,
                           validator: bloc.pwdValidator,
@@ -66,46 +64,15 @@ class _LoginPageState extends State<LoginPage> {
                                   setState(() {
                                     // TODO It would be better to extract this logic
                                     // and error handling to bloc class
-                                    bloc.login(context).catchError((err) {
+                                    bloc.enterGroup(context).catchError((err) {
                                       setState(() {
-                                        bloc.handleLoginError(err, context);
+                                        bloc.handleEnterGroupError(err, context);
                                       });
                                     });
                                   });
                                 })),
-                        Row(children: <Widget>[
-                          Expanded(
-                            flex: 1,
-                            child: Divider(
-                              color: Colors.black,
-                            ),
-                          ),
-                          Container(
-                            padding: EdgeInsets.only(left: 8, right: 8),
-                            child: Text('Ou'),
-                          ),
-                          Expanded(
-                              child: Divider(
-                            color: Colors.black,
-                          )),
-                        ]),
-                        Container(
-                          padding: EdgeInsets.only(top: 15),
-                          child: RaisedButton(
-                            child: Text("Crie sua conta"),
-                            color: Theme.of(context).primaryColorDark,
-                            textColor: Colors.white,
-                            onPressed: () {
-                              Navigator.pushNamed(context, "/register");
-                            },
-                          ),
-                        ),
                       ],
                     ),
                   ))));
-  }
-
-  Future<void> requestLocationPermission() async {
-    await LocationPermissions().requestPermissions();
   }
 }

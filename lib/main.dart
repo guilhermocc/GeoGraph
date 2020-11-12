@@ -1,3 +1,5 @@
+import 'package:geograph/android/pages/create_group.dart';
+import 'package:geograph/android/pages/group_update_page.dart';
 import 'package:geograph/android/pages/map.dart';
 import 'package:geograph/android/pages/register.dart';
 import 'package:geograph/android/pages/splash.dart';
@@ -5,8 +7,10 @@ import 'package:flutter/material.dart';
 import 'package:geograph/store/user/user.dart';
 import 'package:provider/provider.dart';
 
+import 'android/pages/enter_new_group.dart';
 import 'android/pages/home.dart';
 import 'android/pages/login.dart';
+import 'android/pages/my_groups.dart';
 
 void main() => runApp(App());
 final User user = User();
@@ -29,7 +33,11 @@ class App extends StatelessWidget {
               '/login': (BuildContext context) => LoginPage(),
               '/register': (BuildContext context) => RegisterPage(),
               '/map': (BuildContext context) => MapPage(),
-              '/splash': (BuildContext context) => SplashPage()
+              '/splash': (BuildContext context) => SplashPage(),
+              '/my_groups': (BuildContext context) => MyGroupsPage(),
+              '/create_group': (BuildContext context) => CreateGroupPage(),
+              '/enter_new_group': (BuildContext context) => EnterNewGroupPage(),
+              '/group_info': (BuildContext context) => GroupUpdatePage()
             }));
   }
 }
