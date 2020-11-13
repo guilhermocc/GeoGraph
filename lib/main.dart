@@ -11,6 +11,7 @@ import 'android/pages/enter_new_group.dart';
 import 'android/pages/home.dart';
 import 'android/pages/login.dart';
 import 'android/pages/my_groups.dart';
+import 'android/pages/register_tourist_guide.dart';
 
 void main() => runApp(App());
 final User user = User();
@@ -32,6 +33,7 @@ class App extends StatelessWidget {
               '/home': (BuildContext context) => HomePage(title: 'Home'),
               '/login': (BuildContext context) => LoginPage(),
               '/register': (BuildContext context) => RegisterPage(),
+              '/register_tourist_guide': (BuildContext context) => RegisterTouristGuidePage(),
               '/map': (BuildContext context) => MapPage(),
               '/splash': (BuildContext context) => SplashPage(),
               '/my_groups': (BuildContext context) => MyGroupsPage(),

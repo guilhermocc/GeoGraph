@@ -43,6 +43,33 @@ class RegisterBloc {
     }
   }
 
+  createTouristGuideAccount(BuildContext context) async {
+    if (registerFormKey.currentState.validate()) {
+      if (this.passwordInputController.text ==
+          this.confirmPasswordInputController.text) {
+        this.isLoading = true;
+        AuthResult authResult = await createUserWithEmailAndPassword();
+        await updateTouristGuideData(authResult);
+        await loadUserInfo(context, authResult);
+
+        Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(
+                builder: (context) => HomePage(
+                )),
+                (_) => false);
+        this.firstNameInputController.clear();
+        this.lastNameInputController.clear();
+        this.emailInputController.clear();
+        this.passwordInputController.clear();
+        this.confirmPasswordInputController.clear();
+      } else {
+        showErrorDialog(context, "As senhas não conferem.");
+      }
+    }
+  }
+
+
   createUserWithEmailAndPassword() async {
     return FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: this.emailInputController.text,
@@ -80,6 +107,7 @@ class RegisterBloc {
       "fname": capitalize(this.firstNameInputController.text.trim()),
       "surname": capitalize(this.lastNameInputController.text.trim()),
       "email": this.emailInputController.text.trim(),
+      "type": "user",
       "marker": {
         "position":
         GeoPoint(0.0, 0.0),
@@ -89,6 +117,27 @@ class RegisterBloc {
       }
     });
   }
+
+  updateTouristGuideData(AuthResult currentUser) async {
+    return Firestore.instance
+        .collection("users")
+        .document(currentUser.user.uid)
+        .setData({
+      "uid": currentUser.user.uid,
+      "fname": capitalize(this.firstNameInputController.text.trim()),
+      "surname": capitalize(this.lastNameInputController.text.trim()),
+      "email": this.emailInputController.text.trim(),
+      "type": "tourist_guide",
+      "marker": {
+        "position":
+        GeoPoint(0.0, 0.0),
+        "userName": this.firstNameInputController.text.trim() +
+            " " +
+            this.lastNameInputController.text.trim(),
+      }
+    });
+  }
+
 
   String emailValidator(String value) {
     Pattern pattern =
