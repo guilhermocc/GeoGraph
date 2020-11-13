@@ -11,6 +11,7 @@ class UserBloc {
     userStore.setLastName(userSnapShot["surname"]);
     userStore.setEmail(userSnapShot["email"]);
     userStore.setUid(userSnapShot["uid"]);
+    userStore.setType(userSnapShot["type"]);
     userStore.setDocumentReference(userSnapShot.reference);
   }
 

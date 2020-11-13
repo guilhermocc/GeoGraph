@@ -6,6 +6,13 @@ part 'user.g.dart';
 class User = _User with _$User;
 
 abstract class _User with Store {
+
+  String type = "";
+
+  void setType(String value) {
+    type = value;
+  }
+
   @observable
   DocumentReference documentReference;
 

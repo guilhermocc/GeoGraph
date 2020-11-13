@@ -1,8 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:geograph/android/pages/map.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:geograph/blocs/home.bloc.dart';
 import 'package:geograph/store/user/user.dart';
 import 'package:geolocator/geolocator.dart';
@@ -21,17 +19,6 @@ class _HomePageState extends State<HomePage> {
   List<Placemark> myPlacemark;
   HomeBloc bloc = HomeBloc();
 
-  Future<void> _onGetMyLocation() async {
-    Position currentLocation = await Geolocator()
-        .getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-    List<Placemark> placemark = await Geolocator().placemarkFromCoordinates(
-        currentLocation.latitude, currentLocation.longitude,
-        localeIdentifier: "en");
-    setState(() {
-      myLocation = currentLocation;
-      myPlacemark = placemark;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
