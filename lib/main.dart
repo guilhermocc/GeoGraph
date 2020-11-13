@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:geograph/android/pages/create_group.dart';
 import 'package:geograph/android/pages/group_update_page.dart';
 import 'package:geograph/android/pages/map.dart';
@@ -12,12 +14,20 @@ import 'android/pages/home.dart';
 import 'android/pages/login.dart';
 import 'android/pages/my_groups.dart';
 import 'android/pages/register_tourist_guide.dart';
+import 'package:uni_links/uni_links.dart';
+import 'package:flutter/services.dart' show PlatformException;
 
 void main() => runApp(App());
 final User user = User();
 
-class App extends StatelessWidget {
-// This widget is the root of your application.
+class App extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() => new _AppState();
+}
+
+class _AppState extends State<App> with SingleTickerProviderStateMixin {
+
+  // Application widget root.
   @override
   Widget build(BuildContext context) {
     return MultiProvider(

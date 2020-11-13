@@ -1,19 +1,16 @@
 import 'dart:async';
-import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:geograph/android/pages/delete_group_dialog.dart';
 import 'package:geograph/android/pages/exit_group_dialog.dart';
 import 'package:geograph/android/pages/group_update_page.dart';
-import 'package:geograph/android/pages/home.dart';
 import 'package:geograph/android/pages/person_dialog.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
-import 'package:geograph/main.dart';
 import 'package:geograph/store/user/user.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:provider/provider.dart';
+import 'package:share/share.dart';
 import 'dart:math';
 
 import 'group_info_page.dart';
@@ -68,7 +65,6 @@ class _MapPageState extends State<MapPage> {
     positionSubscription.cancel();
     usersSubscription.cancel();
     groupSubscription.cancel();
-
     super.dispose();
   }
 
@@ -562,6 +558,10 @@ class _MapPageState extends State<MapPage> {
             memberUid: widget.userId, groupUid: widget.groupId));
   }
 
+  void generateInvite(BuildContext context) {
+    Share.share('Entre no grupo de compartilhamento de geolocalização :) https://GeoGraphTourism.com.br/${widget.groupId}');
+  }
+
   Future<Map<String, Marker>> getGroupMarkers() async {
     Map<String, Marker> markerList = {};
 
@@ -883,6 +883,14 @@ class _MapPageState extends State<MapPage> {
                                 ))),
                   )
                 : Container(),
+            ListTile(
+              leading: Icon(
+                Icons.share,
+                color: Theme.of(context).primaryColorDark,
+              ),
+              title: Text('Gerar Convite'),
+              onTap: () => generateInvite(context),
+            ),
             userType == "admin"
                 ? ListTile(
                     leading: Icon(
