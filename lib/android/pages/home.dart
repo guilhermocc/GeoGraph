@@ -19,7 +19,6 @@ class _HomePageState extends State<HomePage> {
   List<Placemark> myPlacemark;
   HomeBloc bloc = HomeBloc();
 
-
   @override
   Widget build(BuildContext context) {
     User user = Provider.of<User>(context);
@@ -57,14 +56,17 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ],
                   )),
-              ListTile(
-                leading: Icon(
-                  Icons.library_add,
-                  color: Theme.of(context).primaryColorDark,
-                ),
-                onTap: () => Navigator.pushNamed(context, '/create_group'),
-                title: Text('Criar Grupo'),
-              ),
+              user.type == "tourist_guide"
+                  ? ListTile(
+                      leading: Icon(
+                        Icons.library_add,
+                        color: Theme.of(context).primaryColorDark,
+                      ),
+                      onTap: () =>
+                          Navigator.pushNamed(context, '/create_group'),
+                      title: Text('Criar Grupo'),
+                    )
+                  : Container(),
               ListTile(
                 leading: Icon(
                   Icons.group,
