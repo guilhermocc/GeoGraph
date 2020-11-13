@@ -138,70 +138,6 @@ class _PersonDialogState extends State<PersonDialog> {
           ),
         ),
       );
-    } else if (isPromotingAdmin) {
-      return Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12.0),
-        ),
-        child: Container(
-          height: 300.0,
-          width: 300.0,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Padding(
-                padding: EdgeInsets.all(15.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text(
-                      "Deseja tornar este membro um administrador do grupo?",
-                      style: TextStyle(color: Colors.black),
-                    ),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 10, right: 10, top: 50),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: <Widget>[
-                    RaisedButton(
-                      color: Theme.of(context).primaryColorDark,
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                      child: Text(
-                        'Não',
-                        style: TextStyle(fontSize: 18.0, color: Colors.white),
-                      ),
-                    ),
-                    RaisedButton(
-                      color: Theme.of(context).primaryColorDark,
-                      onPressed: () async {
-                        bool promotionSate = true;
-                        await promoteAdminGroupMember().catchError((error) {
-                          promotionSate = false;
-                        });
-                        setState(() {
-                          triedToPromote = true;
-                          isPromotingAdmin = false;
-                          promotingSuccessful = promotionSate;
-                        });
-                      },
-                      child: Text(
-                        'Sim',
-                        style: TextStyle(fontSize: 18.0, color: Colors.white),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
     } else if (isDeletingMember) {
       return Dialog(
         shape: RoundedRectangleBorder(
@@ -356,22 +292,6 @@ class _PersonDialogState extends State<PersonDialog> {
                                 TextStyle(fontSize: 18.0, color: Colors.white),
                           ),
                         )
-                      : Container(),
-                  widget.controllerUserType == "admin" &&
-                          widget.memberType == "neutral"
-                      ? RaisedButton(
-                          color: Theme.of(context).primaryColorDark,
-                          onPressed: () {
-                            setState(() {
-                              isPromotingAdmin = true;
-                            });
-                          },
-                          child: Text(
-                            'Tornar administrador',
-                            style:
-                                TextStyle(fontSize: 18.0, color: Colors.white),
-                          ),
-                        )
                       : Container()
                 ],
               ),
@@ -398,19 +318,4 @@ class _PersonDialogState extends State<PersonDialog> {
     groupDocumentReference.updateData({"members": members});
   }
 
-  Future<void> promoteAdminGroupMember() async {
-    CollectionReference groupReference =
-        Firestore.instance.collection("groups");
-    DocumentReference userReference =
-        Firestore.instance.collection("users").document(widget.memberUid);
-    DocumentReference groupDocumentReference =
-        Firestore.instance.collection("groups").document(widget.groupUid);
-
-    DocumentSnapshot snapshot = await groupDocumentReference.get();
-    List<dynamic> members = snapshot.data["members"];
-    int memberIndex = members.lastIndexWhere(
-        (member) => member["uid"].documentID == widget.memberUid);
-    members[memberIndex]["type"] = "admin";
-    groupDocumentReference.updateData({"members": members});
-  }
 }

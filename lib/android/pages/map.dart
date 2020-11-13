@@ -952,29 +952,8 @@ class _MapPageState extends State<MapPage> {
       String memberType = info["type"];
       String thoroughfare = info["thoroughfare"];
       if (_markers[uid] == null) {
-        cardsList.add(Card(
-          child: ListTile(
-            leading: Column(
-              children: <Widget>[
-                CircleAvatar(
-                  radius: 20,
-                  backgroundImage: AssetImage('assets/person_$personCount.jpg'),
-                  backgroundColor: Colors.transparent,
-                ),
-                Padding(padding: EdgeInsets.only(top: 0.0)),
-                (memberType == "admin") ? Text("Admin") : SizedBox()
-              ],
-            ),
-            title: Text(info["fullname"]),
-            subtitle: Text("Sem informações disponíveis"),
-            trailing: Icon(
-              Icons.keyboard_arrow_right,
-              color: Theme.of(context).primaryColorDark,
-            ),
-            onTap: () => showPersonDialog(context, info["placemark"], "",
-                info["fullname"], uid, memberType, false),
-          ),
-        ));
+        cardsList.add(buildUserCard(memberType, personCount, info, thoroughfare,
+            false, "", uid, false));
       } else {
         LatLng memberPosition = _markers[uid].position;
         bool userDontHavePosition =
@@ -984,41 +963,77 @@ class _MapPageState extends State<MapPage> {
             currentUserPosition.longitude,
             memberPosition.latitude,
             memberPosition.longitude);
-        cardsList.add(Card(
-          child: ListTile(
-            leading: Column(
-              children: <Widget>[
-                CircleAvatar(
-                  radius: 20,
-                  backgroundImage: AssetImage('assets/person_$personCount.jpg'),
-                  backgroundColor: Colors.transparent,
-                ),
-                Padding(padding: EdgeInsets.only(top: 0.0)),
-                (memberType == "admin") ? Text("Admin") : SizedBox()
-              ],
-            ),
-            title: Text(info["fullname"]),
-            subtitle: Text((thoroughfare == "")
-                ? (userDontHavePosition) ? "" : "$formattedDistance"
-                : "$thoroughfare - $formattedDistance"),
-            trailing: Icon(
-              Icons.keyboard_arrow_right,
-              color: Theme.of(context).primaryColorDark,
-            ),
-            onTap: () => showPersonDialog(
-                context,
-                info["placemark"],
-                formattedDistance,
-                info["fullname"],
-                uid,
-                memberType,
-                !userDontHavePosition),
-          ),
-        ));
+        cardsList.add(buildUserCard(memberType, personCount, info, thoroughfare,
+            userDontHavePosition, formattedDistance, uid, true));
         personCount = (personCount == 12) ? 2 : personCount + 1;
       }
     });
     return cardsList;
+  }
+
+  Card buildUserCard(
+      String memberType,
+      int personCount,
+      info,
+      String thoroughfare,
+      bool userDontHavePosition,
+      String formattedDistance,
+      String uid,
+      bool hasInfo) {
+    return Card(
+      color: (memberType == "admin")
+          ? Theme.of(context).primaryColor
+          : Colors.white,
+      child: ListTile(
+        leading: Column(
+          children: <Widget>[
+            CircleAvatar(
+              radius: 20,
+              backgroundImage: AssetImage('assets/person_$personCount.jpg'),
+              backgroundColor: Colors.transparent,
+            ),
+            Padding(padding: EdgeInsets.only(top: 0.0)),
+            (memberType == "admin")
+                ? Text("Guia", style: TextStyle(color: Colors.white))
+                : SizedBox()
+          ],
+        ),
+        title: Text(
+          info["fullname"],
+          style: (memberType == "admin")
+              ? TextStyle(color: Colors.white)
+              : TextStyle(color: Colors.black),
+        ),
+        subtitle: hasInfo
+            ? Text(
+                (thoroughfare == "")
+                    ? (userDontHavePosition) ? "" : "$formattedDistance"
+                    : "$thoroughfare - $formattedDistance",
+                style: (memberType == "admin")
+                    ? TextStyle(color: Colors.white)
+                    : TextStyle(color: Colors.black))
+            : Text(
+                "Sem informações disponíveis",
+                style: (memberType == "admin")
+                    ? TextStyle(color: Colors.white)
+                    : TextStyle(color: Colors.black),
+              ),
+        trailing: Icon(
+          Icons.keyboard_arrow_right,
+          color: (memberType == "admin")
+              ? Colors.white
+              : Theme.of(context).primaryColorDark,
+        ),
+        onTap: () => showPersonDialog(
+            context,
+            info["placemark"],
+            formattedDistance,
+            info["fullname"],
+            uid,
+            memberType,
+            !userDontHavePosition),
+      ),
+    );
   }
 
   void setUserType() {
