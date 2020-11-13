@@ -45,18 +45,18 @@ class EnterNewGroupBloc {
       this.isLoading = true;
       QuerySnapshot groupQuery = await Firestore.instance
           .collection("groups")
-          .where("identifier",
-          isEqualTo: identifierInputController.text)
+          .where("identifier", isEqualTo: identifierInputController.text)
           .limit(1)
           .getDocuments();
       DocumentSnapshot group = groupQuery.documents.first;
 
-      if (group.data["members"].any((member) => member["uid"].documentID == user.uid)) {
+      if (group.data["members"]
+          .any((member) => member["uid"].documentID == user.uid)) {
         throw ("Already in group");
       }
 
       if (group.data["password"] == passwordInputController.text) {
-        var newMembersList =  await addUserToGroup(group, user);
+        var newMembersList = await addUserToGroup(group, user);
         await navigateToGroupPage(newMembersList, context, user, group);
       } else {
         throw ("Wrong password");
@@ -78,24 +78,21 @@ class EnterNewGroupBloc {
         .catchError((err) => this.isLoading = false);
   }
 
-  navigateToGroupPage(List newMembersList, BuildContext context,
-      User user, DocumentSnapshot groupSnapShot) async {
+  navigateToGroupPage(List newMembersList, BuildContext context, User user,
+      DocumentSnapshot groupSnapShot) async {
     List<String> membersUidList = new List<String>.from(
-        newMembersList.map((member) => member["uid"].documentID).toList()
-    );
+        newMembersList.map((member) => member["uid"].documentID).toList());
     List<dynamic> membersList = newMembersList;
     Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) =>
-                MapPage(
-                    userId: user.uid,
-                    groupId: groupSnapShot.documentID,
-                    groupTitle: groupSnapShot["title"],
-                    groupDescription: groupSnapShot["description"],
-                    membersUidList: membersUidList,
-                    membersList: membersList
-                )));
+            builder: (context) => MapPage(
+                userId: user.uid,
+                groupId: groupSnapShot.documentID,
+                groupTitle: groupSnapShot["title"],
+                groupDescription: groupSnapShot["description"],
+                membersUidList: membersUidList,
+                membersList: membersList)));
   }
 
   handleEnterGroupError(err, BuildContext context) {
@@ -103,7 +100,8 @@ class EnterNewGroupBloc {
     if (err == "Already in group")
       this.showErrorDialog(context, "Você já está neste grupo!");
     else
-      this.showErrorDialog(context, "A senha ou identificador do grupo estão incorretos");
+      this.showErrorDialog(
+          context, "A senha ou identificador do grupo estão incorretos");
   }
 
   showErrorDialog(BuildContext context, String textContent) {
@@ -128,8 +126,9 @@ class EnterNewGroupBloc {
   Future<List> addUserToGroup(DocumentSnapshot snapshot, User user) async {
     // TODO i should use FieldValue arrayUnion here
     List<dynamic> membersList = snapshot.data["members"];
-    membersList
-        .add({"type": "neutral", "uid": user.documentReference});
+    user.type == "tourist_guide"
+        ? membersList.add({"type": "admin", "uid": user.documentReference})
+        : membersList.add({"type": "neutral", "uid": user.documentReference});
     await Firestore.instance
         .collection("groups")
         .document(snapshot.reference.documentID)
