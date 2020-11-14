@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:geograph/blocs/enter_new_group.bloc.dart';
-import 'package:geograph/blocs/login.bloc.dart';
 
 class EnterNewGroupPage extends StatefulWidget {
   EnterNewGroupPage({Key key}) : super(key: key);

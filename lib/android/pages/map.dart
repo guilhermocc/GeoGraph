@@ -559,7 +559,7 @@ class _MapPageState extends State<MapPage> {
   }
 
   void generateInvite(BuildContext context) {
-    Share.share('Entre no grupo de compartilhamento de geolocalização :) https://GeoGraphTourism.com.br/${widget.groupId}');
+    Share.share('Entre no grupo de compartilhamento de geolocalização :) https://GeoGraphTourism.com.br/?groupId=${widget.groupId}');
   }
 
   Future<Map<String, Marker>> getGroupMarkers() async {
