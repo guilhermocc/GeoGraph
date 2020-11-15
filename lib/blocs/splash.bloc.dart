@@ -10,6 +10,8 @@ import 'package:geograph/blocs/user.bloc.dart';
 import 'package:geograph/store/user/user.dart';
 import 'package:provider/provider.dart';
 
+import '../main.dart';
+
 class NoAnimationPageRoute<T> extends MaterialPageRoute<T> {
   NoAnimationPageRoute({WidgetBuilder builder}) : super(builder: builder);
 
@@ -26,6 +28,63 @@ class SplashBloc {
   Future<T> pushWithoutAnimation<T extends Object>(Widget page, BuildContext context) {
     Route route = NoAnimationPageRoute(builder: (BuildContext context) => page);
     return Navigator.pushReplacement(context, route);
+  }
+
+  showConfirmationDialog(BuildContext context, User user, DocumentSnapshot group) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text(group.data["title"]),
+            content: Text("Deseja confirmar a participação neste grupo?"),
+            actions: <Widget>[
+              RaisedButton(
+                color: Theme.of(context).primaryColorDark,
+                child: Text(
+                  "Não",
+                  style: TextStyle(fontSize: 18.0, color: Colors.white),
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              RaisedButton(
+                color: Theme.of(context).primaryColorDark,
+                child: Text(
+                  "Sim",
+                  style: TextStyle(fontSize: 18.0, color: Colors.white),
+                ),
+                onPressed: () async {
+                  Navigator.of(context).pop();
+                  await enterGroup(group, user, context);
+                },
+              )
+            ],
+          );
+        });
+  }
+
+  showErrorDialog(BuildContext context, String textContent, String groupTitle) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text(groupTitle),
+            content: Text(textContent),
+            actions: <Widget>[
+              RaisedButton(
+                color: Theme.of(context).primaryColorDark,
+                child: Text(
+                  "Fechar",
+                  style: TextStyle(fontSize: 18.0, color: Colors.white),
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              )
+            ],
+          );
+        });
   }
 
   void refreshStoresWithDeepLink(BuildContext context, List<dynamic> queryParams) async {
@@ -46,25 +105,25 @@ class SplashBloc {
 
       if (queryParams.where((queryParam) => queryParam.key == "groupId").isNotEmpty) {
         var groupId = queryParams.where((queryParam) => queryParam.key == "groupId").first.value.first;
-        DocumentSnapshot group = await Firestore.instance
-            .collection("groups")
-            .document(groupId)
-            .get();
+        DocumentSnapshot group = await Firestore.instance.collection("groups").document(groupId).get();
 
         if (group.data["members"].any((member) => member["uid"].documentID == user.uid)) {
-          throw ("Already in group");
+          showErrorDialog(context, "Você já faz parte deste grupo!", group.data["title"]);
+        } else {
+          showConfirmationDialog(context, user, group);
         }
-
-        var newMembersList = await addUserToGroup(group, user);
-        await navigateToGroupPage(newMembersList, context, user, group);
       }
     }
   }
 
-  navigateToGroupPage(List newMembersList, BuildContext context, User user,
-      DocumentSnapshot groupSnapShot) async {
-    List<String> membersUidList = new List<String>.from(
-        newMembersList.map((member) => member["uid"].documentID).toList());
+  Future enterGroup(DocumentSnapshot group, User user, BuildContext context) async {
+    var newMembersList = await addUserToGroup(group, user);
+    await navigateToGroupPage(newMembersList, context, user, group);
+  }
+
+  navigateToGroupPage(List newMembersList, BuildContext context, User user, DocumentSnapshot groupSnapShot) async {
+    List<String> membersUidList =
+        new List<String>.from(newMembersList.map((member) => member["uid"].documentID).toList());
     List<dynamic> membersList = newMembersList;
     Navigator.push(
         context,

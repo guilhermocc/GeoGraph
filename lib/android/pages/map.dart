@@ -335,8 +335,8 @@ class _MapPageState extends State<MapPage> {
                               RaisedButton(
                                 color: Theme.of(context).primaryColorDark,
                                 onPressed: () {
-                                  Navigator.pushReplacementNamed(
-                                      context, "/home");
+                                  Navigator.of(context)
+                                      .pushNamedAndRemoveUntil('/home', (Route r) => r == null);
                                 },
                                 child: Text(
                                   'Fechar',
