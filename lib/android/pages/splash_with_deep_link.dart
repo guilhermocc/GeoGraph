@@ -40,7 +40,7 @@ class _SplashWithDeepLinkPageState extends State<SplashWithDeepLinkPage> {
               Container(
                   padding: EdgeInsets.only(bottom: 20),
                   child: Text(
-                    "Carregando Convite",
+                    "GeoGraph",
                     style: TextStyle(
                         fontWeight: FontWeight.bold, fontSize: 40, color: Theme.of(context).primaryColor),
                   )),
