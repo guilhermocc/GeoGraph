@@ -863,13 +863,13 @@ class _MapPageState extends State<MapPage> {
 
   List<Widget> listOfUserCards() {
     List<Card> cardsList = [];
-    int personCount = 2;
+    int personCount = 1;
     groupMembersInfos.forEach((uid, info) async {
-      print(personCount);
       String memberType = info["type"];
       String thoroughfare = info["thoroughfare"];
       if (_markers[uid] == null) {
         cardsList.add(buildUserCard(memberType, personCount, info, thoroughfare, false, "", uid, false));
+        personCount = (personCount == 12) ? 2 : personCount + 1;
       } else {
         LatLng memberPosition = _markers[uid].position;
         bool userDontHavePosition = memberPosition.latitude == 0.0 && memberPosition.longitude == 0.0;
