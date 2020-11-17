@@ -46,8 +46,7 @@ class _RegisterTouristGuidePageState extends State<RegisterTouristGuidePage> {
                             children: <Widget>[
                               CircleAvatar(
                                 radius: 50,
-                                backgroundImage: NetworkImage(
-                                  'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y'),
+                                backgroundImage: AssetImage('assets/person_6.jpg'),
                                 backgroundColor: Colors.transparent,
                               ),
                               TextFormField(
