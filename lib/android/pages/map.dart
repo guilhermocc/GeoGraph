@@ -47,8 +47,7 @@ class _MapPageState extends State<MapPage> {
   final geoLocator = Geolocator();
   var locationHasBeenQueriedOnDataBase = false;
   var locationExistsOnDataBase = false;
-  final locationOptions = LocationOptions(
-      accuracy: LocationAccuracy.high, distanceFilter: 1, timeInterval: 5000);
+  final locationOptions = LocationOptions(accuracy: LocationAccuracy.high, distanceFilter: 1, timeInterval: 5000);
   StreamSubscription<Position> positionSubscription;
   StreamSubscription<QuerySnapshot> usersSubscription;
   StreamSubscription<DocumentSnapshot> groupSubscription;
@@ -91,9 +90,7 @@ class _MapPageState extends State<MapPage> {
   }
 
   void setOnlyOneAdminStatus() {
-    int adminsNumber = widget.membersList
-        .where((element) => element["type"] == "admin")
-        .length;
+    int adminsNumber = widget.membersList.where((element) => element["type"] == "admin").length;
     setState(() {
       onlyOneAdmin = adminsNumber == 1 ? true : false;
     });
@@ -102,8 +99,7 @@ class _MapPageState extends State<MapPage> {
   void loadFirstCurrentPosition() async {
     Position currentPosition = await getCurrentPositionOrLast();
     setState(() {
-      currentUserPosition =
-          LatLng(currentPosition.latitude, currentPosition.longitude);
+      currentUserPosition = LatLng(currentPosition.latitude, currentPosition.longitude);
     });
   }
 
@@ -126,15 +122,12 @@ class _MapPageState extends State<MapPage> {
         .getDocuments()
         .then((result) => result.documents);
 
-    Iterable<Future<Map<dynamic, Map<String, dynamic>>>>
-        updatedGroupMembersFutures = groupUsers
-            .where((element) => element.data["marker"] != null)
-            .map((snapshot) async {
+    Iterable<Future<Map<dynamic, Map<String, dynamic>>>> updatedGroupMembersFutures =
+        groupUsers.where((element) => element.data["marker"] != null).map((snapshot) async {
       var userData = snapshot.data;
 
-      List<Placemark> placemarList = await makeGeoCoding(
-          userData['marker']['position'].latitude,
-          userData['marker']["position"].longitude);
+      List<Placemark> placemarList =
+          await makeGeoCoding(userData['marker']['position'].latitude, userData['marker']["position"].longitude);
 
       Placemark placemark = placemarList.first;
 
@@ -143,8 +136,7 @@ class _MapPageState extends State<MapPage> {
           "uid": userData["uid"],
           "email": userData["email"],
           "fullname": userData["fname"] + " " + userData["surname"],
-          "type": widget.membersList.firstWhere((element) =>
-              element["uid"].documentID == userData["uid"])["type"],
+          "type": widget.membersList.firstWhere((element) => element["uid"].documentID == userData["uid"])["type"],
           "thoroughfare": placemark.thoroughfare,
           "placemark": placemark
         }
@@ -180,8 +172,7 @@ class _MapPageState extends State<MapPage> {
   }
 
   void updateGroupInfo(DocumentSnapshot snapshot) {
-    if (groupDescription != snapshot.data["description"] ||
-        groupTitle != snapshot.data["title"])
+    if (groupDescription != snapshot.data["description"] || groupTitle != snapshot.data["title"])
       setState(() {
         groupTitle = snapshot.data["title"];
         groupDescription = snapshot.data["description"];
@@ -191,8 +182,7 @@ class _MapPageState extends State<MapPage> {
   void checkUserTypeChanged(DocumentSnapshot snapshot) async {
     var groupData = snapshot.data;
 
-    var userMember = groupData["members"]
-        .firstWhere((member) => member["uid"].documentID == widget.userId);
+    var userMember = groupData["members"].firstWhere((member) => member["uid"].documentID == widget.userId);
 
     setState(() {
       userType = userMember["type"];
@@ -201,18 +191,15 @@ class _MapPageState extends State<MapPage> {
 
   void groupChangeHandler(DocumentSnapshot snapshot) async {
     var groupData = snapshot.data;
-    List<String> newMembersUidList = new List<String>.from(groupData["members"]
-        .map((member) => member["uid"].documentID)
-        .toList());
+    List<String> newMembersUidList =
+        new List<String>.from(groupData["members"].map((member) => member["uid"].documentID).toList());
 
     List newMembersList = groupData["members"];
 
     widget.membersUidList = newMembersUidList;
     widget.membersList = newMembersList;
 
-    int adminsNumber = widget.membersList
-        .where((element) => element["type"] == "admin")
-        .length;
+    int adminsNumber = widget.membersList.where((element) => element["type"] == "admin").length;
 
     updateGroupUsersPositionsEventsSubscription();
     var loadedMarkers = await getGroupMarkers();
@@ -268,8 +255,7 @@ class _MapPageState extends State<MapPage> {
                         ),
                       ),
                       Padding(
-                        padding:
-                            const EdgeInsets.only(left: 10, right: 10, top: 50),
+                        padding: const EdgeInsets.only(left: 10, right: 10, top: 50),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           crossAxisAlignment: CrossAxisAlignment.end,
@@ -277,13 +263,11 @@ class _MapPageState extends State<MapPage> {
                             RaisedButton(
                               color: Theme.of(context).primaryColorDark,
                               onPressed: () {
-                                Navigator.pushReplacementNamed(
-                                    context, "/home");
+                                Navigator.pushReplacementNamed(context, "/home");
                               },
                               child: Text(
                                 'Fechar',
-                                style: TextStyle(
-                                    fontSize: 18.0, color: Colors.white),
+                                style: TextStyle(fontSize: 18.0, color: Colors.white),
                               ),
                             ),
                           ],
@@ -298,8 +282,7 @@ class _MapPageState extends State<MapPage> {
       return false;
     } else {
       List<dynamic> groupMembers = snapshot.data["members"];
-      bool userDeleted = !groupMembers
-          .any((element) => element["uid"].documentID == widget.userId);
+      bool userDeleted = !groupMembers.any((element) => element["uid"].documentID == widget.userId);
       if (userDeleted) {
         await showDialog(
             context: context,
@@ -326,8 +309,7 @@ class _MapPageState extends State<MapPage> {
                           ),
                         ),
                         Padding(
-                          padding: const EdgeInsets.only(
-                              left: 10, right: 10, top: 50),
+                          padding: const EdgeInsets.only(left: 10, right: 10, top: 50),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             crossAxisAlignment: CrossAxisAlignment.end,
@@ -335,13 +317,11 @@ class _MapPageState extends State<MapPage> {
                               RaisedButton(
                                 color: Theme.of(context).primaryColorDark,
                                 onPressed: () {
-                                  Navigator.of(context)
-                                      .pushNamedAndRemoveUntil('/home', (Route r) => r == null);
+                                  Navigator.of(context).pushNamedAndRemoveUntil('/home', (Route r) => r == null);
                                 },
                                 child: Text(
                                   'Fechar',
-                                  style: TextStyle(
-                                      fontSize: 18.0, color: Colors.white),
+                                  style: TextStyle(fontSize: 18.0, color: Colors.white),
                                 ),
                               ),
                             ],
@@ -361,14 +341,12 @@ class _MapPageState extends State<MapPage> {
 
   void refreshMembersInfos(QuerySnapshot snapshot) async {
     Map<String, dynamic> updatedMemberInfos = {};
-    Iterable<Future<Map<dynamic, Map<String, dynamic>>>>
-        updatedMemberInfosFutures = snapshot.documentChanges
-            .where((element) => element.document.data["marker"] != null)
-            .map((documentChange) async {
+    Iterable<Future<Map<dynamic, Map<String, dynamic>>>> updatedMemberInfosFutures = snapshot.documentChanges
+        .where((element) => element.document.data["marker"] != null)
+        .map((documentChange) async {
       var userData = documentChange.document.data;
-      List<Placemark> placemarList = await makeGeoCoding(
-          userData["marker"]["position"].latitude,
-          userData["marker"]["position"].longitude);
+      List<Placemark> placemarList =
+          await makeGeoCoding(userData["marker"]["position"].latitude, userData["marker"]["position"].longitude);
 
       Placemark placemark = placemarList.first;
 
@@ -377,8 +355,7 @@ class _MapPageState extends State<MapPage> {
           "uid": userData["uid"],
           "email": userData["email"],
           "fullname": userData["fname"] + " " + userData["surname"],
-          "type": widget.membersList.firstWhere((element) =>
-              element["uid"].documentID == userData["uid"])["type"],
+          "type": widget.membersList.firstWhere((element) => element["uid"].documentID == userData["uid"])["type"],
           "thoroughfare": placemark.thoroughfare,
           "placemark": placemark
         }
@@ -403,9 +380,8 @@ class _MapPageState extends State<MapPage> {
 
   Future<List<Placemark>> makeGeoCoding(latitude, longitude) async {
     try {
-      List<Placemark> geolocatorGeocoding = await Geolocator()
-          .placemarkFromCoordinates(latitude, longitude,
-              localeIdentifier: "pt-br");
+      List<Placemark> geolocatorGeocoding =
+          await Geolocator().placemarkFromCoordinates(latitude, longitude, localeIdentifier: "pt-br");
 
       return geolocatorGeocoding;
     } catch (Exception) {
@@ -428,8 +404,7 @@ class _MapPageState extends State<MapPage> {
   // this method is going to be triggered and the location of itself will be updated (again)
   Future<void> refreshChangedMarkers(QuerySnapshot snapshot) async {
     Map<String, Marker> updatedMarkers = {};
-    Iterable<Future<Map<String, Marker>>> updatedMarkersFutures = snapshot
-        .documentChanges
+    Iterable<Future<Map<String, Marker>>> updatedMarkersFutures = snapshot.documentChanges
         .where((element) =>
             _markers[element.document.documentID] != null &&
             element.document.data["marker"] != null &&
@@ -438,20 +413,14 @@ class _MapPageState extends State<MapPage> {
         .map((documentChange) async {
       var locationId = documentChange.document.documentID;
 
-      var newLatitude =
-          documentChange.document.data["marker"]["position"].latitude;
-      var newLongitude =
-          documentChange.document.data["marker"]["position"].longitude;
+      var newLatitude = documentChange.document.data["marker"]["position"].latitude;
+      var newLongitude = documentChange.document.data["marker"]["position"].longitude;
 
-      List<Placemark> placemarList =
-          await makeGeoCoding(newLatitude, newLongitude);
+      List<Placemark> placemarList = await makeGeoCoding(newLatitude, newLongitude);
       Placemark placemark = placemarList.first;
 
       String formattedDistance = Haversine.formattedDistance(
-          currentUserPosition.latitude,
-          currentUserPosition.longitude,
-          newLatitude,
-          newLongitude);
+          currentUserPosition.latitude, currentUserPosition.longitude, newLatitude, newLongitude);
 
       String memberType = groupMembersInfos[locationId]["type"];
 
@@ -461,9 +430,8 @@ class _MapPageState extends State<MapPage> {
           title: capitalize(documentChange.document.data['fname']) +
               " " +
               capitalize(documentChange.document.data['surname']),
-          snippet: (placemark.thoroughfare == "")
-              ? formattedDistance
-              : "${placemark.thoroughfare} - $formattedDistance",
+          snippet:
+              (placemark.thoroughfare == "") ? formattedDistance : "${placemark.thoroughfare} - $formattedDistance",
           onTap: () => showPersonDialog(
               context,
               placemark,
@@ -478,14 +446,11 @@ class _MapPageState extends State<MapPage> {
       var newMarker = _markers[locationId].copyWith(
           positionParam: LatLng(newLatitude, newLongitude),
           infoWindowParam: newInfoWindow,
-          iconParam: memberType == "admin"
-              ? pinLocationIconAdmin
-              : pinLocationIconNeutral);
+          iconParam: memberType == "admin" ? pinLocationIconAdmin : pinLocationIconNeutral);
       return {locationId: newMarker};
     });
 
-    List<Map<String, Marker>> updatedMarkersList =
-        await Future.wait(updatedMarkersFutures);
+    List<Map<String, Marker>> updatedMarkersList = await Future.wait(updatedMarkersFutures);
     updatedMarkersList.forEach((element) {
       String key = element.keys.first;
       Marker value = element.values.first;
@@ -499,20 +464,17 @@ class _MapPageState extends State<MapPage> {
   }
 
   void setCustomMapPin() async {
-    pinLocationIconNeutral = await BitmapDescriptor.fromAssetImage(
-        ImageConfiguration(devicePixelRatio: 2.5), 'assets/neutral_user.png');
-    pinLocationIconAdmin = await BitmapDescriptor.fromAssetImage(
-        ImageConfiguration(devicePixelRatio: 2.5), 'assets/admin_user.png');
+    pinLocationIconNeutral =
+        await BitmapDescriptor.fromAssetImage(ImageConfiguration(devicePixelRatio: 2.5), 'assets/neutral_user.png');
+    pinLocationIconAdmin =
+        await BitmapDescriptor.fromAssetImage(ImageConfiguration(devicePixelRatio: 2.5), 'assets/admin_user.png');
   }
 
   Future<void> setSelfPositionEventsSubscription() async {
     try {
-      GeolocationStatus permissionStatus =
-          await Geolocator().checkGeolocationPermissionStatus();
+      GeolocationStatus permissionStatus = await Geolocator().checkGeolocationPermissionStatus();
       if (permissionStatus.toString() == "GeolocationStatus.granted")
-        positionSubscription = geoLocator
-            .getPositionStream(locationOptions)
-            .listen((Position position) {
+        positionSubscription = geoLocator.getPositionStream(locationOptions).listen((Position position) {
           print("*** GEOLOCATION UPDATE EVENT FIRED ***");
           updateGeoPointsAndRefreshSelfLocation(position);
         });
@@ -521,14 +483,8 @@ class _MapPageState extends State<MapPage> {
     }
   }
 
-  void showPersonDialog(
-      BuildContext context,
-      Placemark placemark,
-      String formatedDistance,
-      String username,
-      String memberUid,
-      String memberType,
-      bool positionIsValid) {
+  void showPersonDialog(BuildContext context, Placemark placemark, String formatedDistance, String username,
+      String memberUid, String memberType, bool positionIsValid) {
     Widget personDialog = PersonDialog(
       placemark: placemark,
       username: username,
@@ -540,26 +496,24 @@ class _MapPageState extends State<MapPage> {
       controllerUserUid: widget.userId,
       positionValid: positionIsValid,
     );
-    showDialog(
-        context: context, builder: (BuildContext context) => personDialog);
+    showDialog(context: context, builder: (BuildContext context) => personDialog);
   }
 
   void showExitGroupDialog(BuildContext context) {
     showDialog(
         context: context,
-        builder: (BuildContext context) => ExitGroupDialog(
-            memberUid: widget.userId, groupUid: widget.groupId));
+        builder: (BuildContext context) => ExitGroupDialog(memberUid: widget.userId, groupUid: widget.groupId));
   }
 
   void showDeleteGroupDialog(BuildContext context) {
     showDialog(
         context: context,
-        builder: (BuildContext context) => DeleteGroupDialog(
-            memberUid: widget.userId, groupUid: widget.groupId));
+        builder: (BuildContext context) => DeleteGroupDialog(memberUid: widget.userId, groupUid: widget.groupId));
   }
 
   void generateInvite(BuildContext context) {
-    Share.share('Entre no grupo de compartilhamento de geolocalização :) https://GeoGraphTourism.com.br/?groupId=${widget.groupId}');
+    Share.share(
+        'Entre no grupo de compartilhamento de geolocalização :) https://GeoGraphTourism.com.br/?groupId=${widget.groupId}');
   }
 
   Future<Map<String, Marker>> getGroupMarkers() async {
@@ -574,34 +528,25 @@ class _MapPageState extends State<MapPage> {
     List<Future<Map<String, Marker>>> markersFutures = groupUsers
         .where((element) =>
             element.data["marker"] != null &&
-            (element.data["marker"]["position"].latitude != 0 ||
-                element.data["marker"]["position"].longitude != 0))
+            (element.data["marker"]["position"].latitude != 0 || element.data["marker"]["position"].longitude != 0))
         .map((snapshot) async {
       var memberPositonLatitude = snapshot.data["marker"]["position"].latitude;
-      var memberPositonLongitude =
-          snapshot.data["marker"]["position"].longitude;
-      var memberPosition =
-          LatLng(memberPositonLatitude, memberPositonLongitude);
+      var memberPositonLongitude = snapshot.data["marker"]["position"].longitude;
+      var memberPosition = LatLng(memberPositonLatitude, memberPositonLongitude);
       var dialogTitle = snapshot.data["fname"] + " " + snapshot.data["surname"];
 
-      List<Placemark> placemarList =
-          await makeGeoCoding(memberPositonLatitude, memberPositonLongitude);
+      List<Placemark> placemarList = await makeGeoCoding(memberPositonLatitude, memberPositonLongitude);
 
       Placemark placemark = placemarList.first;
-      String formattedDistance = Haversine.formattedDistance(
-          currentUserPosition.latitude,
-          currentUserPosition.longitude,
-          memberPosition.latitude,
-          memberPosition.longitude);
+      String formattedDistance = Haversine.formattedDistance(currentUserPosition.latitude,
+          currentUserPosition.longitude, memberPosition.latitude, memberPosition.longitude);
 
       String memberType = groupMembersInfos[snapshot.documentID]["type"];
 
       return {
         snapshot.documentID: Marker(
             markerId: MarkerId(snapshot.documentID),
-            icon: memberType == "admin"
-                ? pinLocationIconAdmin
-                : pinLocationIconNeutral,
+            icon: memberType == "admin" ? pinLocationIconAdmin : pinLocationIconNeutral,
             position: memberPosition,
             infoWindow: InfoWindow(
                 title: dialogTitle,
@@ -613,9 +558,7 @@ class _MapPageState extends State<MapPage> {
                       context,
                       placemark,
                       formattedDistance,
-                      capitalize(snapshot.data['fname']) +
-                          " " +
-                          capitalize(snapshot.data['surname']),
+                      capitalize(snapshot.data['fname']) + " " + capitalize(snapshot.data['surname']),
                       snapshot.documentID,
                       memberType,
                       true);
@@ -637,65 +580,43 @@ class _MapPageState extends State<MapPage> {
       mapController = controller;
       // Quando for posicao invalida animar para o meio do brasil
       mapController.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
-          target: currentPosition.latitude != 0.0 ||
-                  currentPosition.longitude != 0.0
+          target: currentPosition.latitude != 0.0 || currentPosition.longitude != 0.0
               ? LatLng(currentPosition.latitude, currentPosition.longitude)
               : LatLng(-23.563210, -46.654251),
-          zoom: currentPosition.latitude != 0.0 ||
-                  currentPosition.longitude != 0.0
-              ? 15.0
-              : 10.0)));
+          zoom: currentPosition.latitude != 0.0 || currentPosition.longitude != 0.0 ? 15.0 : 10.0)));
     });
   }
 
   Future<Position> getCurrentPositionOrLast() async {
-    GeolocationStatus permissionStatus =
-        await Geolocator().checkGeolocationPermissionStatus();
-    if (permissionStatus.toString() == "GeolocationStatus.granted" &&
-        await Geolocator().isLocationServiceEnabled()) {
-      return await Geolocator()
-          .getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    GeolocationStatus permissionStatus = await Geolocator().checkGeolocationPermissionStatus();
+    if (permissionStatus.toString() == "GeolocationStatus.granted" && await Geolocator().isLocationServiceEnabled()) {
+      return await Geolocator().getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
     } else {
       try {
         if (permissionStatus.toString() == "GeolocationStatus.granted") {
           var lastKnownPosition = await Geolocator().getLastKnownPosition();
           if (lastKnownPosition == null) {
-            DocumentSnapshot userSnapShot = await Firestore.instance
-                .collection("users")
-                .document(widget.userId)
-                .get();
+            DocumentSnapshot userSnapShot = await Firestore.instance.collection("users").document(widget.userId).get();
             GeoPoint geopoint = userSnapShot.data["marker"]["position"];
-            return Position(
-                latitude: geopoint.latitude, longitude: geopoint.longitude);
+            return Position(latitude: geopoint.latitude, longitude: geopoint.longitude);
           } else {
             return lastKnownPosition;
           }
         } else {
-          DocumentSnapshot userSnapShot = await Firestore.instance
-              .collection("users")
-              .document(widget.userId)
-              .get();
+          DocumentSnapshot userSnapShot = await Firestore.instance.collection("users").document(widget.userId).get();
           GeoPoint geopoint = userSnapShot.data["marker"]["position"];
-          return Position(
-              latitude: geopoint.latitude, longitude: geopoint.longitude);
+          return Position(latitude: geopoint.latitude, longitude: geopoint.longitude);
         }
       } catch (Exception) {
-        DocumentSnapshot userSnapShot = await Firestore.instance
-            .collection("users")
-            .document(widget.userId)
-            .get();
+        DocumentSnapshot userSnapShot = await Firestore.instance.collection("users").document(widget.userId).get();
         GeoPoint geopoint = userSnapShot.data["marker"]["position"];
-        return Position(
-            latitude: geopoint.latitude, longitude: geopoint.longitude);
+        return Position(latitude: geopoint.latitude, longitude: geopoint.longitude);
       }
     }
   }
 
   getCurrentUser() async {
-    return await Firestore.instance
-        .collection("users")
-        .document(widget.userId)
-        .get();
+    return await Firestore.instance.collection("users").document(widget.userId).get();
   }
 
   String capitalize(String s) => s[0].toUpperCase() + s.substring(1);
@@ -714,10 +635,7 @@ class _MapPageState extends State<MapPage> {
         .collection("users")
         .document(widget.userId)
         .updateData({
-          "marker": {
-            "position":
-                GeoPoint(currentPosition.latitude, currentPosition.longitude)
-          }
+          "marker": {"position": GeoPoint(currentPosition.latitude, currentPosition.longitude)}
         })
         .then((result) => print("GEOPOINT CREATED "))
         .catchError((error) => print("ERROR WHILE CREATING GEOPOINT" + error));
@@ -728,14 +646,8 @@ class _MapPageState extends State<MapPage> {
   Future updateGeoPoints(Position currentPosition) async {
     var currentUser = await getCurrentUser();
     if (await geoPointsExists()) {
-      Firestore.instance
-          .collection("users")
-          .document(widget.userId)
-          .updateData({
-        "marker": {
-          "position":
-              GeoPoint(currentPosition.latitude, currentPosition.longitude)
-        }
+      Firestore.instance.collection("users").document(widget.userId).updateData({
+        "marker": {"position": GeoPoint(currentPosition.latitude, currentPosition.longitude)}
       });
     }
     print("GEOPONTO ATUALIZADO");
@@ -747,29 +659,25 @@ class _MapPageState extends State<MapPage> {
           .collection("users")
           .document(widget.userId)
           .get()
-          .then((DocumentSnapshot document) =>
-              document.data["marker"] != null ? true : false);
+          .then((DocumentSnapshot document) => document.data["marker"] != null ? true : false);
       locationHasBeenQueriedOnDataBase = true;
     }
     return locationExistsOnDataBase;
   }
 
-  Future<void> updateGeoPointsAndRefreshSelfLocation(
-      Position currentPosition) async {
+  Future<void> updateGeoPointsAndRefreshSelfLocation(Position currentPosition) async {
     updateGeoPoints(currentPosition);
     var locationId = widget.userId;
     refreshSelfLocation(currentPosition, locationId);
     setState(() {
-      currentUserPosition =
-          LatLng(currentPosition.latitude, currentPosition.longitude);
+      currentUserPosition = LatLng(currentPosition.latitude, currentPosition.longitude);
     });
   }
 
   void refreshSelfLocation(Position currentPosition, String locationId) {
     if (_markers[locationId] != null) {
-      var newMarker = _markers[locationId].copyWith(
-          positionParam:
-              LatLng(currentPosition.latitude, currentPosition.longitude));
+      var newMarker =
+          _markers[locationId].copyWith(positionParam: LatLng(currentPosition.latitude, currentPosition.longitude));
       setState(() {
         _markers[locationId] = newMarker;
       });
@@ -883,14 +791,16 @@ class _MapPageState extends State<MapPage> {
                                 ))),
                   )
                 : Container(),
-            ListTile(
-              leading: Icon(
-                Icons.share,
-                color: Theme.of(context).primaryColorDark,
-              ),
-              title: Text('Gerar Convite'),
-              onTap: () => generateInvite(context),
-            ),
+            userType == "admin"
+                ? ListTile(
+                    leading: Icon(
+                      Icons.share,
+                      color: Theme.of(context).primaryColorDark,
+                    ),
+                    title: Text('Gerar Convite'),
+                    onTap: () => generateInvite(context),
+                  )
+                : Container(),
             userType == "admin"
                 ? ListTile(
                     leading: Icon(
@@ -924,8 +834,7 @@ class _MapPageState extends State<MapPage> {
                 color: Theme.of(context).primaryColorDark,
               ),
               onTap: () {
-                Navigator.of(context)
-                    .pushNamedAndRemoveUntil('/home', (Route r) => r == null);
+                Navigator.of(context).pushNamedAndRemoveUntil('/home', (Route r) => r == null);
               },
             ),
           ],
@@ -960,38 +869,24 @@ class _MapPageState extends State<MapPage> {
       String memberType = info["type"];
       String thoroughfare = info["thoroughfare"];
       if (_markers[uid] == null) {
-        cardsList.add(buildUserCard(memberType, personCount, info, thoroughfare,
-            false, "", uid, false));
+        cardsList.add(buildUserCard(memberType, personCount, info, thoroughfare, false, "", uid, false));
       } else {
         LatLng memberPosition = _markers[uid].position;
-        bool userDontHavePosition =
-            memberPosition.latitude == 0.0 && memberPosition.longitude == 0.0;
-        String formattedDistance = Haversine.formattedDistance(
-            currentUserPosition.latitude,
-            currentUserPosition.longitude,
-            memberPosition.latitude,
-            memberPosition.longitude);
-        cardsList.add(buildUserCard(memberType, personCount, info, thoroughfare,
-            userDontHavePosition, formattedDistance, uid, true));
+        bool userDontHavePosition = memberPosition.latitude == 0.0 && memberPosition.longitude == 0.0;
+        String formattedDistance = Haversine.formattedDistance(currentUserPosition.latitude,
+            currentUserPosition.longitude, memberPosition.latitude, memberPosition.longitude);
+        cardsList.add(buildUserCard(
+            memberType, personCount, info, thoroughfare, userDontHavePosition, formattedDistance, uid, true));
         personCount = (personCount == 12) ? 2 : personCount + 1;
       }
     });
     return cardsList;
   }
 
-  Card buildUserCard(
-      String memberType,
-      int personCount,
-      info,
-      String thoroughfare,
-      bool userDontHavePosition,
-      String formattedDistance,
-      String uid,
-      bool hasInfo) {
+  Card buildUserCard(String memberType, int personCount, info, String thoroughfare, bool userDontHavePosition,
+      String formattedDistance, String uid, bool hasInfo) {
     return Card(
-      color: (memberType == "admin")
-          ? Theme.of(context).primaryColor
-          : Colors.white,
+      color: (memberType == "admin") ? Theme.of(context).primaryColor : Colors.white,
       child: ListTile(
         leading: Column(
           children: <Widget>[
@@ -1001,52 +896,35 @@ class _MapPageState extends State<MapPage> {
               backgroundColor: Colors.transparent,
             ),
             Padding(padding: EdgeInsets.only(top: 0.0)),
-            (memberType == "admin")
-                ? Text("Guia", style: TextStyle(color: Colors.white))
-                : SizedBox()
+            (memberType == "admin") ? Text("Guia", style: TextStyle(color: Colors.white)) : SizedBox()
           ],
         ),
         title: Text(
           info["fullname"],
-          style: (memberType == "admin")
-              ? TextStyle(color: Colors.white)
-              : TextStyle(color: Colors.black),
+          style: (memberType == "admin") ? TextStyle(color: Colors.white) : TextStyle(color: Colors.black),
         ),
         subtitle: hasInfo
             ? Text(
                 (thoroughfare == "")
                     ? (userDontHavePosition) ? "" : "$formattedDistance"
                     : "$thoroughfare - $formattedDistance",
-                style: (memberType == "admin")
-                    ? TextStyle(color: Colors.white)
-                    : TextStyle(color: Colors.black))
+                style: (memberType == "admin") ? TextStyle(color: Colors.white) : TextStyle(color: Colors.black))
             : Text(
                 "Sem informações disponíveis",
-                style: (memberType == "admin")
-                    ? TextStyle(color: Colors.white)
-                    : TextStyle(color: Colors.black),
+                style: (memberType == "admin") ? TextStyle(color: Colors.white) : TextStyle(color: Colors.black),
               ),
         trailing: Icon(
           Icons.keyboard_arrow_right,
-          color: (memberType == "admin")
-              ? Colors.white
-              : Theme.of(context).primaryColorDark,
+          color: (memberType == "admin") ? Colors.white : Theme.of(context).primaryColorDark,
         ),
         onTap: () => showPersonDialog(
-            context,
-            info["placemark"],
-            formattedDistance,
-            info["fullname"],
-            uid,
-            memberType,
-            !userDontHavePosition),
+            context, info["placemark"], formattedDistance, info["fullname"], uid, memberType, !userDontHavePosition),
       ),
     );
   }
 
   void setUserType() {
-    var userMember = widget.membersList
-        .firstWhere((member) => member["uid"].documentID == widget.userId);
+    var userMember = widget.membersList.firstWhere((member) => member["uid"].documentID == widget.userId);
     setState(() {
       userType = userMember["type"];
     });
@@ -1061,8 +939,7 @@ class Haversine {
     double dLon = _toRadians(lon2 - lon1);
     lat1 = _toRadians(lat1);
     lat2 = _toRadians(lat2);
-    double a =
-        pow(sin(dLat / 2), 2) + pow(sin(dLon / 2), 2) * cos(lat1) * cos(lat2);
+    double a = pow(sin(dLat / 2), 2) + pow(sin(dLon / 2), 2) * cos(lat1) * cos(lat2);
     double c = 2 * asin(sqrt(a));
     return R * c;
   }
