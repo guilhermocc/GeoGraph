@@ -91,14 +91,31 @@ class _LoginPageState extends State<LoginPage> {
                         ]),
                         Container(
                           padding: EdgeInsets.only(top: 15),
-                          child: RaisedButton(
-                            child: Text("Crie sua conta"),
-                            color: Theme.of(context).primaryColorDark,
-                            textColor: Colors.white,
-                            onPressed: () {
-                              Navigator.pushNamed(context, "/register");
-                            },
+                          child: ButtonTheme(
+                            minWidth: 230,
+                              child: RaisedButton(
+                                child: Text("Crie sua conta de Usuário"),
+                                color: Theme.of(context).primaryColorDark,
+                                textColor: Colors.white,
+                                onPressed: () {
+                                  Navigator.pushNamed(context, "/register");
+                                },
+                              )
                           ),
+                        ),
+                        Container(
+                          padding: EdgeInsets.only(top: 15),
+                          child: ButtonTheme(
+                            minWidth: 230,
+                            child: RaisedButton(
+                              child: Text("Crie sua conta de Guia turístico"),
+                              color: Theme.of(context).primaryColorDark,
+                              textColor: Colors.white,
+                              onPressed: () {
+                                Navigator.pushNamed(context, "/register_tourist_guide");
+                              },
+                            ),
+                          )
                         ),
                       ],
                     ),

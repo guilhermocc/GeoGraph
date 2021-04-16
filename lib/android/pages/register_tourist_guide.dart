@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:geograph/blocs/register.bloc.dart';
 
-class RegisterPage extends StatefulWidget {
-  RegisterPage({Key key}) : super(key: key);
+class RegisterTouristGuidePage extends StatefulWidget {
+  RegisterTouristGuidePage({Key key}) : super(key: key);
 
   @override
-  _RegisterPageState createState() => _RegisterPageState();
+  _RegisterTouristGuidePageState createState() => _RegisterTouristGuidePageState();
 }
 
-class _RegisterPageState extends State<RegisterPage> {
+class _RegisterTouristGuidePageState extends State<RegisterTouristGuidePage> {
   RegisterBloc bloc = new RegisterBloc();
 
   @override
@@ -46,12 +46,12 @@ class _RegisterPageState extends State<RegisterPage> {
                             children: <Widget>[
                               CircleAvatar(
                                 radius: 50,
-                                backgroundImage: AssetImage('assets/person_8.jpg'),
+                                backgroundImage: AssetImage('assets/person_6.jpg'),
                                 backgroundColor: Colors.transparent,
                               ),
                               TextFormField(
                                 decoration: InputDecoration(
-                                    labelText: 'Primeiro nome*'),
+                                    labelText: 'Nome*'),
                                 controller: bloc.firstNameInputController,
                                 validator: bloc.nameValidator,
                               ),
@@ -93,7 +93,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             setState(() {
                               // TODO It would be better to extract this logic
                               // and error handling to bloc class
-                              bloc.createAccount(context).catchError((err) {
+                              bloc.createTouristGuideAccount(context).catchError((err) {
                                 setState(() {
                                   bloc.handleRegistrationError(err, context);
                                 });
