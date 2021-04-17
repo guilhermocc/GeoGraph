@@ -8,29 +8,29 @@ The GeoGraph is an app designed for enabling real time geolocation sharing betwe
 ## Images and Features
 
 ### Menu
-![Home Page](https://github.com/GuilhermBrSp/Undergraduate-Thesis/blob/main/menu.jpg?raw=true "Title")
-![Home Page](https://github.com/GuilhermBrSp/Undergraduate-Thesis/blob/main/drawer.jpg?raw=true "Title")drawer
+<img src = "https://github.com/GuilhermBrSp/Undergraduate-Thesis/blob/main/menu.jpg" widtth="300" height="500"> 
+<img src = "https://github.com/GuilhermBrSp/Undergraduate-Thesis/blob/main/drawer.jpg" widtth="300" height="500"> 
 
 ### Group Menu
-![Home Page](https://github.com/GuilhermBrSp/Undergraduate-Thesis/blob/main/drawe-map.jpg?raw=true "Title")
+<img src = "https://github.com/GuilhermBrSp/Undergraduate-Thesis/blob/main/drawe-map.jpg" widtth="300" height="500"> 
 
 ### Real time iterative map
-![Home Page](https://github.com/GuilhermBrSp/Undergraduate-Thesis/blob/main/map.jpg?raw=true "Title")
+<img src = "https://github.com/GuilhermBrSp/Undergraduate-Thesis/blob/main/map.jpg" widtth="300" height="500"> 
 
 ### Real time dinamic members list
-![Home Page](https://github.com/GuilhermBrSp/Undergraduate-Thesis/blob/main/dinamic-list.jpeg?raw=true "Title")
+<img src = "https://github.com/GuilhermBrSp/Undergraduate-Thesis/blob/main/dinamic-list.jpeg" widtth="300" height="500">
 
 ### Login Screen
-![Home Page](https://github.com/GuilhermBrSp/Undergraduate-Thesis/blob/main/login.jpg?raw=true "Title")
+<img src = "https://github.com/GuilhermBrSp/Undergraduate-Thesis/blob/main/login.jpg" widtth="300" height="500"> 
 
 ### Accounts creation
-![Home Page](https://github.com/GuilhermBrSp/Undergraduate-Thesis/blob/main/register.jpg?raw=true "Title")
+<img src = "https://github.com/GuilhermBrSp/Undergraduate-Thesis/blob/main/register.jpg" widtth="300" height="500"> 
 
 ### Groups creation
-![Home Page](https://github.com/GuilhermBrSp/Undergraduate-Thesis/blob/main/create-group.jpg?raw=true "Title")
+<img src = "https://github.com/GuilhermBrSp/Undergraduate-Thesis/blob/main/create-group.jpg" widtth="300" height="500"> 
 
 ### Group Invite with deep link
-![Home Page](https://github.com/GuilhermBrSp/Undergraduate-Thesis/blob/main/deep-link.jpg?raw=true "Title")
+<img src = "https://github.com/GuilhermBrSp/Undergraduate-Thesis/blob/main/deep-link.jpg" widtth="300" height="500"> 
 
 
 ## Architecture
@@ -41,7 +41,7 @@ For state management, the GeoGraph is using the [BLOC pattern](https://www.raywe
 
 These are the major components implemented:
 
-![Home Page](https://github.com/GuilhermBrSp/Undergraduate-Thesis/blob/main//bloc-architecture.png?raw=true "Title")
+<img src = "https://github.com/GuilhermBrSp/Undergraduate-Thesis/blob/main//bloc-architecture.png"  widtth="300" height="500"> 
 
 ### Cloud 
 
@@ -49,7 +49,7 @@ All cloud infrastructured is being provided by google's Firebase platform.
 
 It is using Cloud authentication for dealing with personal account management and authentication, Firestore real time database for providing real time geopoints write/read and Cloud Storage for storing user profile images and group images.
 
-![Home Page](https://github.com/GuilhermBrSp/Undergraduate-Thesis/blob/main//cloud-architecture.png?raw=true "Title")
+<img src = "https://github.com/GuilhermBrSp/Undergraduate-Thesis/blob/main//cloud-architecture.png"  widtth="300" height="500"> 
 
 ## My Thesis
 
