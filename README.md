@@ -1,6 +1,6 @@
 # GeoGraph
 
-This is GeoGraph, the project that i have developed as as my undergraduate's thesis.
+This is GeoGraph, the project that i have developed as my undergraduate thesis.
 
 The GeoGraph is an app designed for enabling real time geolocation sharing between users with a iteractive map or a dynamic list. This Geolocation sharing is restricted for user groups created by the users itself.
 
