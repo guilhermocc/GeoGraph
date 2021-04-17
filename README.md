@@ -5,7 +5,8 @@ This is GeoGraph, the project that i have developed as my undergraduate thesis.
 The GeoGraph is an app designed for enabling real-time geolocation sharing between users with an interactive map and a dynamic list. The feature of geolocation sharing includes:
 - The distance between locations is kilometers, meters, and centimeters using GPS for getting the geographic coordinates and the [haversine formula](https://en.wikipedia.org/wiki/Haversine_formula) for calculating the distance.
 - Reverse geocoding for conversion of geographic coordinates into human-readable addresses.
-- Real-time geographic data sync with time interval and position movement detection. 
+- Real-time geographic data sync with time interval and position movement detection.
+
 This Geolocation sharing is restricted to user groups created by the users themselves.
 
 
