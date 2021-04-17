@@ -35,7 +35,7 @@ This Geolocation sharing is restricted to user groups created by the users thems
 <img src = "https://github.com/GuilhermBrSp/Undergraduate-Thesis/blob/main/create-group.jpg" widtth="300" height="500"> 
 
 ### Group Invite with deep link
-<img src = "https://github.com/GuilhermBrSp/Undergraduate-Thesis/blob/main/deep-link.jpg" widtth="300" height="500"> 
+<img src = "https://github.com/GuilhermBrSp/Undergraduate-Thesis/blob/main/deep-link.jpg" widtth="100" height="100"> 
 
 
 ## Architecture
